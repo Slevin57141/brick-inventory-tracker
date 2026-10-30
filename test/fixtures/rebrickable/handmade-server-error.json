@@ -1,0 +1,7 @@
+{
+  "request": null,
+  "note": "Hand-made. A server error with an HTML body instead of JSON.",
+  "status": 500,
+  "headers": { "content-type": "text/html" },
+  "rawBody": "<h1>Server Error (500)</h1>"
+}
