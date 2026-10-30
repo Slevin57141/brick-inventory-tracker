@@ -1,0 +1,322 @@
+{
+  "request": "GET /lego/colors/?page_size=1",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 275,
+    "next": "https://rebrickable.com/api/v3/lego/colors/?page=2&page_size=1",
+    "previous": null,
+    "results": [
+      {
+        "id": -1,
+        "name": "[Unknown]",
+        "rgb": "0033B2",
+        "is_trans": false,
+        "external_ids": {
+          "BrickOwl": {
+            "ext_ids": [
+              0,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              60,
+              135,
+              136,
+              137,
+              138,
+              139,
+              140,
+              141,
+              142,
+              143,
+              144,
+              145,
+              146,
+              147,
+              148,
+              149,
+              150,
+              151,
+              152,
+              153,
+              154,
+              156,
+              157,
+              160,
+              162,
+              163,
+              169
+            ],
+            "ext_descrs": [
+              [
+                "Not Applicable"
+              ],
+              [
+                "Modulex Medium Stone Gray"
+              ],
+              [
+                "Modulex Charcoal Gray"
+              ],
+              [
+                "Modulex Orange"
+              ],
+              [
+                "Modulex Ochre Yellow"
+              ],
+              [
+                "Modulex Olive Green"
+              ],
+              [
+                "Modulex Pastel Green"
+              ],
+              [
+                "Modulex Tile Blue"
+              ],
+              [
+                "Fabuland Orange"
+              ],
+              [
+                "Modulex Aqua Green"
+              ],
+              [
+                "Modulex Black"
+              ],
+              [
+                "Modulex Brown"
+              ],
+              [
+                "Modulex Buff"
+              ],
+              [
+                "Modulex Clear"
+              ],
+              [
+                "Modulex Lemon"
+              ],
+              [
+                "Modulex Light Gray"
+              ],
+              [
+                "Modulex Light Orange"
+              ],
+              [
+                "Modulex Light Yellow"
+              ],
+              [
+                "Modulex Medium Blue"
+              ],
+              [
+                "Modulex Pastel Blue"
+              ],
+              [
+                "Modulex Pink"
+              ],
+              [
+                "Modulex Pink Red"
+              ],
+              [
+                "Modulex Red"
+              ],
+              [
+                "Modulex Teal Blue"
+              ],
+              [
+                "Modulex Terracotta"
+              ],
+              [
+                "Modulex Tile Brown"
+              ],
+              [
+                "Modulex Tile Gray"
+              ],
+              [
+                "Modulex Violet"
+              ],
+              [
+                "Modulex White"
+              ],
+              [
+                "Warm Yellowish Orange"
+              ],
+              [
+                "Medium Yellowish Orange"
+              ],
+              [
+                "Dark Nougat"
+              ],
+              [
+                "Transparent Fire Yellow"
+              ],
+              [
+                "Transparent Light Royal Blue"
+              ],
+              [
+                "Curry"
+              ]
+            ]
+          },
+          "LEGO": {
+            "ext_ids": [
+              125,
+              158
+            ],
+            "ext_descrs": [
+              [
+                "Light Orange"
+              ],
+              [
+                "Tr. Flu. Red"
+              ]
+            ]
+          },
+          "Peeron": {
+            "ext_ids": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "ext_descrs": [
+              [
+                "blackgoldglitter"
+              ],
+              [
+                "curry"
+              ],
+              [
+                "dknougat"
+              ],
+              [
+                "ffred"
+              ],
+              [
+                "ffyellow"
+              ],
+              [
+                "fabulime"
+              ],
+              [
+                "fabuorange"
+              ],
+              [
+                "metalliccopper"
+              ],
+              [
+                "metallicwhite"
+              ],
+              [
+                "neonblue"
+              ],
+              [
+                "pearlgreen"
+              ],
+              [
+                "pearlescentpink"
+              ],
+              [
+                "redpink"
+              ],
+              [
+                "trltgreen"
+              ],
+              [
+                "trsalmon"
+              ]
+            ]
+          },
+          "LDraw": {
+            "ext_ids": [
+              16,
+              24,
+              65,
+              66,
+              67,
+              273,
+              324,
+              375,
+              406,
+              449,
+              490,
+              493,
+              494,
+              495,
+              496,
+              504,
+              511
+            ],
+            "ext_descrs": [
+              [
+                "Main_Colour"
+              ],
+              [
+                "Edge_Colour"
+              ],
+              [
+                "Rubber_Yellow"
+              ],
+              [
+                "Rubber_Trans_Yellow"
+              ],
+              [
+                "Rubber_Trans_Clear"
+              ],
+              [
+                "Rubber_Blue"
+              ],
+              [
+                "Rubber_Red"
+              ],
+              [
+                "Rubber_Light_Gray"
+              ],
+              [
+                "Rubber_Dark_Blue"
+              ],
+              [
+                "Rubber_Purple"
+              ],
+              [
+                "Rubber_Lime"
+              ],
+              [
+                "Magnet"
+              ],
+              [
+                "Electric_Contact_Alloy"
+              ],
+              [
+                "Electric_Contact_Copper"
+              ],
+              [
+                "Rubber_Light_Bluish_Gray"
+              ],
+              [
+                "Rubber_Flat_Silver"
+              ],
+              [
+                "Rubber_White"
+              ]
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

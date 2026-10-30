@@ -1,0 +1,13 @@
+{
+  "request": "GET /lego/sets/76906-1/sets/?page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 0,
+    "next": null,
+    "previous": null,
+    "results": []
+  }
+}

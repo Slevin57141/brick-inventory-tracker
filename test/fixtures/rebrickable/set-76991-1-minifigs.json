@@ -1,0 +1,28 @@
+{
+  "request": "GET /lego/sets/76991-1/minifigs/?page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 29686,
+        "set_num": "fig-014176",
+        "set_name": "Miles 'Tails' Prower, Open Mouth Smile",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-014176/135086.jpg"
+      },
+      {
+        "id": 29685,
+        "set_num": "fig-014175",
+        "set_name": "Sonic the Hedgehog, Light Nougat Face, Green Eyes, Winking",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-014175/129348.jpg"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "request": "GET /lego/sets/99999999-1/",
+  "status": 404,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "detail": "No Set matches the given query."
+  }
+}
