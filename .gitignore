@@ -1,0 +1,5 @@
+# The user's inventory: personal data, never committed (docs/plan.md R20).
+data/
+
+node_modules/
+*.log

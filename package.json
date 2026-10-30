@@ -1,0 +1,16 @@
+{
+  "name": "brick-inventory-tracker",
+  "version": "0.1.0",
+  "description": "Local web app that tracks every LEGO brick you own, using parts lists from the Rebrickable API.",
+  "private": true,
+  "type": "module",
+  "author": "Stoil_Dimitrov",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "node --test --import ./test/setup/no-network.js \"test/**/*.test.js\"",
+    "capture-fixtures": "node scripts/capture-fixtures.js"
+  }
+}

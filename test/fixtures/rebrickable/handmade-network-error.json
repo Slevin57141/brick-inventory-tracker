@@ -1,0 +1,5 @@
+{
+  "request": null,
+  "note": "Hand-made. Rebrickable cannot be reached; the fake fetch rejects as Node's fetch does.",
+  "networkError": true
+}

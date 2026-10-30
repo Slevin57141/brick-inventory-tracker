@@ -1,0 +1,7 @@
+{
+  "request": null,
+  "note": "Hand-made. A 200 response whose JSON body is cut off.",
+  "status": 200,
+  "headers": { "content-type": "application/json" },
+  "rawBody": "{\"count\": 1, \"next\": null, \"results\": ["
+}

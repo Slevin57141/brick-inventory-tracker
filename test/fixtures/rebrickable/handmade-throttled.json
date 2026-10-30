@@ -1,0 +1,7 @@
+{
+  "request": null,
+  "note": "Hand-made. The body text is from the Rebrickable API documentation. Whether a real 429 carries a Retry-After header is open (docs/plan.md F6).",
+  "status": 429,
+  "headers": { "content-type": "application/json" },
+  "body": { "detail": "Request was throttled. Expected available in 2 seconds." }
+}
