@@ -6,6 +6,7 @@
 
 import { createApi } from './api.js';
 import { createBrickScene } from './brick-scene.js';
+import { createModelView } from './model-view.js';
 import { computeTotals, filterOptions, filterRows, sortRows } from './inventory-view.js';
 
 const PLACEHOLDER = 'placeholder.svg';
@@ -55,6 +56,8 @@ const page = {
   setDialogFacts: byId('set-dialog-facts'),
   setDialogTotals: byId('set-dialog-totals'),
   setDialogParts: byId('set-dialog-parts'),
+  setModelMessage: byId('set-model-message'),
+  setModelView: byId('set-model-view'),
   keyDialog: byId('key-dialog'),
   keyForm: byId('key-form'),
   keyInput: byId('key-input'),
@@ -69,6 +72,7 @@ let refreshes = 0;
 let searchTimer = 0;
 let setRows = []; // the parts of the set shown in the details dialog
 let setOpening = 0;
+let modelView = null; // the built model in the details dialog, while it is open
 
 let selection = { selected: null, focused: null };
 // The blocks take their parts' LDraw shapes when the server has the library (D31); without
@@ -277,6 +281,7 @@ async function openSet(set) {
       page.setDialogFacts.append(element('p', 'contained-title', 'Contains'),
         containedList(details.set));
     }
+    showModel(details.set, mine);
     setRows = details.rows;
     renderSetParts();
     page.setDialogMessage.textContent = '';
@@ -286,6 +291,64 @@ async function openSet(set) {
       page.setDialogMessage.textContent = error.message;
     }
   }
+}
+
+// The built set, from its LDraw model when the user has one (D31). Without the library or a
+// model, a short note says where to get them.
+async function showModel(set, mine) {
+  closeModel();
+  const note = (...nodes) => page.setModelMessage.replaceChildren(...nodes);
+  if (!(await ldrawReady)) {
+    note('With the LDraw parts library installed, the built set can be shown here. The '
+      + 'README says how.');
+    return;
+  }
+  note('Looking for a model of this set.');
+  let model;
+  try {
+    model = await api.getSetModel(set.setNum);
+  } catch (error) {
+    if (mine === setOpening) {
+      note(error.message);
+    }
+    return;
+  }
+  if (mine !== setOpening) {
+    return;
+  }
+  if (model === null) {
+    const link = element('a', null, 'LDraw Official Model Repository');
+    link.href = 'https://library.ldraw.org/omr';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    note(`There is no model of ${set.setNum} in ldraw/omr/. Models of many sets are in the `,
+      link, '; put the file there, named from the set number.');
+    return;
+  }
+  page.setModelView.hidden = false;
+  modelView = createModelView(page.setModelView, {
+    loadShape: (names) => api.getLdrawPart(names),
+    onProgress: ({ loaded, total }) => {
+      if (mine === setOpening) {
+        note(loaded < total ? `Loading parts: ${loaded} of ${total}.`
+          : `${count(total, 'kind of part', 'kinds of part')}. Drag to turn, scroll to zoom.`);
+      }
+    },
+  });
+  if (modelView === null) {
+    page.setModelView.hidden = true;
+    note('The 3D view needs WebGL.');
+    return;
+  }
+  await modelView.show(model);
+}
+
+// Frees the model's GPU memory when the dialog closes or shows another set.
+function closeModel() {
+  modelView?.dispose();
+  modelView = null;
+  page.setModelView.hidden = true;
+  page.setModelMessage.replaceChildren();
 }
 
 function renderSetParts() {
@@ -562,6 +625,10 @@ page.addForm.addEventListener('submit', addSets);
 page.forgetKey.addEventListener('click', forgetKey);
 page.keyCancel.addEventListener('click', () => page.keyDialog.close());
 page.setDialogClose.addEventListener('click', () => page.setDialog.close());
+page.setDialog.addEventListener('close', () => {
+  setOpening += 1; // a set still loading is no longer wanted
+  closeModel();
+});
 page.toggleLids.addEventListener('click', toggleLids);
 page.focusSelected.addEventListener('click', () => scene?.focus(selection.selected?.categoryId));
 page.showAll.addEventListener('click', () => scene?.focus(null));
