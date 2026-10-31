@@ -2,7 +2,9 @@
 // Run by the user only, never by an agent or a test:
 //
 //   npm run capture-fixtures -- [--page-size N] <setNum> [<setNum> ...]
+//   npm run capture-fixtures -- --themes
 //
+// The second form captures only the list of themes, leaving every other fixture as it is.
 // Set numbers include the variant, for example 10270-1. The script asks for the API key
 // without showing it, sends the key only in the Authorization header, waits more than a
 // second between requests (the API allows about one per second), and writes one file per
@@ -33,29 +35,37 @@ export function findKeyLeaks(outputs, key) {
   return outputs.filter((output) => output.text.includes(key)).map((output) => output.name);
 }
 
-class CaptureError extends Error {}
+export class CaptureError extends Error {}
 
-function parseCommandLine(argv) {
+const USAGE = 'Usage: npm run capture-fixtures -- [--page-size N] <setNum> [<setNum> ...]\n'
+  + '   or: npm run capture-fixtures -- --themes';
+
+/** The options on the command line, or throws a CaptureError that explains the usage. */
+export function parseCommandLine(argv) {
   const { values, positionals } = parseArgs({
     args: argv,
-    options: { 'page-size': { type: 'string' } },
+    options: { 'page-size': { type: 'string' }, themes: { type: 'boolean' } },
     allowPositionals: true,
   });
+  if (values.themes) {
+    if (positionals.length > 0 || values['page-size'] !== undefined) {
+      throw new CaptureError(`--themes captures the themes only and takes nothing else.\n${USAGE}`);
+    }
+    return { themesOnly: true, pageSize: DEFAULT_PAGE_SIZE, setNums: [] };
+  }
   const pageSize = Number(values['page-size'] ?? DEFAULT_PAGE_SIZE);
   if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 1000) {
     throw new CaptureError('--page-size must be a whole number from 1 to 1000.');
   }
   if (positionals.length === 0) {
-    throw new CaptureError(
-      'Usage: npm run capture-fixtures -- [--page-size N] <setNum> [<setNum> ...]',
-    );
+    throw new CaptureError(USAGE);
   }
   for (const setNum of positionals) {
     if (setNum.length > 40 || !SET_NUMBER.test(setNum)) {
       throw new CaptureError(`Not a full set number (expected something like 10270-1): ${setNum}`);
     }
   }
-  return { pageSize, setNums: positionals };
+  return { themesOnly: false, pageSize, setNums: positionals };
 }
 
 async function readHiddenLine(prompt) {
@@ -153,7 +163,7 @@ function createCapturer(key) {
   };
 }
 
-async function captureAll({ key, setNums, pageSize }) {
+async function captureAll({ key, setNums, pageSize, themesOnly }) {
   const capture = createCapturer(key);
   const outputs = [];
   const save = (name, fixture) => {
@@ -166,6 +176,11 @@ async function captureAll({ key, setNums, pageSize }) {
   if (keyCheck.status === 401 || keyCheck.status === 403) {
     throw new CaptureError('Rebrickable rejected that key.');
   }
+  const themes = () => capture(`${BASE_URL}/lego/themes/?page_size=${DEFAULT_PAGE_SIZE}`);
+  if (themesOnly) {
+    save('themes', await themes());
+    return outputs;
+  }
   save('key-check-valid', keyCheck);
   save(
     'key-check-invalid',
@@ -175,6 +190,7 @@ async function captureAll({ key, setNums, pageSize }) {
     'part-categories',
     await capture(`${BASE_URL}/lego/part_categories/?page_size=${DEFAULT_PAGE_SIZE}`),
   );
+  save('themes', await themes());
 
   const sizeSuffix = pageSize === DEFAULT_PAGE_SIZE ? '' : `-size${pageSize}`;
   for (const setNum of setNums) {
@@ -201,13 +217,13 @@ async function captureAll({ key, setNums, pageSize }) {
 }
 
 async function main(argv) {
-  const { pageSize, setNums } = parseCommandLine(argv);
+  const options = parseCommandLine(argv);
   const key = (await readHiddenLine('Rebrickable API key (not shown): ')).trim();
   if (!key) {
     throw new CaptureError('No key entered.');
   }
 
-  const outputs = (await captureAll({ key, setNums, pageSize })).map(({ name, fixture }) => ({
+  const outputs = (await captureAll({ key, ...options })).map(({ name, fixture }) => ({
     name,
     text: `${JSON.stringify(fixture, null, 2)}\n`,
   }));
