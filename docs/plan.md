@@ -272,7 +272,8 @@ public/
   js/scene-layout.js                           M11
   js/brick-scene.js                            M12
   js/container-spec.js, js/container-model.js  M13
-  container.html, js/container-preview.js      M13  preview page (R28)
+  container.html, container.css                M13  preview page (R28)
+  js/container-preview.js                      M13
   vendor/three/                                M0   vendored three.js release (D13)
 scripts/capture-fixtures.js    M0  run by the user only
 test/
@@ -770,10 +771,20 @@ identical minifigures; a second capture the same day added both, and a two-page 
   js/container-model.js
     createContainer() -> { group, body, lid }
         // group: THREE.Group at unit scale, origin at the centre of the base;
-        // lid: its own THREE.Group; geometry and materials shared by all copies
+        // body: one Mesh (shell and feet); lid: its own THREE.Group, origin at the
+        // centre of its underside, placed on the rim; geometry and materials shared
     stackHeight() -> number
         // base-to-base distance when one container sits on another's lid
-  container.html, js/container-preview.js   the preview page
+    LID_SKIRT -> number
+        // how far the lid's skirt hangs below the lid's origin (0.012 at unit scale);
+        // an open lid laid on the floor stands at y = LID_SKIRT * scale (D26)
+    LID_POCKETS -> [{ minX, maxX, minZ, maxZ, floorY }]
+        // the four foot pockets on the lid, in the lid's own coordinates
+    disposeSharedResources()
+        // frees the shared geometry and materials (M12's dispose); the next
+        // createContainer builds them again
+  container.html, container.css, js/container-preview.js   the preview page;
+        // ?stack=1 and ?lid=off in the address open it stacked or without the lid
   ```
 - **Behaviour** (each point from container-spec.md):
   - Body: hollow, built from a chamfered rectangle profile (eight sides), tapering slightly
@@ -781,7 +792,12 @@ identical minifigures; a second capture the same day added both, and a two-page 
     flat closed bottom and small feet near the corners. One compartment; no dividers, hinges,
     clasps, handles, studs or decorative patterns.
   - Body material: `MeshPhysicalMaterial`, very pale grey, transmission with some roughness
-    for the frosted look, slight refraction, `thickness` matching the wall (D20).
+    for the frosted look, slight refraction, `thickness` matching the wall (D20). Both sides
+    are drawn, because three.js shows the far walls through a transmissive surface only
+    when their back faces are rendered too.
+  - Stacking: an upper container's feet stand on the lid's recessed panel inside the corner
+    pockets, which the diagonal ridges frame; its bottom sits inside the lid's raised
+    perimeter, just above the ridges, so the perimeter positions it (spec section 4).
   - Lid: a separate `THREE.Group` in muted red `MeshStandardMaterial` (satin, no metalness),
     slightly overhanging the rim, with chamfered corners, a raised continuous perimeter, a
     recessed flat centre panel, shallow grooves along the perimeter, and diagonal ridges and
@@ -804,8 +820,11 @@ identical minifigures; a second capture the same day added both, and a two-page 
     (section 4).
   - Materials: body `MeshPhysicalMaterial` with transmission above 0; lid
     `MeshStandardMaterial` with metalness 0 (sections 5 and 6).
-  - Two containers share geometries and materials; `interiorBox` grows in proportion to
-    `scale`.
+  - Two containers share geometries and materials, until `disposeSharedResources`;
+    `interiorBox` grows in proportion to `scale`, and the body stays clear of it at scales
+    0.25, 1 and 2.
+  - Body and lid are closed surfaces facing outward (every edge shared by exactly two
+    faces in opposite directions, positive volume).
   - The look is checked by hand on the preview page against spec section 8 (section 10,
     item 19).
 - **Builder: Claude Code.** A self-contained modelling job behind a fixed interface. It
