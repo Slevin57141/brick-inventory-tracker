@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { filterRows, computeTotals, filterOptions } from '../public/js/inventory-view.js';
+import {
+  SORT_COLUMNS, computeTotals, filterOptions, filterRows, sortRows,
+} from '../public/js/inventory-view.js';
 
 const rows = Object.freeze([
   { partNum: '3001', name: 'Brick 2 x 4', categoryId: 11, categoryName: 'Bricks',
@@ -90,4 +92,58 @@ test('option objects can be changed without changing the input rows', () => {
   options.categories[0].name = 'Changed';
   assert.equal(rows[1].colorName, 'Black');
   assert.equal(rows[3].categoryName, 'Arches');
+});
+
+test('part number and name filters each match their own column only', () => {
+  const cases = [
+    [{ partNum: ' 30 ' }, [0, 1, 2]], [{ partNum: 'abc' }, [3]], [{ partNum: 'Brick' }, []],
+    [{ name: ' PLATE ' }, [2]], [{ name: '2 x 4' }, [0, 1, 2]], [{ name: '3001' }, []],
+    [{ partNum: '3001', name: 'brick' }, [0, 1]], [{ partNum: '', name: '  ' }, [0, 1, 2, 3]],
+  ];
+  for (const [filters, indices] of cases) {
+    assert.deepEqual(filterRows(rows, filters), indices.map(index => rows[index]),
+      JSON.stringify(filters));
+  }
+});
+
+test('quantity filters are inclusive bounds and combine with the others', () => {
+  const cases = [
+    [{ minQuantity: 5 }, [0, 2]], [{ maxQuantity: 3 }, [1, 3]],
+    [{ minQuantity: 3, maxQuantity: 5 }, [1, 2]], [{ minQuantity: 9 }, []],
+    [{ minQuantity: 1, maxQuantity: 1 }, [3]], [{ minQuantity: 4, colorId: 4 }, [0, 2]],
+    [{ maxQuantity: 5, categoryId: 11, search: 'brick' }, [1]],
+  ];
+  for (const [filters, indices] of cases) {
+    assert.deepEqual(filterRows(rows, filters), indices.map(index => rows[index]),
+      JSON.stringify(filters));
+  }
+});
+
+test('rows sort on every column, both ways, without changing the input', () => {
+  const order = (column, direction) => sortRows(rows, { column, direction })
+    .map(row => rows.indexOf(row));
+  assert.deepEqual(SORT_COLUMNS, ['partNum', 'name', 'colorName', 'categoryName', 'quantity']);
+  // Ties on the column fall back to name, part number and colour, ascending either way.
+  assert.deepEqual(order('partNum', 'asc'), [1, 0, 2, 3]);
+  assert.deepEqual(order('partNum', 'desc'), [3, 2, 1, 0]);
+  assert.deepEqual(order('name', 'asc'), [3, 1, 0, 2]);
+  assert.deepEqual(order('name', 'desc'), [2, 1, 0, 3]);
+  assert.deepEqual(order('colorName', 'asc'), [1, 3, 0, 2]);
+  assert.deepEqual(order('colorName', 'desc'), [0, 2, 3, 1]);
+  assert.deepEqual(order('categoryName', 'asc'), [3, 1, 0, 2]);
+  assert.deepEqual(order('categoryName', 'desc'), [2, 1, 0, 3]);
+  assert.deepEqual(order('quantity', 'asc'), [3, 1, 2, 0]);
+  assert.deepEqual(order('quantity', 'desc'), [0, 2, 1, 3]);
+  assert.deepEqual(sortRows(rows).map(row => rows.indexOf(row)), [3, 1, 0, 2]);
+  assert.notEqual(sortRows(rows), rows);
+  assert.throws(() => sortRows(rows, { column: 'imgUrl' }), TypeError);
+});
+
+test('sorting text uses English numeric order', () => {
+  const sized = ['Plate 1 x 10', 'Plate 1 x 2', 'plate 1 x 1'].map((name, index) =>
+    ({ ...rows[0], name, partNum: `p${10 - index}` }));
+  assert.deepEqual(sortRows(sized, { column: 'name' }).map(row => row.name),
+    ['plate 1 x 1', 'Plate 1 x 2', 'Plate 1 x 10']);
+  assert.deepEqual(sortRows(sized, { column: 'partNum' }).map(row => row.partNum),
+    ['p8', 'p9', 'p10']);
 });

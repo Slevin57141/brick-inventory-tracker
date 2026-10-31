@@ -125,6 +125,7 @@ Modules and tests refer to these IDs.
 | D24 | For a set that contains other sets, M4 drops every line of the set's own parts response whose `set_num` is the number of a set inside it, at any depth, and adds each contained set's own import (minifigure parts included) times its quantity. Lines with any other `set_num` (the pack's own parts and its own minifigures' parts) are kept. | F2: a pack's response repeats its contained sets' ordinary parts but leaves out their minifigure parts. The contained sets' own responses count every part once, include the minifigure parts, and do not depend on how Rebrickable multiplies a contained quantity. No request is added: M4 already imports each contained set. |
 | D25 | M5 inventory rows and M9 filter options compare names with `Intl.Collator('en', { numeric: true })`. | One explicit locale keeps the list and filter ordering independent of the machine's default language, and numeric ordering puts sizes such as 1 x 2 before 1 x 10. |
 | D26 | M11 uses fixed brick bounds (including the stud) of width 0.18, depth 0.18 and height 0.22, centred on each block position. Grid pitches are 0.2, 0.2 and 0.24. It chooses the grid requiring the least uniform container scale, breaking ties by capacity and then width/depth iteration order. Containers have a 0.3 gap including lid overhang. Every row also reserves space for lids to lie flat behind it, whether open or closed. M12 sets an open lid on the floor, its underside origin at the container's x, y `LID_SKIRT * scale` (M13) and z plus the scaled outer lid depth plus 0.3. Entering items start at scale 0; blocks also drop from above the destination lid. | Makes the previously unspecified block bounds, packing and transition endpoints precise for M12. Reserved lid space avoids overlap when opening lids (D19) and keeps container positions stable. The skirt offset keeps the lid above the floor. Invisible entering/leaving items reproduce the visible endpoint layouts. |
+| D27 | Every column of the parts list can be filtered and sorted (M9, M10). A filter row under the headings holds a text filter for part number and for name, the colour and category choices (D10), and smallest and largest quantity; the search box stays and combines with them. Clicking a heading sorts by that column, and clicking it again reverses the order; the list starts sorted by name. Sorting changes only the list; the 3D view shows the filtered rows as before (R25). | User's request, 2026-10-31. |
 
 ## 4. Rebrickable API
 
@@ -750,20 +751,28 @@ identical minifigures; a second capture the same day added both, and a two-page 
 
 ### M9. inventory-view
 
-- **Responsibility:** pure functions behind the parts list: filters, search, totals, filter
-  options. A plain ES module that runs both in the browser and under `node:test`.
+- **Responsibility:** pure functions behind the parts list: filters, search, sorting, totals,
+  filter options. A plain ES module that runs both in the browser and under `node:test`.
 - **Interface:**
   ```
-  filterRows(rows, { colorId = null, categoryId = null, search = '' }) -> InventoryRow[]
+  filterRows(rows, { colorId = null, categoryId = null, search = '', partNum = '',
+                     name = '', minQuantity = null, maxQuantity = null }) -> InventoryRow[]
+  sortRows(rows, { column = 'name', direction = 'asc' }) -> InventoryRow[]   // a copy
+  SORT_COLUMNS -> ['partNum', 'name', 'colorName', 'categoryName', 'quantity']
   computeTotals(rows) -> { distinctParts, totalPieces }
   filterOptions(rows) -> { colors: [{ id, name, rgb }], categories: [{ id, name }] }
   ```
-  Search is trimmed and case-insensitive, and matches part number or name. Options list only
-  values present in the rows, sorted by name using the English numeric collator (D25).
+  Search is trimmed and case-insensitive, and matches part number or name; `partNum` and
+  `name` do the same for one column each; the quantity bounds are inclusive (D27). Text
+  sorts use the English numeric collator (D25), and ties fall back to name, part number and
+  colour, ascending. An unknown sort column is a `TypeError`. Options list only values
+  present in the rows, sorted by name using the same collator.
 - **Tests:** each filter alone and combined with search; search by number and by name,
-  ignoring case and outer spaces; no matches; totals on filtered rows (D9); options unique and
-  sorted.
-- **Builder: Codex.** Pure, and M10 (also Codex) is its only user.
+  ignoring case and outer spaces; the part number and name filters each match only their
+  column; quantity bounds; no matches; totals on filtered rows (D9); options unique and
+  sorted; every sort column both ways, with ties, numeric order and an unknown column.
+- **Builder: Codex**, and from 2026-10-31 Claude Code at the user's request (column filters
+  and sorting, D27), while Codex reviews and tests. Pure, and M10 is its only user.
 
 ### M10. web UI
 
@@ -796,9 +805,12 @@ identical minifigures; a second capture the same day added both, and a two-page 
     again. It shows progress while adding, since an add takes several seconds.
   - Sets list (R7) with a "Remove one" button per set; a pack lists its contained sets.
     The part count is left out when Rebrickable reports 0, as it does for packs.
-  - Parts list (R8-R10) with the colour filter, category filter, search and totals. Filter
-    options come from the whole inventory; a chosen option that no longer exists falls
-    back to "All". Search follows typing after 150 ms of quiet.
+  - Parts list (R8-R10) with search, a filter and a sort on every column (D27), totals,
+    and a "Clear filters" button. Headings are buttons and carry `aria-sort`; the headings
+    and filter row stay in view while the list scrolls. Colour and category options come
+    from the whole inventory; a chosen option that no longer exists falls back to "All".
+    Text and quantity filters follow typing after 150 ms of quiet; a quantity bound that is
+    negative or not a number is ignored.
   - A 3D view section (M12) between the sets list and the parts list. Whenever the
     inventory, a filter or the search changes, M10 passes the same filtered rows to
     `scene.update`, so the containers and the list always agree (R25). An "Open lids" /

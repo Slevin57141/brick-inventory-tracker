@@ -313,6 +313,7 @@ main {
 .filters {
   display: flex;
   flex-wrap: wrap;
+  align-items: end;
   gap: 0.6rem 1rem;
 }
 
@@ -323,9 +324,8 @@ main {
   font-size: 0.9em;
 }
 
-.filters select,
 .filters input {
-  min-width: 12rem;
+  min-width: 16rem;
   color: var(--text);
   font-size: 1rem;
 }
@@ -355,14 +355,80 @@ main {
   vertical-align: middle;
 }
 
-.parts th {
+/* The headings and the filter row stay in view while the list scrolls. */
+.parts thead {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+/* Each cell, empty ones included, so the rows scrolling underneath do not show through. */
+.parts thead th,
+.parts thead td {
   background: var(--surface);
+}
+
+.parts th {
   color: var(--muted);
   font-size: 0.85em;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.parts th button {
+  padding: 0.15rem 0.2rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-weight: inherit;
+}
+
+.parts th button:hover {
+  background: none;
+  color: var(--text);
+}
+
+/* The arrow shows the column the list is sorted by, and which way. */
+.parts th button::after {
+  content: '';
+  display: inline-block;
+  width: 0.9em;
+  margin-left: 0.2em;
+  color: var(--accent);
+}
+
+.parts th[aria-sort='ascending'] button::after {
+  content: '\25B2';
+}
+
+.parts th[aria-sort='descending'] button::after {
+  content: '\25BC';
+}
+
+.parts th[aria-sort] {
+  color: var(--text);
+}
+
+.column-filters td {
+  padding-top: 0;
+  padding-bottom: 0.45rem;
+}
+
+.column-filters input,
+.column-filters select {
+  width: 100%;
+  min-width: 6rem;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.85rem;
+}
+
+.column-filters .quantity-filter {
+  white-space: nowrap;
+}
+
+.column-filters .quantity-filter input {
+  width: 4.5rem;
+  min-width: 0;
 }
 
 .parts .number {
