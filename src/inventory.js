@@ -1,5 +1,7 @@
 import { createError } from './errors.js';
 
+const compareNames = new Intl.Collator('en', { numeric: true }).compare;
+
 export function emptyState() {
   return { version: 1, categories: {}, sets: {} };
 }
@@ -61,7 +63,7 @@ export function buildInventory(state) {
     }
   }
   return [...rows.values()].sort((a, b) =>
-    a.categoryName.localeCompare(b.categoryName)
-    || a.name.localeCompare(b.name)
-    || a.colorName.localeCompare(b.colorName));
+    compareNames(a.categoryName, b.categoryName)
+    || compareNames(a.name, b.name)
+    || compareNames(a.colorName, b.colorName));
 }

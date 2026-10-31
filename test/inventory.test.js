@@ -77,6 +77,23 @@ test('inventory sorts by category, then part name, then colour name', () => {
   assert.deepEqual(buildInventory(freeze(state)).map(row => row.partNum), ['2', '1', '3', '4']);
 });
 
+test('inventory uses English numeric ordering for names (D25)', () => {
+  const parts = [
+    part({ partNum: '10', name: 'Brick 1 x 10' }),
+    part({ partNum: '2', name: 'Brick 1 x 2' }),
+    part({ partNum: '1', name: 'Brick 1 x 1' }),
+    part({ partNum: 'a', categoryId: 12, name: 'Brick 1 x 1' }),
+  ];
+  const state = addCategories(addCopy(emptyState(), record('10270-1', parts)), [
+    { id: 11, name: 'Bricks 2' }, { id: 12, name: 'Bricks 10' },
+  ]);
+  assert.deepEqual(buildInventory(freeze(state)).map(row => row.partNum), ['1', '2', '10', 'a']);
+  const colors = [part({ colorId: 10, colorName: 'Color 10' }),
+    part({ colorId: 2, colorName: 'Color 2' })];
+  assert.deepEqual(buildInventory(addCopy(emptyState(), record('10270-1', colors)))
+    .map(row => row.colorId), [2, 10]);
+});
+
 test('lookup, repeat adds and removal match case-insensitively and keep saved parts', () => {
   const original = freeze(record('AbC-1'));
   const once = freeze(addCopy(freeze(emptyState()), original));
