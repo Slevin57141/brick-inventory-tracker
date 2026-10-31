@@ -251,6 +251,7 @@ uses.
 Directory layout:
 
 ```
+README.md                      what the app does and how to run it
 AGENTS.md                      project rules for both tools
 CLAUDE.md                      the single line @AGENTS.md
 package.json, .gitignore       M0
