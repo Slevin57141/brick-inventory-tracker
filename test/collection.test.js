@@ -77,8 +77,9 @@ folderTest('adding a new set imports it, saves it and returns its summary', asyn
   assert.deepEqual(collection.listSets(), [expected]);
   assert.equal(pieces(collection.getInventory()), 288);
   assert.deepEqual(await storage.load(), {
-    version: 1,
+    version: 2,
     categories: Object.fromEntries(CATEGORIES.map(({ id, name }) => [id, name])),
+    themes: {},
     sets: { '31146-1': { ...record('31146-1'), copies: 1 } },
   });
   assert.ok(collection.getInventory().every((row) => row.categoryName !== 'Unknown category'));

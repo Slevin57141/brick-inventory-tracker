@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { AppError, ERRORS } from '../src/errors.js';
 import {
-  emptyState, findSet, addCopy, addCategories, removeCopy, listSets, buildInventory,
+  emptyState, findSet, addCopy, addCategories, addThemes, removeCopy, listSets, buildInventory,
 } from '../src/inventory.js';
 
 const part = (changes = {}) => ({
@@ -25,7 +25,7 @@ function freeze(value) {
 }
 
 test('empty states have independent collections and no inventory', () => {
-  assert.deepEqual(emptyState(), { version: 1, categories: {}, sets: {} });
+  assert.deepEqual(emptyState(), { version: 2, categories: {}, themes: {}, sets: {} });
   assert.notEqual(emptyState().sets, emptyState().sets);
   assert.notEqual(emptyState().categories, emptyState().categories);
   assert.deepEqual(buildInventory(emptyState()), []);
@@ -165,4 +165,22 @@ test('adding and removing every captured fixture set returns to empty inventory'
   for (const setNum of setNums) state = freeze(removeCopy(state, setNum));
   assert.deepEqual(buildInventory(state), []);
   assert.deepEqual(state, emptyState());
+});
+
+test('themes are added by ID with their parents, without changing the input', () => {
+  const original = freeze(addThemes(freeze(emptyState()),
+    freeze([{ id: 22, name: 'Old name', parentId: null }])));
+  const updated = addThemes(original, freeze([
+    { id: 22, name: 'Creator', parentId: null }, { id: 672, name: 'Creator 3-in-1', parentId: 22 },
+  ]));
+  assert.deepEqual(original.themes, { 22: { name: 'Old name', parentId: null } });
+  assert.deepEqual(updated.themes, {
+    22: { name: 'Creator', parentId: null }, 672: { name: 'Creator 3-in-1', parentId: 22 },
+  });
+  assert.equal(updated.sets, original.sets);
+});
+
+test('a part line keeps its LDraw ids in the inventory row', () => {
+  const state = addCopy(emptyState(), record('10270-1', [part({ ldrawIds: ['3001'] })]));
+  assert.deepEqual(buildInventory(state)[0].ldrawIds, ['3001']);
 });

@@ -3,7 +3,7 @@ import { createError } from './errors.js';
 const compareNames = new Intl.Collator('en', { numeric: true }).compare;
 
 export function emptyState() {
-  return { version: 1, categories: {}, sets: {} };
+  return { version: 2, categories: {}, themes: {}, sets: {} };
 }
 
 export function findSet(state, setNum) {
@@ -25,6 +25,16 @@ export function addCategories(state, categories) {
     categories: {
       ...state.categories,
       ...Object.fromEntries(categories.map(({ id, name }) => [id, name])),
+    },
+  };
+}
+
+export function addThemes(state, themes) {
+  return {
+    ...state,
+    themes: {
+      ...state.themes,
+      ...Object.fromEntries(themes.map(({ id, name, parentId }) => [id, { name, parentId }])),
     },
   };
 }
