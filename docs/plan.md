@@ -680,12 +680,16 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Interface:**
   ```
   createServer({ collection, keyStore, client, logger, publicDir, port }) -> http.Server
-  createLogger({ write = line => process.stdout.write(line + '\n'), redact })
+  listen(server, port) -> Promise<{ address, port }>   // always on 127.0.0.1
+  createLogger({ write = line => process.stdout.write(line + '\n'), redact, now })
     -> { info(message, fields), error(message, fields) }
   src/main.js: reads PORT and DATA_FILE, builds every module, calls collection.init(),
                listens on 127.0.0.1 and logs the URL; exits with the data_file_invalid
                message if the data file is bad.
   ```
+  `listen` is the only way the server is started, so nothing can bind it to another
+  address. The Host and Origin checks use the port actually in use, so tests can listen on
+  port 0. A log line is `<ISO time> INFO|ERROR <message> <fields as JSON>`.
 - **Behaviour:** `PUT /api/key` checks the format (M2 `normalizeKey`), checks the key with
   Rebrickable (`client.checkKey`), then stores it. When an add fails with `key_invalid`, the
   server clears the key (R18). Errors that are not AppErrors become `internal_error`, and the
@@ -693,15 +697,41 @@ identical minifigures; a second capture the same day added both, and a two-page 
   method, path, status, duration. Request bodies and headers are never logged. Static files
   get a `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser
   refuses module scripts under `nosniff`.
+  - Checks run in order: security headers on every response, then `Host`, then (for any
+    method but GET and HEAD) `Origin`, then the body: present only with a JSON content type,
+    at most 10 KB (`payload_too_large`, by declared length or as it streams). A body that
+    is not a JSON object is `bad_request`, as is a set number in the path that is not
+    valid percent-encoding. An unknown `/api/` path or method is `not_found`, and so is any
+    method but GET and HEAD outside `/api/`. When a refused request's body was not read,
+    the connection is closed after the error, so the rest is not read as a new request.
+  - Static files: `/` is `index.html`; the path is decoded and resolved inside `public/`,
+    and its real path (links followed) must also be inside, and a file; anything else,
+    including a null byte or bad percent-encoding, is `not_found`. HEAD gets the headers.
+  - Error responses are the fixed `{ error: { code, message } }` only, passed through
+    `redact`. The log line per request has the path without the query string.
+  - `main.js`: `PORT` must be a whole number from 0 to 65535 (0 picks a free port);
+    `DATA_FILE` is resolved from the working folder, and the default is
+    `data/inventory.json` in the repository. A bad `PORT` or a port in use stops the start
+    with a message and exit code 1.
 - **Tests:** the server listens on 127.0.0.1 (checked from `server.address()`); every route,
   with fakes; wrong `Host` and missing or foreign `Origin` are refused; oversized body; path
   traversal attempts (plain and percent-encoded) get `not_found`; security headers present;
-  `.js` files are served as `text/javascript`.
+  `.js` files are served as `text/javascript`. Also: a request with no `Host` (over a raw
+  socket); a body of exactly 10 KB passes; a link out of `public/` (where the system allows
+  creating one); unknown routes; an unexpected error logged but not shown; the log line's
+  fields; the logger. `test/main.test.js` starts `src/main.js` as a child process: it serves
+  on 127.0.0.1, and a damaged data file (left unchanged), a bad `PORT` or a port in use
+  stop it. Requests go through `test/helpers/http-client.js`, which, unlike `fetch`, sends
+  the `Host` it is given.
 - **Key-leak test** (`test/key-leak.test.js`): uses a sentinel key and the real M2, M3, M4,
   M7 and M8, with the fake fetch answering 200, 401, 404, 429, 500, malformed JSON and a
   network error. It captures all log output, every HTTP response (status, headers, body), the
   data file and all fixture files, and asserts the sentinel is in none of them and in no
   request URL. It appears only in `Authorization` headers sent to the fake fetch.
+  - The sentinel contains `"`, `\`, `+`, `/`, `%` and `=`, and each search looks for it as
+    is, JSON-escaped and URL-encoded. Every error response must be exactly the fixed body
+    for its code. One route fails with an unexpected error whose message holds the key, to
+    check the logged stack is redacted and the response is the fixed `internal_error`.
 - **Builder: Claude Code.** The last link of the key path (redaction, error responses,
   logging) plus the local server hardening; same reason as M2.
 
