@@ -428,11 +428,13 @@ reason. Section 9 gives the build order.
   - `scripts/capture-fixtures.js <setNum>...`: run by the user only. Prompts for the key
     without echoing it, makes the section 4 requests for each set one second apart, and writes
     one fixture file per response. It refuses to write anything if any output contains the
-    key.
+    key. It also captures the list of themes (`themes.json`). With `--themes` instead of set
+    numbers it captures only that list, so the other fixtures, and the counts the tests
+    check against them, stay as they are.
 - **Tests:** the guard rejects a non-local fetch and allows 127.0.0.1; fake fetch serves,
   records and rejects unknown routes; `createError` covers every code in section 7; the
-  capture script's "contains the key" check (a pure function); every vendored file matches
-  the SHA-256 in its README.
+  capture script's "contains the key" check (a pure function) and its command line; every
+  vendored file matches the SHA-256 in its README.
 - **Builder: Claude Code.** It must exist before either tool starts, and it fixes the
   conventions both tools then follow (error codes, test harness, fixture format, vendored
   three.js). Building it here, right after the plan, means no waiting on the other machine.
