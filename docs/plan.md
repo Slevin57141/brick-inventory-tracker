@@ -654,10 +654,22 @@ identical minifigures; a second capture the same day added both, and a two-page 
   `key_required` when there is no key) and saves new categories. Changes run one at a time.
   Each change computes the new state, saves it, and only then replaces the in-memory state;
   if saving fails, the in-memory state is unchanged and the error propagates.
+  - The import runs inside the change, so a second add of the same new set waits, then
+    finds it saved and makes no API call. A failed change rejects only its own caller.
+  - The importer gets the saved category IDs (the data file's keys, as strings).
+  - The summary after an import is found by Rebrickable's `set_num`, which can differ from
+    what was typed (`31146-01` gives `31146-1`); when it matches a saved set, a copy of
+    that set is added instead of a second entry.
+  - `removeSet` with anything but a string throws `not_owned`. Using the collection before
+    `init()` is a programming error and throws a plain `Error`.
 - **Tests** (fake importer, temporary storage): add a new set; add it again without calling
   the importer; remove; remove the last copy; invalid input never reaches the importer; a
   failed save leaves the state unchanged; a new collection on the same file shows the same
-  sets and inventory (R12); two overlapping adds run one after the other.
+  sets and inventory (R12); two overlapping adds run one after the other. Also: saved
+  categories reach the next import; a failed import changes nothing; a set number
+  Rebrickable writes differently is saved once; use before `init()`; the pack 66495-1
+  imported by the real M4 importer is saved, passes M6's shape check on reload and gives
+  874 pieces.
 - **Builder: Claude Code.** It is built after phase 1 is merged and wires M1, M4, M5 and M6
   together. Claude Code owns M4 and the server that calls the collection.
 
