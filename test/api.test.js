@@ -119,3 +119,38 @@ test('a server that cannot be reached is server_unreachable', async () => {
     return true;
   });
 });
+
+const base64 = (numbers) => Buffer.from(new Float32Array(numbers).buffer).toString('base64');
+
+test('LDraw parts and models come as numbers, and null when the server has none', async () => {
+  const notFound = { status: 404, body: { error: { code: 'not_found', message: 'Not found.' } } };
+  const { fetch, calls } = fakeFetch(
+    { body: { available: true } },
+    { body: { name: '3023b.dat', positions: base64([0, -8, 0.5]) } },
+    notFound,
+    { body: { colors: [{ rgb: 'C91A09', alpha: 255 }], instances: [],
+      loose: [{ color: 0, positions: base64([1, 2, 3]) }] } },
+    notFound,
+  );
+  const api = createApi({ fetch });
+  assert.deepEqual(await api.getLdraw(), { available: true });
+  const part = await api.getLdrawPart(['3023b', '28653', '3023']);
+  assert.ok(part instanceof Float32Array);
+  assert.deepEqual([...part], [0, -8, 0.5]);
+  assert.equal(await api.getLdrawPart(['missing']), null);
+  const model = await api.getSetModel('10270-1');
+  assert.deepEqual([...model.loose[0].positions], [1, 2, 3]);
+  assert.equal(model.colors[0].rgb, 'C91A09');
+  assert.equal(await api.getSetModel('9999-1'), null);
+  assert.deepEqual(calls.map((call) => call.path), ['/api/ldraw',
+    '/api/ldraw/part?names=3023b%2C28653%2C3023', '/api/ldraw/part?names=missing',
+    '/api/sets/10270-1/model', '/api/sets/9999-1/model']);
+});
+
+test('other LDraw errors are thrown, not taken for a missing part', async () => {
+  const { fetch } = fakeFetch(new TypeError('Failed to fetch'),
+    { status: 200, body: { positions: 'abc' } });
+  const api = createApi({ fetch });
+  await assert.rejects(api.getLdrawPart(['3001']), (error) => error.code === 'server_unreachable');
+  await assert.rejects(api.getLdrawPart(['3001']), (error) => error.code === 'internal_error');
+});

@@ -17,10 +17,13 @@ export function computeLayout(rows, { piecesPerBlock = 100 } = {}) {
       categories.set(row.categoryId, category);
     }
     category.pieces += row.quantity;
-    const color = category.colors.get(row.colorId);
-    if (color) color.pieces += row.quantity;
-    else category.colors.set(row.colorId, { id: row.colorId, pieces: row.quantity,
-      colorRgb: row.colorRgb, colorIsTrans: row.colorIsTrans });
+    // Blocks stand for pieces of one part in one colour (D31), so each can take its shape.
+    const id = `${row.colorId}|${row.partNum}`;
+    const group = category.colors.get(id);
+    if (group) group.pieces += row.quantity;
+    else category.colors.set(id, { id: row.colorId, partNum: row.partNum,
+      ldrawIds: row.ldrawIds ?? [], pieces: row.quantity, colorRgb: row.colorRgb,
+      colorIsTrans: row.colorIsTrans });
   }
 
   const containers = [];
@@ -28,7 +31,8 @@ export function computeLayout(rows, { piecesPerBlock = 100 } = {}) {
   const ordered = [...categories.values()].sort((a, b) =>
     compareNames(a.categoryName, b.categoryName) || a.categoryId - b.categoryId);
   for (const category of ordered) {
-    const colors = [...category.colors.values()].sort((a, b) => a.id - b.id);
+    const colors = [...category.colors.values()].sort((a, b) => a.id - b.id
+      || compareNames(String(a.partNum ?? ''), String(b.partNum ?? '')));
     const count = colors.reduce((sum, color) => sum + Math.ceil(color.pieces / piecesPerBlock), 0);
     const grid = smallestGrid(count);
     const { categoryId, categoryName, pieces } = category;
@@ -42,8 +46,9 @@ export function computeLayout(rows, { piecesPerBlock = 100 } = {}) {
         const col = index % grid.cols;
         const row = Math.floor(index / grid.cols) % grid.rows;
         const layer = Math.floor(index / (grid.cols * grid.rows));
-        blocks.push({ key: `${categoryId}|${color.id}|${i}`, categoryId,
+        blocks.push({ key: `${categoryId}|${color.id}|${color.partNum}|${i}`, categoryId,
           colorRgb: color.colorRgb, colorIsTrans: color.colorIsTrans,
+          partNum: color.partNum, ldrawIds: color.ldrawIds,
           position: {
             x: (col - (grid.cols - 1) / 2) * STEP.width,
             y: box.floorY + BLOCK_SIZE.height / 2 + layer * STEP.height,

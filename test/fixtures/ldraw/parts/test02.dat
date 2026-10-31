@@ -1,0 +1,4 @@
+0 Test Part Two: a hi-res primitive, a missing file and itself
+1 16 0 0 0 1 0 0 0 1 0 0 0 1 48\hires.dat
+1 16 0 0 0 1 0 0 0 1 0 0 0 1 nothere.dat
+1 16 0 0 0 1 0 0 0 1 0 0 0 1 test02.dat

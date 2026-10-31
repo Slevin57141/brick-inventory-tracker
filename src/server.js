@@ -11,6 +11,7 @@ import { normalizeKey } from './key-store.js';
 
 const HOST = '127.0.0.1';
 const BODY_LIMIT = 10 * 1024;
+const MAX_PART_NAMES = 8;
 const CONTENT_SECURITY_POLICY = "default-src 'self'; img-src 'self' https://cdn.rebrickable.com; "
   + "object-src 'none'; base-uri 'none'; frame-ancestors 'none'";
 // .js must be text/javascript: under nosniff the browser refuses module scripts otherwise.
@@ -27,7 +28,9 @@ const CONTENT_TYPES = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
-export function createServer({ collection, keyStore, client, logger, publicDir, port }) {
+export function createServer({
+  collection, keyStore, client, logger, publicDir, port, ldraw = null,
+}) {
   const root = resolve(publicDir);
   let realRoot = null;
   // Tests listen on port 0, so the checks use the port actually in use.
@@ -116,18 +119,41 @@ export function createServer({ collection, keyStore, client, logger, publicDir, 
         throw error;
       }
     }
-    const one = /^\/api\/sets\/([^/]+)$/.exec(path);
-    if (one && (method === 'GET' || method === 'DELETE')) {
+    const one = /^\/api\/sets\/([^/]+)(\/model)?$/.exec(path);
+    if (one && (method === 'GET' || (method === 'DELETE' && !one[2]))) {
       let setNum;
       try {
         setNum = decodeURIComponent(one[1]);
       } catch {
         throw createError('bad_request');
       }
+      if (one[2]) {
+        // The LDraw model of the built set, when the user has one (D31).
+        const model = await ldraw?.model(setNum);
+        if (!model) {
+          throw createError('not_found');
+        }
+        return sendJson(response, 200, { colors: model.colors, instances: model.instances,
+          loose: model.loose.map(({ color, positions }) => ({ color,
+            positions: base64(positions) })) });
+      }
       if (method === 'GET') {
         return sendJson(response, 200, collection.getSet(setNum));
       }
       return sendJson(response, 200, { set: await collection.removeSet(setNum) });
+    }
+    if (path === '/api/ldraw' && method === 'GET') {
+      return sendJson(response, 200, { available: Boolean(await ldraw?.available()) });
+    }
+    if (path === '/api/ldraw/part' && method === 'GET') {
+      // ?names=a,b,c: the first of these LDraw files the library has (D31).
+      const names = (new URL(request.url, 'http://localhost').searchParams.get('names') ?? '')
+        .split(',').slice(0, MAX_PART_NAMES);
+      const part = await ldraw?.part(names);
+      if (!part) {
+        throw createError('not_found');
+      }
+      return sendJson(response, 200, { name: part.name, positions: base64(part.positions) });
     }
     if (path === '/api/inventory' && method === 'GET') {
       return sendJson(response, 200, { rows: collection.getInventory() });
@@ -266,6 +292,12 @@ function sendJson(response, status, value, { redact = (text) => text } = {}) {
     'Content-Length': Buffer.byteLength(text),
   });
   response.end(text);
+}
+
+// Float32 triangles as base64, little-endian, the way every browser reads them.
+function base64(positions) {
+  return Buffer.from(positions.buffer, positions.byteOffset, positions.byteLength)
+    .toString('base64');
 }
 
 function pathOf(url) {

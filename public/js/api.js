@@ -8,6 +8,15 @@ const UNREACHABLE = {
 };
 const UNEXPECTED = { code: 'internal_error', message: 'Something went wrong. See the server log.' };
 
+// Float32 numbers sent as base64 (little-endian, as every browser stores them).
+function floats(text) {
+  const bytes = Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
+  if (bytes.length % 4 !== 0) {
+    throw new ApiError(UNEXPECTED);
+  }
+  return new Float32Array(bytes.buffer);
+}
+
 export class ApiError extends Error {
   constructor({ code, message }) {
     super(message);
@@ -56,6 +65,18 @@ export function createApi({ fetch = (...args) => globalThis.fetch(...args) } = {
     return data[name];
   }
   const isObject = (value) => value !== null && typeof value === 'object';
+  const isText = (value) => typeof value === 'string';
+  // What a route has nothing for (not_found) is null; any other error is thrown as usual.
+  const orNull = async (read) => {
+    try {
+      return await read();
+    } catch (error) {
+      if (error.code === 'not_found') {
+        return null;
+      }
+      throw error;
+    }
+  };
   const keyState = async (promise) => ({
     hasKey: await field(promise, 'hasKey', (value) => typeof value === 'boolean'),
   });
@@ -83,5 +104,27 @@ export function createApi({ fetch = (...args) => globalThis.fetch(...args) } = {
       'set', (set) => set === null || isObject(set)),
     /** InventoryRow[] */
     getInventory: () => field(request('GET', '/api/inventory'), 'rows', Array.isArray),
+    /** Whether the server has the LDraw parts library: `{ available }` (D31). */
+    getLdraw: async () => ({
+      available: await field(request('GET', '/api/ldraw'), 'available',
+        (value) => typeof value === 'boolean'),
+    }),
+    /**
+     * The triangles of the first of these LDraw files the library has, as a Float32Array in
+     * LDraw units and axes, or null when it has none of them.
+     */
+    getLdrawPart: (names) => orNull(async () => floats(await field(request('GET',
+      `/api/ldraw/part?names=${encodeURIComponent(names.join(','))}`), 'positions', isText))),
+    /** The LDraw model of a built set (M14), or null when there is none. */
+    getSetModel: (setNum) => orNull(async () => {
+      const data = await request('GET', `/api/sets/${encodeURIComponent(setNum)}/model`);
+      if (!Array.isArray(data.colors) || !Array.isArray(data.instances)
+        || !Array.isArray(data.loose) || !data.loose.every((item) => isText(item.positions))) {
+        throw new ApiError(UNEXPECTED);
+      }
+      const loose = data.loose.map((item) => ({ color: item.color,
+        positions: floats(item.positions) }));
+      return { colors: data.colors, instances: data.instances, loose };
+    }),
   });
 }
