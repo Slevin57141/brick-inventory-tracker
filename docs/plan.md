@@ -474,7 +474,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Interface:**
   ```
   createRebrickableClient({ keyStore, fetch = globalThis.fetch,
-      baseUrl = 'https://rebrickable.com/api/v3', minIntervalMs = 1100, sleep, now })
+      baseUrl = 'https://rebrickable.com/api/v3', minIntervalMs = 1100, timeoutMs = 15000,
+      sleep, now })
     .checkKey(candidateKey) -> Promise<void>      // GET /lego/colors/?page_size=1
     .getSet(setNum) -> Promise<object>            // raw Rebrickable JSON
     .getSetParts(setNum) -> Promise<object[]>     // all pages joined
@@ -482,23 +483,29 @@ identical minifigures; a second capture the same day added both, and a two-page 
     .getPartCategories() -> Promise<object[]>
   ```
 - **Behaviour:**
-  - No key set: throws `key_required` without making a request.
+  - No key set: throws `key_required` without making a request. The key is read again for
+    every request, so a key forgotten during an import stops the remaining requests.
+    `checkKey` with an empty candidate also throws `key_required`.
   - The key goes only into the `Authorization` header. Path segments are encoded with
-    `encodeURIComponent`.
+    `encodeURIComponent`. A set number that is empty, `.` or `..` throws
+    `invalid_set_number`, because a dot segment would change the path even when encoded
+    (M1 already rejects these).
   - Requests start at least `minIntervalMs` apart, across all callers.
   - 429: waits (`Retry-After` if present, else the seconds in `detail`, else 5 seconds,
     capped at 30), retries at most twice, then throws `rate_limited`.
   - 401 or 403: `key_invalid`. 404 on a set request: `set_not_found`. Any other non-2xx,
-    network error, 15-second timeout (`AbortSignal.timeout`) or invalid JSON:
-    `api_unavailable`.
-  - Follows `next` only when its origin equals the base URL's origin.
+    network error, timeout (`AbortSignal.timeout(timeoutMs)`), invalid JSON or a body of
+    the wrong shape (no `results` array in a list, no object for a set): `api_unavailable`.
+  - Follows `next` only when its origin equals the base URL's origin, and for at most 50
+    pages; otherwise `api_unavailable` before anything is requested from that link.
   - Errors come from `createError` only and never carry a URL, header, response body or
     caught error (no `cause`).
 - **Tests** (fake fetch and fixtures): request URLs and headers are correct and no URL
-  contains the key; pagination over two pages; a `next` on another origin is refused; each
-  status maps to its code; 429 then success, with and without `Retry-After` (D22); 429 three
-  times; pacing with a fake clock; no key
-  means no request; a network error's message does not contain the sentinel key.
+  contains the key; pagination over two pages; a `next` on another origin is refused; an
+  endless `next` stops at 50 pages; each status and malformed body maps to its code; a
+  timeout; 429 then success, with and without `Retry-After` (D22); 429 three times; pacing
+  with a fake clock, across concurrent callers; no key means no request; a network error's
+  message does not contain the sentinel key.
 - **Builder: Claude Code.** Part of the key path (see M2), and it carries the API facts in
   section 4, which Claude Code checks in phase 0.
 
