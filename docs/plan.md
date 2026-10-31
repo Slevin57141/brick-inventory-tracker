@@ -453,16 +453,23 @@ identical minifigures; a second capture the same day added both, and a two-page 
 ### M2. key-store
 
 - **Responsibility:** hold the API key in memory only.
-- **Interface:** `createKeyStore() -> { set(key), get(), has(), clear(), redact(text) }`.
-  - `set` trims and checks the format (8-200 characters, no whitespace or control
-    characters), otherwise throws `invalid_key_format`. It does not call the API; the server
-    checks the key with M3 first.
+- **Interface:** `createKeyStore() -> { set(key), get(), has(), clear(), redact(text) }` and
+  `normalizeKey(input) -> string`.
+  - `normalizeKey` trims and checks the format (8-200 characters, no whitespace or control
+    characters) and returns the trimmed key, otherwise throws `invalid_key_format`. It
+    stores nothing, so the server can check the format before it sends a candidate key to
+    Rebrickable (M8).
+  - `set` applies `normalizeKey`, then stores the key; a rejected key leaves the current one
+    in place. It does not call the API; the server checks the key with M3 first.
   - `get()` returns the key or null. Only M3 calls it.
-  - `redact(text)` replaces every occurrence of the current key with `[redacted]`.
+  - `redact(text)` replaces every occurrence of the current key with `[redacted]`, including
+    its spellings inside a JSON string and a URL, and returns a string.
   - The key lives in a closure, so `JSON.stringify`, `String()`, `util.inspect` and
     `console.log` of the store never show it.
-- **Tests:** set, has, get, clear; rejected formats; redact with and without a key; a
-  sentinel key is absent from `JSON.stringify`, `String()` and `util.inspect` output.
+- **Tests:** set, has, get, clear; rejected formats, through both `normalizeKey` and `set`;
+  a rejected key keeps the current one; redact with and without a key, and the JSON and URL
+  spellings; a sentinel key is absent from `JSON.stringify`, `String()`, `util.inspect` and
+  `console.log` output.
 - **Builder: Claude Code.** M2, M3 and M8 are the path the key travels. Having one builder
   for the whole path applies the R16 rules the same way at every step, and Codex then reviews
   the whole path as a reader who did not write it.
@@ -616,13 +623,13 @@ identical minifigures; a second capture the same day added both, and a two-page 
                listens on 127.0.0.1 and logs the URL; exits with the data_file_invalid
                message if the data file is bad.
   ```
-- **Behaviour:** `PUT /api/key` checks the format (M2), checks the key with Rebrickable
-  (`client.checkKey`), then stores it. When an add fails with `key_invalid`, the server clears
-  the key (R18). Errors that are not AppErrors become `internal_error`, and the real error is
-  logged (name and stack, passed through `redact`). One log line per request: method, path,
-  status, duration. Request bodies and headers are never logged. Static files get a
-  `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser refuses
-  module scripts under `nosniff`.
+- **Behaviour:** `PUT /api/key` checks the format (M2 `normalizeKey`), checks the key with
+  Rebrickable (`client.checkKey`), then stores it. When an add fails with `key_invalid`, the
+  server clears the key (R18). Errors that are not AppErrors become `internal_error`, and the
+  real error is logged (name and stack, passed through `redact`). One log line per request:
+  method, path, status, duration. Request bodies and headers are never logged. Static files
+  get a `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser
+  refuses module scripts under `nosniff`.
 - **Tests:** the server listens on 127.0.0.1 (checked from `server.address()`); every route,
   with fakes; wrong `Host` and missing or foreign `Origin` are refused; oversized body; path
   traversal attempts (plain and percent-encoded) get `not_found`; security headers present;
