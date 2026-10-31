@@ -90,6 +90,7 @@ test('normalizeSet maps the set details and every field of a part line', () => {
       year: 2023,
       imgUrl: 'https://cdn.rebrickable.com/media/sets/76991-1/120819.jpg',
       numParts: 376,
+      themeId: 747,
       containedSets: [],
       parts: undefined,
     },
@@ -106,7 +107,29 @@ test('normalizeSet maps the set details and every field of a part line', () => {
     imgUrl: null,
     quantity: raw.quantity,
     isSpare: false,
+    ldrawIds: [],
   }]);
+});
+
+test('normalizeSet keeps the LDraw ids Rebrickable lists, in its order (D31)', () => {
+  const record = normalizeSet(details('76991-1'), lines('76991-1'));
+  const ids = (partNum) => record.parts.find((line) => line.partNum === partNum).ldrawIds;
+  assert.deepEqual(ids('3023'), ['28653', '3023b']);
+  assert.deepEqual(ids('3005'), ['3005', '30071']);
+  assert.deepEqual(ids('1927'), [], 'a part without LDraw ids');
+  assert.ok(record.parts.every((line) => Array.isArray(line.ldrawIds)));
+
+  // Only plain file names are kept; anything else is left out.
+  const [line] = lines('76991-1');
+  const odd = { ...line, part: { ...line.part, external_ids: {
+    LDraw: ['3001', '../3001', 's\\3001s01', '', 7, 'x'.repeat(65), '3001-b.c_d'] } } };
+  assert.deepEqual(normalizeSet(details('76991-1'), [odd]).parts[0].ldrawIds,
+    ['3001', '3001-b.c_d']);
+  const missing = { ...line, part: { ...line.part, external_ids: undefined } };
+  assert.deepEqual(normalizeSet(details('76991-1'), [missing]).parts[0].ldrawIds, []);
+  // A set without a theme keeps null; a theme that is not a number is not accepted.
+  assert.equal(normalizeSet({ ...details('76991-1'), theme_id: null }, []).themeId, null);
+  assert.throws(() => normalizeSet({ ...details('76991-1'), theme_id: '747' }, []));
 });
 
 test('normalizeSet keeps transparent colours, spare flags and minifigure parts', () => {

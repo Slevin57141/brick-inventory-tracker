@@ -9,7 +9,7 @@ import { basename, dirname, join } from 'node:path';
 import { createError } from './errors.js';
 import { emptyState } from './inventory.js';
 
-const VERSION = 1;
+const VERSION = 2;
 const RGB = /^[0-9A-Fa-f]{6}$/;
 // On Windows, a virus scanner or backup tool briefly holding the data file makes the rename
 // fail with one of these; waiting a moment and trying again is enough.
@@ -76,10 +76,13 @@ export function createStorage({
       } catch {
         throw createError('data_file_invalid');
       }
-      if (!isValidState(state)) {
-        throw createError('data_file_invalid');
+      if (isValidState(state, VERSION)) {
+        return state;
       }
-      return state;
+      if (isValidState(state, 1)) {
+        return upgrade(state);
+      }
+      throw createError('data_file_invalid');
     },
 
     // Saves run one after another, so the file always ends with the last state saved. A
@@ -92,18 +95,39 @@ export function createStorage({
   });
 }
 
-// Checks the shape the rest of the app relies on (section 6), so a hand-edited or damaged
-// file is reported at start instead of producing wrong totals later.
-function isValidState(state) {
-  return isObject(state)
-    && state.version === VERSION
-    && isObject(state.categories)
-    && Object.values(state.categories).every((name) => typeof name === 'string')
-    && isObject(state.sets)
-    && Object.entries(state.sets).every(([key, entry]) => isValidEntry(key, entry));
+// A version 1 file, from before set themes and LDraw ids (section 6, D31), is brought up to
+// date in memory; the next save writes it as version 2.
+function upgrade(state) {
+  const sets = Object.entries(state.sets).map(([key, entry]) => [key, {
+    ...entry,
+    themeId: null,
+    parts: entry.parts.map((part) => ({ ...part, ldrawIds: [] })),
+  }]);
+  return { version: VERSION, categories: state.categories, themes: {},
+    sets: Object.fromEntries(sets) };
 }
 
-function isValidEntry(key, entry) {
+// Checks the shape the rest of the app relies on (section 6), so a hand-edited or damaged
+// file is reported at start instead of producing wrong totals later. Version 1 lacks the
+// themes, theme IDs and LDraw ids.
+function isValidState(state, version) {
+  return isObject(state)
+    && state.version === version
+    && isObject(state.categories)
+    && Object.values(state.categories).every((name) => typeof name === 'string')
+    && (version === 1 || (isObject(state.themes)
+      && Object.values(state.themes).every(isValidTheme)))
+    && isObject(state.sets)
+    && Object.entries(state.sets).every(([key, entry]) => isValidEntry(key, entry, version));
+}
+
+function isValidTheme(theme) {
+  return isObject(theme)
+    && typeof theme.name === 'string'
+    && (theme.parentId === null || Number.isInteger(theme.parentId));
+}
+
+function isValidEntry(key, entry, version) {
   return isObject(entry)
     && entry.setNum === key
     && typeof entry.name === 'string'
@@ -113,8 +137,9 @@ function isValidEntry(key, entry) {
     && isPositiveInteger(entry.copies)
     && Array.isArray(entry.containedSets)
     && entry.containedSets.every(isValidContainedSet)
+    && (version === 1 || entry.themeId === null || Number.isInteger(entry.themeId))
     && Array.isArray(entry.parts)
-    && entry.parts.every(isValidPart);
+    && entry.parts.every((part) => isValidPart(part, version));
 }
 
 function isValidContainedSet(contained) {
@@ -124,7 +149,7 @@ function isValidContainedSet(contained) {
     && isPositiveInteger(contained.quantity);
 }
 
-function isValidPart(part) {
+function isValidPart(part, version) {
   return isObject(part)
     && typeof part.partNum === 'string'
     && typeof part.name === 'string'
@@ -135,7 +160,9 @@ function isValidPart(part) {
     && typeof part.colorIsTrans === 'boolean'
     && isImage(part.imgUrl)
     && isPositiveInteger(part.quantity)
-    && typeof part.isSpare === 'boolean';
+    && typeof part.isSpare === 'boolean'
+    && (version === 1 || (Array.isArray(part.ldrawIds)
+      && part.ldrawIds.every((id) => typeof id === 'string')));
 }
 
 function isImage(value) {

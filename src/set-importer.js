@@ -6,6 +6,7 @@ import { createError } from './errors.js';
 
 const MAX_DEPTH = 3;
 const RGB = /^[0-9A-Fa-f]{6}$/;
+const LDRAW_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
 
 export function createSetImporter({ client }) {
   // Imports one set with everything inside it, at depth 1 for the set the user asked for.
@@ -74,16 +75,20 @@ export function createSetImporter({ client }) {
 /** Maps a set and its part lines to a SetRecord. containedSets is left empty for importSet. */
 export function normalizeSet(rawSet, rawPartLines) {
   expect(isObject(rawSet) && Array.isArray(rawPartLines));
-  const { set_num: setNum, name, year, set_img_url: imgUrl, num_parts: numParts } = rawSet;
+  const {
+    set_num: setNum, name, year, set_img_url: imgUrl, num_parts: numParts, theme_id: themeId,
+  } = rawSet;
   expect(isText(setNum) && typeof name === 'string' && Number.isInteger(year));
   expect(imgUrl === null || imgUrl === undefined || typeof imgUrl === 'string');
   expect(Number.isInteger(numParts) && numParts >= 0);
+  expect(themeId === null || themeId === undefined || Number.isInteger(themeId));
   return {
     setNum,
     name,
     year,
     imgUrl: imgUrl ?? null,
     numParts,
+    themeId: themeId ?? null,
     containedSets: [],
     parts: mergePartLines(rawPartLines.map(toPartLine)),
   };
@@ -127,7 +132,15 @@ function toPartLine(raw) {
     imgUrl: part.part_img_url ?? null,
     quantity: raw.quantity,
     isSpare: raw.is_spare,
+    ldrawIds: ldrawIdsOf(part),
   };
+}
+
+// The part's LDraw file names (D31), best first as Rebrickable lists them. Only plain names
+// are kept, since the server looks them up as files; a part without any gets an empty list.
+function ldrawIdsOf(part) {
+  const ids = isObject(part.external_ids) ? part.external_ids.LDraw : undefined;
+  return Array.isArray(ids) ? ids.filter((id) => typeof id === 'string' && LDRAW_ID.test(id)) : [];
 }
 
 function toContainedSet(raw) {

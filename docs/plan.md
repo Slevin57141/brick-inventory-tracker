@@ -129,6 +129,7 @@ Modules and tests refer to these IDs.
 | D28 | Containers in the 3D view can be selected and focused (M12, M10). A click on a container (body, lid or floor label) selects it: its lid turns brighter, a ring appears on the floor around it, and its floor label turns red (D29). A click on empty floor clears the selection; a press that moves more than 5 pixels turns the view and selects nothing. A double click moves the camera to frame that container alone; a double click on empty floor, or "Show all", frames every container again. A bar floating over the top of the view names the selected container and offers "Zoom in", "Show all", "List its parts" (sets the category filter) and "Clear selection". Selection and focus end when their container leaves the view. | User's request, 2026-10-31. The bar floats over the view rather than above it: pushing the view down would move the container out from under the second click of a double click. |
 | D29 | Each container's label lies on the floor in front of it (M12): a card with the category name and the exact piece count, drawn from text into a canvas texture on a flat plane. It fills the 0.3 gap M11 leaves in front of every row (D26), clear of the open lids of the row in front, and reaches 0.12 past each side of the container. Long names shrink, then are cut short with "...". The selected container's card is red. Labels shrink and turn with the view like the rest of the scene and hide behind nearer containers, so none is ever hidden on purpose; in an overview of many containers they are small, and zooming in or focusing a container (D28) makes them readable. A click on a card selects its container. | User's request, 2026-10-31, replacing HTML labels above the containers. |
 | D30 | The add form takes one or more set numbers, separated by spaces, commas or semicolons, and adds them one after another (M10); the API still adds one set per request. The key is asked for when first needed and the batch goes on with it. A set Rebrickable has no record of, or that is not a valid number, is reported and the batch goes on; `rate_limited`, `api_unavailable`, `server_unreachable` or a cancelled key dialog stop the batch, since the sets still to come would fail the same way. What was not added stays in the field. "Your sets" folds away, and each set shows its number, year, Rebrickable's part count, the pieces saved for one copy (`pieces`, spares and minifigure parts included, D1), its copies and a link to its Rebrickable page. A double click on a set, or its "Details" button, opens a dialog with the set's facts and the parts of one copy, sortable like the parts list, from the new `GET /api/sets/{setNum}`. | User's request, 2026-10-31. |
+| D31 | Blocks in the 3D view take the exact shapes of the parts, from the LDraw parts library (ldraw.org), and set details show the LDraw model of the built set where one exists. Rebrickable has no 3D data, but lists each part's LDraw file names (`external_ids.LDraw`). The data file therefore saves each part line's `ldrawIds` and each set's `themeId` (for the theme, D30) as data format version 2; a version 1 file is upgraded in memory when loaded (empty `ldrawIds`, null `themeId`, no themes) and written as version 2 on the next save. Only plain file names (`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`) are kept. The library itself is not part of the repository: the user downloads it, and the server reads it (a later step of this decision). | User's choice, 2026-10-31, over shapes made up from part names. |
 
 ## 4. Rebrickable API
 
@@ -297,8 +298,9 @@ Data file (values are illustrative):
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "categories": { "11": "Bricks", "14": "Plates" },
+  "themes": { "22": { "name": "Creator", "parentId": null } },
   "sets": {
     "10270-1": {
       "setNum": "10270-1",
@@ -306,6 +308,7 @@ Data file (values are illustrative):
       "year": 2020,
       "imgUrl": "https://example.invalid/set.jpg",
       "numParts": 100,
+      "themeId": 22,
       "copies": 2,
       "containedSets": [],
       "parts": [
@@ -319,7 +322,8 @@ Data file (values are illustrative):
           "colorIsTrans": false,
           "imgUrl": null,
           "quantity": 6,
-          "isSpare": false
+          "isSpare": false,
+          "ldrawIds": ["3001"]
         }
       ]
     }
@@ -332,20 +336,25 @@ Types used in the interfaces below:
 - **PartLine**: `partNum` (string), `name`, `categoryId` (number), `colorId` (number),
   `colorName`, `colorRgb` (6 hex digits), `colorIsTrans` (boolean), `imgUrl` (string or
   null), `quantity` (positive integer, already multiplied for contained sets), `isSpare`
-  (boolean).
+  (boolean), `ldrawIds` (the part's LDraw file names, best first, possibly none; D31).
 - **SetRecord**: `setNum` (as returned by Rebrickable), `name`, `year`, `imgUrl` (string or
   null), `numParts` (as reported by Rebrickable; display only, never used for totals),
-  `containedSets` (`[{ setNum, name, quantity }]`), `parts` (PartLine[]; no two lines share
+  `themeId` (Rebrickable's theme ID, or null), `containedSets` (`[{ setNum, name, quantity }]`), `parts` (PartLine[]; no two lines share
   `partNum`, `colorId` and `isSpare`).
 - **SetEntry**: a SetRecord plus `copies` (integer, 1 or more). This is what the data file
   stores under `sets`.
-- **State**: `{ version: 1, categories: { [id]: name }, sets: { [setNum]: SetEntry } }`.
+- **State**: `{ version: 2, categories: { [id]: name }, themes: { [id]: { name, parentId } },
+  sets: { [setNum]: SetEntry } }`.
 - **SetSummary** (sent to the browser): SetEntry without `parts`, plus `pieces`: the sum of
   the quantities in one copy's parts list, spares and minifigure parts included (D1, D30).
 - **InventoryRow**: `partNum`, `name`, `categoryId`, `categoryName`, `colorId`, `colorName`,
-  `colorRgb`, `colorIsTrans`, `imgUrl`, `quantity`.
+  `colorRgb`, `colorIsTrans`, `imgUrl`, `quantity`, `ldrawIds`.
 
 Any change to the data file format bumps `version` and is recorded here.
+
+- **Version 2** (2026-10-31, D31): `themes`, `themeId` on each set and `ldrawIds` on each part
+  line. A version 1 file is upgraded in memory when loaded and saved as version 2 by the
+  next change.
 
 ## 7. HTTP API
 
@@ -568,7 +577,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
   - Every field M4 keeps is checked: a set, part line, contained set or category of the
     wrong shape (for example a quantity that is not a positive integer, or an `rgb` that is
     not 6 hex digits) gives `api_unavailable`, so nothing malformed is saved.
-- **Tests:** `normalizeSet` on captured fixtures (field mapping, null images, `colorIsTrans`,
+- **Tests:** `normalizeSet` on captured fixtures (field mapping with `themeId` and `ldrawIds`,
+  LDraw ids kept in Rebrickable's order and only as plain names, null images, `colorIsTrans`,
   spare flag kept, minifigure parts present, a quantity-2 minifigure in 75449-1 not multiplied
   again, and 75045-1 giving one line for part 30377 in colour 71, not spare, with quantity
   3); no repeated combination in any fixture set; the pack 66495-1 gives exactly the parts of
@@ -590,6 +600,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
   findSet(state, setNum) -> SetEntry | null          // case-insensitive match
   addCopy(state, record) -> State                    // copies + 1, or add with copies 1
   addCategories(state, categories) -> State
+  addThemes(state, [{ id, name, parentId }]) -> State   // D30, D31
   removeCopy(state, setNum) -> State                 // copies - 1, delete at 0; throws not_owned
   listSets(state) -> SetSummary[]                    // in the order added
   buildInventory(state) -> InventoryRow[]
@@ -602,9 +613,11 @@ identical minifigures; a second capture the same day added both, and a two-page 
   colours stays two rows; a second copy doubles quantities; removing one of two copies halves
   them; removing the last copy deletes the set; removing an unknown set throws; adding then
   removing every fixture set returns to the empty inventory; spares are counted; deep-frozen
-  inputs are not mutated.
+  inputs are not mutated; themes are added by ID; a part line's `ldrawIds` reach its row.
 - **Builder: Codex.** Pure arithmetic with no I/O, network or key, and the most test-heavy
-  logic. It needs only the data model in section 6, so it runs in parallel with M2-M4.
+  logic. It needs only the data model in section 6, so it runs in parallel with M2-M4. From
+  2026-10-31 Claude Code changes it at the user's request (data format version 2, D31),
+  while Codex reviews and tests.
 
 ### M6. storage
 
@@ -622,13 +635,16 @@ identical minifigures; a second capture the same day added both, and a two-page 
   half a file. Saves run one after another. A rename that fails with `EPERM` or `EBUSY` (on
   Windows, another program briefly holding the file) is retried a few times.
   - `load` also throws `data_file_invalid` when the path cannot be read (for example, it is
-    a folder) or when the file does not have the section 6 shape: `version` 1, string
-    category names, and for every set an entry whose `setNum` matches its key, with a
-    string `name`, an integer `year`, `imgUrl` a string or null, `numParts` 0 or more,
-    `copies` 1 or more, `containedSets` entries of `{ setNum, name, quantity }` with a
-    positive quantity, and PartLines with the right types, `colorRgb` of 6 hex digits
-    (either case) and a positive integer quantity. A leading byte order mark (from a text
-    editor) is ignored.
+    a folder) or when the file does not have the section 6 shape: `version` 2, string
+    category names, themes of `{ name, parentId }` (a string and an integer or null), and
+    for every set an entry whose `setNum` matches its key, with a string `name`, an
+    integer `year`, `imgUrl` a string or null, `numParts` 0 or more, `themeId` an
+    integer or null, `copies` 1 or more, `containedSets` entries of
+    `{ setNum, name, quantity }` with a positive quantity, and PartLines with the right
+    types, `colorRgb` of 6 hex digits (either case), a positive integer quantity and
+    `ldrawIds` a list of strings. A leading byte order mark (from a text editor) is ignored.
+  - A version 1 file with the version 1 shape (no themes, theme IDs or LDraw ids) is
+    upgraded in memory (D31) and left as it is on disk until the next save.
   - Every save writes a temporary file of its own, named with a random UUID, so two
     storages on one file cannot collide; a save that cannot create its temporary file
     removes nothing. The temporary file is flushed to disk before the rename. `EACCES` is
@@ -642,7 +658,9 @@ identical minifigures; a second capture the same day added both, and a two-page 
   overlapping saves end with the last state; two storages on one file, one save held at
   its rename while the other completes; folder created; no temporary files left behind; a
   rename refused with each retried code succeeds on retry; a save that keeps failing keeps
-  the old file, and other errors are not retried; a failed save does not stop later saves.
+  the old file, and other errors are not retried; a failed save does not stop later saves;
+  a version 1 file loads as version 2, is left unchanged until saved, and a damaged version 1
+  file is still refused.
 - **Builder: Claude Code.** Its main risk is replacing a file by rename, which behaves
   differently on Windows (a file briefly held by another program blocks it). This machine runs
   Windows, so the builder can test that case where it matters. M7, its only user, is also

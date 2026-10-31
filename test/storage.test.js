@@ -10,17 +10,28 @@ import { createStorage } from '../src/storage.js';
 const part = {
   partNum: '3001', name: 'Brick 2 x 4', categoryId: 11, colorId: 4, colorName: 'Red',
   colorRgb: 'C91A09', colorIsTrans: false, imgUrl: null, quantity: 6, isSpare: false,
+  ldrawIds: ['3001'],
 };
 const entry = (setNum, copies = 1) => ({
-  setNum, name: 'Example set', year: 2020, imgUrl: null, numParts: 6, copies,
+  setNum, name: 'Example set', year: 2020, imgUrl: null, numParts: 6, themeId: 158, copies,
   containedSets: [],
   parts: [part, { ...part, colorId: 1, imgUrl: 'https://cdn.rebrickable.com/x.jpg' }],
 });
 const state = (...setNums) => ({
-  version: 1,
+  version: 2,
   categories: { 11: 'Bricks' },
+  themes: { 158: { name: 'Star Wars', parentId: null }, 672: { name: 'Creator 3-in-1',
+    parentId: 22 } },
   sets: Object.fromEntries(setNums.map((setNum, i) => [setNum, entry(setNum, i + 1)])),
 });
+
+// The same state as a version 1 file wrote it: no themes, theme IDs or LDraw ids.
+function versionOne(current) {
+  const { themes, ...rest } = current;
+  const sets = Object.entries(current.sets).map(([key, { themeId, parts, ...set }]) =>
+    [key, { ...set, parts: parts.map(({ ldrawIds, ...line }) => line) }]);
+  return { ...rest, version: 1, sets: Object.fromEntries(sets) };
+}
 
 /** A test that gets a new temporary folder, removed afterwards. */
 function folderTest(name, fn) {
@@ -59,7 +70,8 @@ folderTest('a corrupt file throws data_file_invalid and is left byte for byte', 
     '{"version": 1, "categories": {}, "sets": ',
     '',
     'not json at all',
-    JSON.stringify({ ...state('10270-1'), version: 2 }),
+    JSON.stringify({ ...state('10270-1'), version: 3 }),
+    JSON.stringify({ ...versionOne(state('10270-1')), version: 2 }),
     JSON.stringify([]),
     'null',
   ];
@@ -104,6 +116,17 @@ folderTest('a file of the wrong shape throws data_file_invalid and is kept', asy
     withPart({ colorRgb: 'C91A0' }),
     withPart({ isSpare: 1 }),
     withEntry({ parts: [null] }),
+    { ...valid, themes: undefined },
+    { ...valid, themes: { 158: 'Star Wars' } },
+    { ...valid, themes: { 158: { name: 'Star Wars', parentId: '1' } } },
+    withEntry({ themeId: undefined }),
+    withEntry({ themeId: '158' }),
+    withPart({ ldrawIds: undefined }),
+    withPart({ ldrawIds: '3001' }),
+    withPart({ ldrawIds: [3001] }),
+    // A version 1 file is checked as version 1, so a damaged one is still refused.
+    { ...versionOne(valid), categories: [] },
+    { ...versionOne(valid), sets: { '10270-1': { ...noName } } },
   ];
   for (const content of broken) {
     const bytes = Buffer.from(JSON.stringify(content));
@@ -114,10 +137,32 @@ folderTest('a file of the wrong shape throws data_file_invalid and is kept', asy
   }
 
   const accepted = withEntry({
-    containedSets: [contained], parts: [{ ...part, colorRgb: 'c91a09' }],
+    containedSets: [contained], themeId: null, parts: [{ ...part, colorRgb: 'c91a09', ldrawIds: [] }],
   });
   await writeFile(filePath, JSON.stringify(accepted));
   assert.deepEqual(await createStorage({ filePath }).load(), accepted);
+});
+
+folderTest('a version 1 file loads as version 2 and is saved as version 2', async (folder) => {
+  const filePath = join(folder, 'inventory.json');
+  const old = versionOne(state('10270-1', 'AbC-2'));
+  const bytes = Buffer.from(JSON.stringify(old));
+  await writeFile(filePath, bytes);
+  const storage = createStorage({ filePath });
+  const loaded = await storage.load();
+  const upgraded = state('10270-1', 'AbC-2');
+  upgraded.themes = {};
+  for (const set of Object.values(upgraded.sets)) {
+    set.themeId = null;
+    set.parts = set.parts.map((line) => ({ ...line, ldrawIds: [] }));
+  }
+  assert.deepEqual(loaded, upgraded);
+  assert.deepEqual(Object.keys(loaded), ['version', 'categories', 'themes', 'sets']);
+  // Loading alone leaves the file as it was; the next save writes the new version.
+  assert.deepEqual(await readFile(filePath), bytes);
+  await storage.save(loaded);
+  assert.equal(JSON.parse(await readFile(filePath, 'utf8')).version, 2);
+  assert.deepEqual(await storage.load(), upgraded);
 });
 
 folderTest('two storages on one file never touch each other\'s temporary file', async (folder) => {
