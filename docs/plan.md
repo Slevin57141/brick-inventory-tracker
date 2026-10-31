@@ -126,6 +126,8 @@ Modules and tests refer to these IDs.
 | D25 | M5 inventory rows and M9 filter options compare names with `Intl.Collator('en', { numeric: true })`. | One explicit locale keeps the list and filter ordering independent of the machine's default language, and numeric ordering puts sizes such as 1 x 2 before 1 x 10. |
 | D26 | M11 uses fixed brick bounds (including the stud) of width 0.18, depth 0.18 and height 0.22, centred on each block position. Grid pitches are 0.2, 0.2 and 0.24. It chooses the grid requiring the least uniform container scale, breaking ties by capacity and then width/depth iteration order. Containers have a 0.3 gap including lid overhang. Every row also reserves space for lids to lie flat behind it, whether open or closed. M12 sets an open lid on the floor, its underside origin at the container's x, y `LID_SKIRT * scale` (M13) and z plus the scaled outer lid depth plus 0.3. Entering items start at scale 0; blocks also drop from above the destination lid. | Makes the previously unspecified block bounds, packing and transition endpoints precise for M12. Reserved lid space avoids overlap when opening lids (D19) and keeps container positions stable. The skirt offset keeps the lid above the floor. Invisible entering/leaving items reproduce the visible endpoint layouts. |
 | D27 | Every column of the parts list can be filtered and sorted (M9, M10). A filter row under the headings holds a text filter for part number and for name, the colour and category choices (D10), and smallest and largest quantity; the search box stays and combines with them. Clicking a heading sorts by that column, and clicking it again reverses the order; the list starts sorted by name. Sorting changes only the list; the 3D view shows the filtered rows as before (R25). | User's request, 2026-10-31. |
+| D28 | Containers in the 3D view can be selected and focused (M12, M10). A click on a container (body, lid or floor label) selects it: its lid turns brighter, a ring appears on the floor around it, and its floor label turns red (D29). A click on empty floor clears the selection; a press that moves more than 5 pixels turns the view and selects nothing. A double click moves the camera to frame that container alone; a double click on empty floor, or "Show all", frames every container again. A bar floating over the top of the view names the selected container and offers "Zoom in", "Show all", "List its parts" (sets the category filter) and "Clear selection". Selection and focus end when their container leaves the view. | User's request, 2026-10-31. The bar floats over the view rather than above it: pushing the view down would move the container out from under the second click of a double click. |
+| D29 | Each container's label lies on the floor in front of it (M12): a card with the category name and the exact piece count, drawn from text into a canvas texture on a flat plane. It fills the 0.3 gap M11 leaves in front of every row (D26), clear of the open lids of the row in front, and reaches 0.12 past each side of the container. Long names shrink, then are cut short with "...". The selected container's card is red. Labels shrink and turn with the view like the rest of the scene and hide behind nearer containers, so none is ever hidden on purpose; in an overview of many containers they are small, and zooming in or focusing a container (D28) makes them readable. A click on a card selects its container. | User's request, 2026-10-31, replacing HTML labels above the containers. |
 
 ## 4. Rebrickable API
 
@@ -816,6 +818,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
     `scene.update`, so the containers and the list always agree (R25). An "Open lids" /
     "Close lids" button calls `scene.setLidsOpen` (R27). If `createBrickScene` returns null,
     the section shows "The 3D view needs WebGL." (R29).
+  - A hint says how to select and zoom, and the selection bar (D28) floats over the top of
+    the view while a container is selected or the camera is on one.
   - After every change the page reloads the key status, sets and inventory together; when
     two reloads overlap, only the later one is shown.
   - Images use `loading="lazy"` and `referrerpolicy="no-referrer"`, are tried only for
@@ -890,15 +894,24 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Responsibility:** draw and animate the 3D view with three.js (R24-R27, R29).
 - **Interface:**
   ```
-  createBrickScene(element, { reducedMotion })
-    -> { update(rows), setLidsOpen(open), dispose() } | null
+  createBrickScene(element, { reducedMotion, onSelectionChange })
+    -> { update(rows), setLidsOpen(open), select(categoryId), focus(categoryId),
+         dispose() } | null
+      // onSelectionChange({ selected: { categoryId, categoryName, pieces } | null,
+      //                     focused: categoryId | null }), called on every change (D28)
   createBrickGeometry() -> BufferGeometry   // the D14 brick, exactly BLOCK_SIZE, centred
   lidOffset(scale, progress) -> { x, y, z }
       // the lid's underside origin relative to its container's origin, world units, from
       // 0 (closed) to 1 (open on the floor, D26)
-  containerBoxes(layout, { lidsOpen }) -> [{ min, max }]   // one box per container
+  containerBoxes(layout, { lidsOpen }) -> [{ min, max }]
+      // one box per container, its floor label and, when lidsOpen, its lid on the way
+  labelBox(container) -> { minX, maxX, minZ, maxZ }   // where the floor label lies (D29)
+  drawLabel(context2d, { name, count, selected })    // draws a label card
   sceneBounds(layout, { lidsOpen }) -> { min, max } | null // the box around them all
   boxCorners({ min, max }) -> Vector3[8]
+  framingBoxes(layout, { lidsOpen, focus }) -> [{ min, max }]
+      // the focused container's box alone while it is in the layout, otherwise all
+  createSelectionRingGeometry() -> BufferGeometry   // the floor ring, unit scale
   fitCamera(points, { fov, aspect }, direction) -> { target, distance }
   ```
   It returns null, leaving the element untouched, when WebGL is not available.
@@ -912,27 +925,31 @@ identical minifigures; a second capture the same day added both, and a two-page 
     opaque pass, so they show through the frosted walls. Plain blending would draw them after
     the walls, whose depth would hide them.
   - Containers: one M13 container per category, sharing one model and scaled by the layout.
-    Above each container, a label with the category name and exact piece count, as an HTML
-    element written with `textContent` and positioned over the canvas. Labels are placed
-    nearest first; one that would cover a label already placed, or a container nearer than
-    its own, is hidden until the view is zoomed or turned. Above rather than under: seen
-    from above, the floor in front of a container lies behind the nearer row.
+    In front of each container, its label lies on the floor (D29): the category name and
+    exact piece count drawn into a texture from text, never markup. A texture is drawn
+    again only when its text, its selection or its size in steps of 64 pixels changes, and
+    uses anisotropic filtering, since it is seen at a slant.
   - A legend reads "1 block = 100 pieces" (D15), and an empty view reads "No bricks to show."
   - `update(rows)` computes the new layout (M11) and animates to it (D16): containers resize
     and move, kept blocks slide, new blocks drop in, removed blocks shrink out, labels of
-    entering and leaving containers fade, and the camera re-frames all containers, keeping
+    entering and leaving containers grow and shrink with them, and the camera re-frames all
+    containers, keeping
     the direction the user turned it to. The first containers are framed at once. With
     reduced motion it jumps straight to the new layout.
   - `setLidsOpen(open)` moves every lid, with the same timing: up off the rim, back until it
     is clear of the container, and down flat on the floor (D19, D26), or the same way back.
     The camera frames the open lids only while they are open.
-  - Framing fits the corners of every container's box, with room above each for its label,
-    centred in the view under perspective.
+  - Framing fits the corners of every container's box, floor label included, centred in
+    the view under perspective.
   - Scene: neutral background, soft studio lighting (RoomEnvironment plus one soft key
     light whose shadow covers the layout), three-quarter camera slightly above
     (container-spec.md section 7), looking from the side opposite the lids' room so open
     lids lie behind their containers.
   - Drag rotates, scroll zooms (OrbitControls from the vendored release).
+  - Selection and focus (D28): clicks and double clicks are picked by casting a ray against
+    the containers' bodies, lids and floor labels. `select(null)` clears the selection and
+    `focus(null)`
+    frames every container. The pointer turns into a hand over a container.
   - Renders only while something moves or the user is rotating, so an idle view costs no CPU
     or GPU time.
   - Follows the size of its container. `dispose()` frees GPU resources and event listeners.
@@ -940,9 +957,14 @@ identical minifigures; a second capture the same day added both, and a two-page 
   covers what M12 adds: the brick fills `BLOCK_SIZE` with a stud on top; a lid is on the
   rim at 0 and where D26 puts it at 1; it never passes through its container on the way;
   open lids lie clear of every container and every other lid in an M11 layout of several
-  rows; the bounds hold every container and lid; the fitted camera sees every container
-  from several directions and aspect ratios, filling the view and centred; without WebGL
-  the result is null and the element untouched. The drawing is checked by hand with the 3D
+  rows; each floor label lies in front of its container, clear of every container, open lid
+  and other label, and inside the framed box; a label shows the name and count, shrinks or
+  shortens a long name to fit, and turns red when selected; the bounds hold every container
+  and lid; the fitted camera sees every container
+  from several directions and aspect ratios, filling the view and centred; a focused
+  container is framed alone, and all are when it is gone; the selection ring lies flat on
+  the floor, all around the lid and clear of it; without WebGL the result is null and the
+  element untouched. The drawing is checked by hand with the 3D
   items in the section 10 checklist, because testing WebGL output would need a browser
   test runner (D3).
 - **Builder: Claude Code** (moved from Codex at the user's request on 2026-10-31).

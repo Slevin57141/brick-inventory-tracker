@@ -38,9 +38,22 @@
       <section class="panel" aria-labelledby="view-title">
         <div class="panel-head">
           <h2 id="view-title">Storage</h2>
+          <p id="scene-hint" class="hint">Click a container to select it, double-click to zoom
+            in on it.</p>
           <button id="toggle-lids" type="button" aria-pressed="false">Open lids</button>
         </div>
-        <div id="scene" class="scene"></div>
+        <!-- The selection bar floats over the view: if it pushed the view down, the second click
+             of a double click would land somewhere else. -->
+        <div class="scene-wrap">
+          <div id="scene" class="scene"></div>
+          <div id="selection" class="selection" hidden>
+            <p id="selection-text" class="selection-text" aria-live="polite"></p>
+            <button id="focus-selected" type="button">Zoom in</button>
+            <button id="show-all" type="button">Show all</button>
+            <button id="list-selected" type="button">List its parts</button>
+            <button id="clear-selection" type="button">Clear selection</button>
+          </div>
+        </div>
         <p id="no-webgl" class="empty" hidden>The 3D view needs WebGL.</p>
       </section>
 
