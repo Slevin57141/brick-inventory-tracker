@@ -521,13 +521,28 @@ identical minifigures; a second capture the same day added both, and a two-page 
   that belong to a set inside it (D24); stops at depth 3 and on cycles; fetches categories
   only when a part has a category ID not in `knownCategoryIds`; uses Rebrickable's `set_num`
   as `setNum`. Client errors pass through unchanged.
-- **Tests:** `normalizeSet` on captured fixtures (field mapping, null images, `colorIsTrans`, spare flag kept,
-  minifigure parts present, a quantity-2 minifigure in 75449-1 not multiplied again, and
-  75045-1 giving one line for part 30377 in colour 71, not spare, with quantity 3); the pack
-  66495-1 gives exactly the parts of its three contained sets, minifigure parts included, each
-  counted once (D24); a hand-made contained-sets response with a quantity of 2 doubles that
-  set's parts; cycle guard with hand-made fixtures; categories fetched only when needed;
-  client errors pass through.
+  - Depth: the set asked for is depth 1, so the sets inside it at depth 3 are imported but
+    not the sets inside those. A set that is not imported (depth limit, or a cycle, compared
+    case-insensitively) is counted through the lines of its parent's own response, so every
+    set further up drops its lines too: "a set inside it" means any set listed anywhere
+    below, imported or not. A set never drops lines with its own number.
+  - `knownCategoryIds` is any iterable of IDs as numbers or numeric strings (the data file's
+    category keys are strings). `categories` is the whole fetched list, or null when nothing
+    was fetched.
+  - `normalizeSet` leaves `containedSets` empty; `importSet` fills it in. Colours are stored
+    in upper case.
+  - Every field M4 keeps is checked: a set, part line, contained set or category of the
+    wrong shape (for example a quantity that is not a positive integer, or an `rgb` that is
+    not 6 hex digits) gives `api_unavailable`, so nothing malformed is saved.
+- **Tests:** `normalizeSet` on captured fixtures (field mapping, null images, `colorIsTrans`,
+  spare flag kept, minifigure parts present, a quantity-2 minifigure in 75449-1 not multiplied
+  again, and 75045-1 giving one line for part 30377 in colour 71, not spare, with quantity
+  3); no repeated combination in any fixture set; the pack 66495-1 gives exactly the parts of
+  its three contained sets, minifigure parts included, each counted once (D24); a contained
+  set with a quantity of 2 doubles that set's parts; a pack keeps its own and minifigure
+  lines; a cycle and a four-level chain, each part counted once; categories fetched only when
+  needed, with IDs as numbers, strings or a Set; client errors pass through as the same
+  object; malformed answers give `api_unavailable`.
 - **Builder: Claude Code.** It depends on F1 and F2, which Claude Code settles in phase 0, and
   it is the only consumer of M3's raw shapes, so one builder owns both sides of that boundary.
 

@@ -1,0 +1,154 @@
+// Fetches everything for one set and turns Rebrickable's JSON into a SetRecord (docs/plan.md
+// M4). This is the only code that reads the client's raw shapes, so it checks every field it
+// keeps: an answer of the wrong shape becomes api_unavailable instead of bad saved data.
+
+import { createError } from './errors.js';
+
+const MAX_DEPTH = 3;
+const RGB = /^[0-9A-Fa-f]{6}$/;
+
+export function createSetImporter({ client }) {
+  // Imports one set with everything inside it, at depth 1 for the set the user asked for.
+  // Returns the record and `listed`: every set number listed anywhere below this set. Those
+  // sets' parts are counted inside this record, either through their own import or, when the
+  // depth limit or a cycle stopped it, through the lines of their parent's response, so every
+  // set further up drops their lines from its own response (D24).
+  async function importOne(setNum, depth, ancestors) {
+    const details = normalizeSet(await client.getSet(setNum), []);
+    const rawLines = await client.getSetParts(setNum);
+    const containedSets = (await client.getContainedSets(setNum)).map(toContainedSet);
+
+    const self = key(details.setNum);
+    const path = new Set(ancestors).add(self);
+    const listed = new Set(containedSets.map((contained) => key(contained.setNum)));
+    const inside = new Set();
+    const childLines = [];
+    for (const contained of containedSets) {
+      const id = key(contained.setNum);
+      if (depth >= MAX_DEPTH || path.has(id)) {
+        continue; // its parts stay counted through this set's own response
+      }
+      const child = await importOne(contained.setNum, depth + 1, path);
+      inside.add(id);
+      for (const below of child.listed) {
+        inside.add(below);
+        listed.add(below);
+      }
+      for (const line of child.record.parts) {
+        childLines.push({ ...line, quantity: line.quantity * contained.quantity });
+      }
+    }
+    // A set never drops its own lines, even when bad data lists it inside itself.
+    inside.delete(self);
+    listed.delete(self);
+
+    const ownLines = rawLines.filter((line) => !inside.has(key(line?.set_num)));
+    const record = {
+      ...details,
+      containedSets,
+      parts: mergePartLines([...ownLines.map(toPartLine), ...childLines]),
+    };
+    return { record, listed };
+  }
+
+  return Object.freeze({
+    async importSet(setNum, { knownCategoryIds = [] } = {}) {
+      const { record } = await importOne(setNum, 1, new Set());
+      // The data file's category keys are strings, so IDs may come in either form.
+      const known = new Set([...knownCategoryIds].map(Number));
+      if (record.parts.every((line) => known.has(line.categoryId))) {
+        return { record, categories: null };
+      }
+      const categories = (await client.getPartCategories()).map(toCategory);
+      return { record, categories };
+    },
+  });
+}
+
+/** Maps a set and its part lines to a SetRecord. containedSets is left empty for importSet. */
+export function normalizeSet(rawSet, rawPartLines) {
+  expect(isObject(rawSet) && Array.isArray(rawPartLines));
+  const { set_num: setNum, name, year, set_img_url: imgUrl, num_parts: numParts } = rawSet;
+  expect(isText(setNum) && typeof name === 'string' && Number.isInteger(year));
+  expect(imgUrl === null || imgUrl === undefined || typeof imgUrl === 'string');
+  expect(Number.isInteger(numParts) && numParts >= 0);
+  return {
+    setNum,
+    name,
+    year,
+    imgUrl: imgUrl ?? null,
+    numParts,
+    containedSets: [],
+    parts: mergePartLines(rawPartLines.map(toPartLine)),
+  };
+}
+
+/** Merges lines with the same part, colour and spare flag; the first line gives the rest. */
+export function mergePartLines(lines) {
+  const merged = new Map();
+  for (const line of lines) {
+    const id = JSON.stringify([line.partNum, line.colorId, line.isSpare]);
+    const existing = merged.get(id);
+    if (existing) {
+      existing.quantity += line.quantity;
+      existing.imgUrl ??= line.imgUrl;
+    } else {
+      merged.set(id, { ...line });
+    }
+  }
+  return [...merged.values()];
+}
+
+function toPartLine(raw) {
+  expect(isObject(raw) && isObject(raw.part) && isObject(raw.color));
+  const { part, color } = raw;
+  expect(isText(part.part_num) && typeof part.name === 'string');
+  expect(Number.isInteger(part.part_cat_id));
+  expect(part.part_img_url === null || part.part_img_url === undefined
+    || typeof part.part_img_url === 'string');
+  expect(Number.isInteger(color.id) && typeof color.name === 'string');
+  expect(typeof color.rgb === 'string' && RGB.test(color.rgb));
+  expect(typeof color.is_trans === 'boolean' && typeof raw.is_spare === 'boolean');
+  expect(Number.isInteger(raw.quantity) && raw.quantity > 0);
+  return {
+    partNum: part.part_num,
+    name: part.name,
+    categoryId: part.part_cat_id,
+    colorId: color.id,
+    colorName: color.name,
+    colorRgb: color.rgb.toUpperCase(),
+    colorIsTrans: color.is_trans,
+    imgUrl: part.part_img_url ?? null,
+    quantity: raw.quantity,
+    isSpare: raw.is_spare,
+  };
+}
+
+function toContainedSet(raw) {
+  expect(isObject(raw) && isText(raw.set_num) && typeof raw.set_name === 'string');
+  expect(Number.isInteger(raw.quantity) && raw.quantity > 0);
+  return { setNum: raw.set_num, name: raw.set_name, quantity: raw.quantity };
+}
+
+function toCategory(raw) {
+  expect(isObject(raw) && Number.isInteger(raw.id) && typeof raw.name === 'string');
+  return { id: raw.id, name: raw.name };
+}
+
+function key(setNum) {
+  return typeof setNum === 'string' ? setNum.toLowerCase() : setNum;
+}
+
+function isObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isText(value) {
+  return typeof value === 'string' && value !== '';
+}
+
+function expect(condition) {
+  if (!condition) {
+    throw createError('api_unavailable');
+  }
+}
