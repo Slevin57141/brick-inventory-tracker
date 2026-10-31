@@ -3,12 +3,14 @@
 // over the data file, which replaces the old file in one step. A data file that cannot be
 // read is reported and left exactly as it is, so nothing the user saved is lost.
 
+import { randomUUID } from 'node:crypto';
 import { mkdir, open, readFile, rename as fsRename, rm } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { createError } from './errors.js';
 import { emptyState } from './inventory.js';
 
 const VERSION = 1;
+const RGB = /^[0-9A-Fa-f]{6}$/;
 // On Windows, a virus scanner or backup tool briefly holding the data file makes the rename
 // fail with one of these; waiting a moment and trying again is enough.
 const RETRY_CODES = new Set(['EPERM', 'EBUSY', 'EACCES']);
@@ -20,15 +22,15 @@ export function createStorage({
   sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 }) {
   let queue = Promise.resolve();
-  let counter = 0;
 
   async function write(state) {
     const folder = dirname(filePath);
     await mkdir(folder, { recursive: true });
-    counter += 1;
-    const temporary = join(folder, `.${basename(filePath)}.${process.pid}-${counter}.tmp`);
+    // A name of its own for every save, so two storages on one file cannot collide, and
+    // only a file this save created is ever removed (Codex's review of PR 12).
+    const temporary = join(folder, `.${basename(filePath)}.${randomUUID()}.tmp`);
+    const handle = await open(temporary, 'wx');
     try {
-      const handle = await open(temporary, 'wx');
       try {
         await handle.writeFile(`${JSON.stringify(state, null, 2)}\n`);
         await handle.sync();
@@ -104,10 +106,22 @@ function isValidState(state) {
 function isValidEntry(key, entry) {
   return isObject(entry)
     && entry.setNum === key
-    && Number.isInteger(entry.copies) && entry.copies >= 1
+    && typeof entry.name === 'string'
+    && Number.isInteger(entry.year)
+    && isImage(entry.imgUrl)
+    && Number.isInteger(entry.numParts) && entry.numParts >= 0
+    && isPositiveInteger(entry.copies)
     && Array.isArray(entry.containedSets)
+    && entry.containedSets.every(isValidContainedSet)
     && Array.isArray(entry.parts)
     && entry.parts.every(isValidPart);
+}
+
+function isValidContainedSet(contained) {
+  return isObject(contained)
+    && typeof contained.setNum === 'string'
+    && typeof contained.name === 'string'
+    && isPositiveInteger(contained.quantity);
 }
 
 function isValidPart(part) {
@@ -117,11 +131,19 @@ function isValidPart(part) {
     && Number.isInteger(part.categoryId)
     && Number.isInteger(part.colorId)
     && typeof part.colorName === 'string'
-    && typeof part.colorRgb === 'string'
+    && typeof part.colorRgb === 'string' && RGB.test(part.colorRgb)
     && typeof part.colorIsTrans === 'boolean'
-    && (part.imgUrl === null || typeof part.imgUrl === 'string')
-    && Number.isInteger(part.quantity) && part.quantity >= 1
+    && isImage(part.imgUrl)
+    && isPositiveInteger(part.quantity)
     && typeof part.isSpare === 'boolean';
+}
+
+function isImage(value) {
+  return value === null || typeof value === 'string';
+}
+
+function isPositiveInteger(value) {
+  return Number.isInteger(value) && value >= 1;
 }
 
 function isObject(value) {

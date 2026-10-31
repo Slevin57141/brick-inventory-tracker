@@ -611,20 +611,26 @@ identical minifigures; a second capture the same day added both, and a two-page 
   Windows, another program briefly holding the file) is retried a few times.
   - `load` also throws `data_file_invalid` when the path cannot be read (for example, it is
     a folder) or when the file does not have the section 6 shape: `version` 1, string
-    category names, and for every set an entry whose `setNum` matches its key, `copies` of
-    1 or more, a `containedSets` array and PartLines with the right types and a positive
-    integer quantity. A leading byte order mark (from a text editor) is ignored.
-  - The temporary file is flushed to disk before the rename. `EACCES` is retried too, since
-    Windows reports a held file with any of the three codes. Retries wait 50, 100, 200, 400
-    and 800 ms (about 1.6 s in all); then the error is thrown. A failed save removes its
-    temporary file, leaves the data file as it was, and rejects only its own caller; later
-    saves still run.
+    category names, and for every set an entry whose `setNum` matches its key, with a
+    string `name`, an integer `year`, `imgUrl` a string or null, `numParts` 0 or more,
+    `copies` 1 or more, `containedSets` entries of `{ setNum, name, quantity }` with a
+    positive quantity, and PartLines with the right types, `colorRgb` of 6 hex digits
+    (either case) and a positive integer quantity. A leading byte order mark (from a text
+    editor) is ignored.
+  - Every save writes a temporary file of its own, named with a random UUID, so two
+    storages on one file cannot collide; a save that cannot create its temporary file
+    removes nothing. The temporary file is flushed to disk before the rename. `EACCES` is
+    retried too, since Windows reports a held file with any of the three codes. Retries
+    wait 50, 100, 200, 400 and 800 ms (about 1.6 s in all); then the error is thrown. A
+    failed save removes its temporary file, leaves the data file as it was, and rejects
+    only its own caller; later saves still run.
 - **Tests** (in a temporary folder): round trip; missing file, not created by `load`;
   corrupt file left byte-for-byte unchanged and an error thrown; unknown version; files of
-  the wrong shape; a path that cannot be read; a byte order mark; overlapping saves end with
-  the last state; folder created; no temporary files left behind; a rename refused with
-  each retried code succeeds on retry; a save that keeps failing keeps the old file, and
-  other errors are not retried; a failed save does not stop later saves.
+  the wrong shape, each left unchanged; a path that cannot be read; a byte order mark;
+  overlapping saves end with the last state; two storages on one file, one save held at
+  its rename while the other completes; folder created; no temporary files left behind; a
+  rename refused with each retried code succeeds on retry; a save that keeps failing keeps
+  the old file, and other errors are not retried; a failed save does not stop later saves.
 - **Builder: Claude Code.** Its main risk is replacing a file by rename, which behaves
   differently on Windows (a file briefly held by another program blocks it). This machine runs
   Windows, so the builder can test that case where it matters. M7, its only user, is also

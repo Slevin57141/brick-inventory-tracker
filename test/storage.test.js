@@ -72,27 +72,79 @@ folderTest('a corrupt file throws data_file_invalid and is left byte for byte', 
   }
 });
 
-folderTest('a file of the wrong shape throws data_file_invalid', async (folder) => {
+folderTest('a file of the wrong shape throws data_file_invalid and is kept', async (folder) => {
   const filePath = join(folder, 'inventory.json');
   const valid = state('10270-1');
+  const withEntry = (changes) => ({
+    ...valid, sets: { '10270-1': { ...entry('10270-1'), ...changes } },
+  });
+  const withPart = (changes) => withEntry({ parts: [{ ...part, ...changes }] });
+  const { name, ...noName } = entry('10270-1');
+  const contained = { setNum: '75037-1', name: 'Battle on Saleucami', quantity: 1 };
   const broken = [
     { ...valid, version: undefined },
     { ...valid, categories: [] },
     { ...valid, categories: { 11: 7 } },
     { ...valid, sets: null },
-    { ...valid, sets: { '10270-1': { ...entry('10270-1'), setNum: '99-1' } } },
-    { ...valid, sets: { '10270-1': { ...entry('10270-1'), copies: 0 } } },
-    { ...valid, sets: { '10270-1': { ...entry('10270-1'), parts: {} } } },
-    { ...valid, sets: { '10270-1': { ...entry('10270-1'), containedSets: null } } },
-    { ...valid, sets: { '10270-1': { ...entry('10270-1'), parts: [{ ...part, quantity: '6' }] } } },
-    { ...valid, sets: { '10270-1': { ...entry('10270-1'), parts: [{ ...part, colorId: null }] } } },
-    { ...valid, sets: { '10270-1': { ...entry('10270-1'), parts: [{ ...part, isSpare: 1 }] } } },
-    { ...valid, sets: { '10270-1': { ...entry('10270-1'), parts: [null] } } },
+    { ...valid, sets: { '10270-1': noName } },
+    withEntry({ setNum: '99-1' }),
+    withEntry({ year: '2020' }),
+    withEntry({ imgUrl: 7 }),
+    withEntry({ numParts: -1 }),
+    withEntry({ numParts: undefined }),
+    withEntry({ copies: 0 }),
+    withEntry({ parts: {} }),
+    withEntry({ containedSets: null }),
+    withEntry({ containedSets: [null] }),
+    withEntry({ containedSets: [{ ...contained, quantity: 0 }] }),
+    withEntry({ containedSets: [{ ...contained, name: undefined }] }),
+    withPart({ quantity: '6' }),
+    withPart({ colorId: null }),
+    withPart({ colorRgb: 'red' }),
+    withPart({ colorRgb: 'C91A0' }),
+    withPart({ isSpare: 1 }),
+    withEntry({ parts: [null] }),
   ];
   for (const content of broken) {
-    await writeFile(filePath, JSON.stringify(content));
-    await assert.rejects(createStorage({ filePath }).load(), isDataFileInvalid);
+    const bytes = Buffer.from(JSON.stringify(content));
+    await writeFile(filePath, bytes);
+    await assert.rejects(createStorage({ filePath }).load(), isDataFileInvalid,
+      JSON.stringify(content).slice(0, 200));
+    assert.deepEqual(await readFile(filePath), bytes);
   }
+
+  const accepted = withEntry({
+    containedSets: [contained], parts: [{ ...part, colorRgb: 'c91a09' }],
+  });
+  await writeFile(filePath, JSON.stringify(accepted));
+  assert.deepEqual(await createStorage({ filePath }).load(), accepted);
+});
+
+folderTest('two storages on one file never touch each other\'s temporary file', async (folder) => {
+  // Codex's review of PR 12: with names from a per-storage counter, the second save's
+  // exclusive create failed, and its cleanup removed the first save's temporary file.
+  const filePath = join(folder, 'inventory.json');
+  let release;
+  let renaming;
+  const renameStarted = new Promise((resolve) => { renaming = resolve; });
+  const held = createStorage({
+    filePath,
+    rename: async (from, to) => {
+      renaming();
+      await new Promise((resolve) => { release = resolve; });
+      return rename(from, to);
+    },
+  });
+  const other = createStorage({ filePath });
+
+  const first = held.save(state('10270-1'));
+  await renameStarted;
+  await other.save(state('10271-1'));
+  assert.deepEqual(await other.load(), state('10271-1'));
+  release();
+  await first;
+  assert.deepEqual(await other.load(), state('10270-1'));
+  assert.deepEqual(await readdir(folder), ['inventory.json']);
 });
 
 folderTest('a data file path that cannot be read throws data_file_invalid', async (folder) => {
