@@ -124,6 +124,24 @@ test('without a key, nothing is requested and key_required is thrown', async () 
   assert.deepEqual(clock.sleeps, []);
 });
 
+test('a key forgotten while a request waits its turn gives key_required', async () => {
+  // Codex's review of PR 8: the key read after the wait used to be inside the fetch catch.
+  let key = SENTINEL;
+  const clock = fakeClock();
+  const fetch = createFakeFetch({ [SET_ROUTE]: 'set-31146-1' });
+  const sleep = async (ms) => {
+    key = null;
+    await clock.sleep(ms);
+  };
+  const client = createRebrickableClient({
+    keyStore: { get: () => key }, fetch, sleep, now: clock.now,
+  });
+
+  await client.getSet('31146-1');
+  await assert.rejects(client.getSet('31146-1'), isAppError('key_required'));
+  assert.equal(fetch.requests.length, 1);
+});
+
 test('pages are joined in order by following next', async () => {
   const { client, fetch } = makeClient({
     [PARTS_ROUTE]: 'set-76991-1-parts-size100-page1',

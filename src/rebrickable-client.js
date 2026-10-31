@@ -45,11 +45,14 @@ export function createRebrickableClient({
     for (let attempt = 1; ; attempt += 1) {
       key(); // throws key_required before taking a turn, so no request is made
       await waitForTurn();
+      // Read again after the wait, outside the catch below, so a key forgotten meanwhile
+      // gives key_required rather than api_unavailable.
+      const authorization = `key ${key()}`;
 
       let response;
       try {
         response = await fetch(target, {
-          headers: { Authorization: `key ${key()}`, Accept: 'application/json' },
+          headers: { Authorization: authorization, Accept: 'application/json' },
           signal: AbortSignal.timeout(timeoutMs),
         });
       } catch {
