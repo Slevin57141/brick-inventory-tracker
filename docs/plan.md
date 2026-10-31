@@ -279,6 +279,7 @@ public/
   js/api.js, js/app.js                         M10
   js/inventory-view.js                         M9
   js/scene-layout.js                           M11
+  js/model-view.js                             M15 the built set in 3D (D31)
   js/brick-scene.js                            M12
   js/container-spec.js, js/container-model.js  M13
   container.html, container.css                M13  preview page (R28)
@@ -846,8 +847,11 @@ identical minifigures; a second capture the same day added both, and a two-page 
     set shows its facts (D30) and "Details" and "Remove one" buttons; a pack lists its
     contained sets. The part count is left out when Rebrickable reports 0, as it does for
     packs. A double click on a set, outside its buttons and link, opens its details.
-  - The set details dialog: the set's image, facts and contained sets, and the parts of one
-    copy with totals, sortable on every column independently of the parts list.
+  - The set details dialog: the set's image, facts and contained sets, the built model
+    (M15) when the server has the LDraw library and a model of the set, and the parts of one
+    copy with totals, sortable on every column independently of the parts list. Without the
+    library, or without a model, a note says where to get them. The model view is freed
+    when the dialog closes or shows another set.
   - Parts list (R8-R10) with search, a filter and a sort on every column (D27), totals,
     and a "Clear filters" button. Headings are buttons and carry `aria-sort`; the headings
     and filter row stay in view while the list scrolls. Colour and category options come
@@ -1143,6 +1147,28 @@ identical minifigures; a second capture the same day added both, and a two-page 
   parsing of sections, quads and colours.
 - **Builder: Claude Code**, at the user's request (D31).
 
+### M15. model-view
+
+- **Responsibility:** draw the built set from its LDraw model (D31) in the set details.
+- **Interface:**
+  ```
+  createModelView(element, { loadShape, onProgress }) -> { show(model), dispose() } | null
+  ldrawMatrix([x y z a b c d e f g h i]) -> Matrix4   ldrawGeometry(positions) -> geometry
+  ```
+  `model` is what `api.getSetModel` returns (M14); `loadShape` is the same part loader as
+  M12's. It returns null without WebGL, leaving the element untouched.
+- **Behaviour:** the model stands up (half a turn about x, as LDraw's y points down) at
+  0.01 world units per LDraw unit. Placed parts are drawn with one instanced mesh per part
+  and colour, parts loaded six at a time and shown as they arrive, with `onProgress({
+  loaded, total })`; a part that does not load is left out. See-through colours blend
+  normally, since there are no frosted walls here. The camera frames what has arrived,
+  from the front and a little above; drag turns and scroll zooms. It draws only when
+  something changes. `show` replaces the model shown, and a newer `show` stops the older
+  one's loading.
+- **Tests:** LDraw matrices place points as LDraw does; triangles become a geometry with
+  face normals; without WebGL the result is null. The drawing is checked by hand.
+- **Builder: Claude Code**, at the user's request (D31).
+
 ## 9. Ownership and build order
 
 | Phase | Claude Code (this machine) | Codex (other machine) | User |
@@ -1151,7 +1177,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
 | 1 | M2, M3, M4, M6, M13 | M1, M5, M9, M11 | Merge reviewed pull requests |
 | 2 | M7, M8 (after phase 1 is merged); M12, M10 (moved from Codex) | | Merge reviewed pull requests |
 | 3 | Review Codex's modules | Review Claude Code's modules, key path first | Manual checklist (section 10) |
-| 4 | The user's requests of 2026-10-31 (D27-D31), M14, and changes to M5, M9 and M11 | Review and test them | Capture the themes fixture; download the LDraw library |
+| 4 | The user's requests of 2026-10-31 (D27-D31), M14, M15, and changes to M5, M9 and M11 | Review and test them | Capture the themes fixture; download the LDraw library |
 
 Each module gets its own branch and pull request, reviewed by the other tool before merging.
 AGENTS.md has the details.

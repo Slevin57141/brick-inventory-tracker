@@ -613,6 +613,13 @@ dialog {
   background: var(--background);
 }
 
+.set-model-view {
+  height: min(55vh, 420px);
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--scene);
+}
+
 .set-dialog .table-wrap {
   max-height: 50vh;
 }

@@ -51,8 +51,9 @@ Rebrickable has no 3D models, so out of the box every block is a plain brick. Wi
 
 Parts the library does not have stay plain bricks. For a 3D model of a built set, download
 its model file from the LDraw Official Model Repository (<https://library.ldraw.org/omr>)
-and put it in `ldraw/omr/`, keeping its name, which starts with the set number (for example
-`6024-1 - Bike Shop.mpd`). Models exist for some sets only. The library comes with its own
+and put it in `ldraw/omr/`, keeping its name, which is the set number (for example
+`10002-1.mpd`; a name such as `10002-1 - Railroad Club Car.mpd` works too). The set's
+details then show it built. Models exist for some sets only. The library comes with its own
 licence files.
 
 ### Settings
