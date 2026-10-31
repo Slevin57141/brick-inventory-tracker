@@ -198,9 +198,11 @@ Other facts from the same captures, for M3 and M4:
   with its 22 minifigure pieces), and a pack has 0. It stays display only (section 6).
 - A contained-sets entry has `id`, `set_num`, `set_name`, `quantity` and `set_img_url`, which
   map to `containedSets` in section 6.
-- An ordinary set's response never repeats a part, colour and spare flag combination. The
-  pack's response does (27 times, across its contained sets), so `mergePartLines` matters
-  whenever lines from several sets are joined.
+- Within one `set_num`, a response never repeats a part, colour and spare flag combination,
+  but across `set_num` values it does: between a set and its minifigures (75045-1: part 30377
+  in colour 71 once for the set and twice for `fig-004039`, 3 in all), between two
+  minifigures (75037-1, 75449-1), and between a pack's contained sets (66495-1, 26
+  combinations). So M4 merges matching lines for every set, not only for packs.
 - Every `part_cat_id` appears in the part categories response (76 categories, one page).
 - At `page_size=1000` every parts response fits on one page (the largest, the pack, has 304
   lines). At page size 100, 76991-1 gives two pages of 100 and 98 lines. Page 1's `next` is
@@ -325,7 +327,8 @@ Types used in the interfaces below:
   (boolean).
 - **SetRecord**: `setNum` (as returned by Rebrickable), `name`, `year`, `imgUrl` (string or
   null), `numParts` (as reported by Rebrickable; display only, never used for totals),
-  `containedSets` (`[{ setNum, name, quantity }]`), `parts` (PartLine[]).
+  `containedSets` (`[{ setNum, name, quantity }]`), `parts` (PartLine[]; no two lines share
+  `partNum`, `colorId` and `isSpare`).
 - **SetEntry**: a SetRecord plus `copies` (integer, 1 or more). This is what the data file
   stores under `sets`.
 - **State**: `{ version: 1, categories: { [id]: name }, sets: { [setNum]: SetEntry } }`.
@@ -508,8 +511,9 @@ identical minifigures; a second capture the same day added both, and a two-page 
   createSetImporter({ client })
     .importSet(setNum, { knownCategoryIds })
         -> Promise<{ record: SetRecord, categories: [{ id, name }] | null }>
-  normalizeSet(rawSet, rawPartLines) -> SetRecord   // pure, exported for tests
-  mergePartLines(lines) -> PartLine[]               // merges equal partNum + colorId + isSpare
+  normalizeSet(rawSet, rawPartLines) -> SetRecord   // pure, exported for tests; merges lines
+  mergePartLines(lines) -> PartLine[]               // merges equal partNum + colorId + isSpare,
+                                                    // adding their quantities
   ```
 - **Behaviour:** fetches details, parts (with minifigure parts) and contained sets; uses
   minifigure part quantities as they come (F1); imports each contained set the same way and
@@ -518,7 +522,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
   only when a part has a category ID not in `knownCategoryIds`; uses Rebrickable's `set_num`
   as `setNum`. Client errors pass through unchanged.
 - **Tests:** `normalizeSet` on captured fixtures (field mapping, null images, `colorIsTrans`, spare flag kept,
-  minifigure parts present, a quantity-2 minifigure in 75449-1 not multiplied again); the pack
+  minifigure parts present, a quantity-2 minifigure in 75449-1 not multiplied again, and
+  75045-1 giving one line for part 30377 in colour 71, not spare, with quantity 3); the pack
   66495-1 gives exactly the parts of its three contained sets, minifigure parts included, each
   counted once (D24); a hand-made contained-sets response with a quantity of 2 doubles that
   set's parts; cycle guard with hand-made fixtures; categories fetched only when needed;
