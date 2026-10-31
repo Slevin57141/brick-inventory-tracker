@@ -68,6 +68,14 @@ export function createApi({ fetch = (...args) => globalThis.fetch(...args) } = {
     forgetKey: () => keyState(request('DELETE', '/api/key')),
     /** SetSummary[] */
     listSets: () => field(request('GET', '/api/sets'), 'sets', Array.isArray),
+    /** One saved set and the parts of one copy: `{ set: SetSummary, rows: InventoryRow[] }`. */
+    getSet: async (setNum) => {
+      const data = await request('GET', `/api/sets/${encodeURIComponent(setNum)}`);
+      if (!isObject(data.set) || !Array.isArray(data.rows)) {
+        throw new ApiError(UNEXPECTED);
+      }
+      return { set: data.set, rows: data.rows };
+    },
     /** The added set's SetSummary. */
     addSet: (setNumber) => field(request('POST', '/api/sets', { setNumber }), 'set', isObject),
     /** The SetSummary with one copy fewer, or null when the last copy went. */

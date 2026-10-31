@@ -4,7 +4,7 @@
 
 import { createError } from './errors.js';
 import {
-  addCategories, addCopy, buildInventory, findSet, listSets, removeCopy,
+  addCategories, addCopy, buildInventory, findSet, removeCopy,
 } from './inventory.js';
 import { normalizeSetNumber } from './set-number.js';
 
@@ -72,7 +72,18 @@ export function createCollection({ storage, importer }) {
     },
 
     listSets() {
-      return listSets(current());
+      return Object.values(current().sets).map(summary);
+    },
+
+    // One saved set and the parts of one copy of it, as inventory rows.
+    getSet(setNum) {
+      const before = current();
+      const saved = typeof setNum === 'string' ? findSet(before, setNum) : null;
+      if (!saved) {
+        throw createError('not_owned');
+      }
+      const one = { ...before, sets: { [saved.setNum]: { ...saved, copies: 1 } } };
+      return { set: summary(saved), rows: buildInventory(one) };
     },
 
     getInventory() {
@@ -81,6 +92,7 @@ export function createCollection({ storage, importer }) {
   });
 }
 
+// A SetEntry without its parts, plus the number of pieces in one copy (spares counted, D1).
 function summary({ parts, ...rest }) {
-  return rest;
+  return { ...rest, pieces: parts.reduce((sum, part) => sum + part.quantity, 0) };
 }

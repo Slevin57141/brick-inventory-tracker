@@ -38,6 +38,8 @@ test('each function calls its route and returns the data it carries', async () =
     ['removeSet', ['10270-1'], { set: SET }, 'DELETE', '/api/sets/10270-1', undefined, SET],
     ['removeSet', ['10270-1'], { set: null }, 'DELETE', '/api/sets/10270-1', undefined, null],
     ['getInventory', [], { rows: [ROW] }, 'GET', '/api/inventory', undefined, [ROW]],
+    ['getSet', ['10270-1'], { set: SET, rows: [ROW] }, 'GET', '/api/sets/10270-1', undefined,
+      { set: SET, rows: [ROW] }],
   ];
   for (const [name, args, answer, method, path, body, result] of cases) {
     const { fetch, calls } = fakeFetch({ body: answer });
@@ -94,9 +96,10 @@ test('an answer that is not the expected JSON is internal_error', async () => {
     { status: 200, body: 'not json' },
     { status: 200, body: { sets: 'not a list' } },
     { status: 200, body: { hasKey: 'yes' } },
+    { status: 200, body: { set: SET } },
   ];
   const calls = [(api) => api.listSets(), (api) => api.listSets(), (api) => api.listSets(),
-    (api) => api.listSets(), (api) => api.getStatus()];
+    (api) => api.listSets(), (api) => api.getStatus(), (api) => api.getSet('10270-1')];
   for (const [index, answer] of answers.entries()) {
     const { fetch } = fakeFetch(answer);
     await assert.rejects(calls[index](createApi({ fetch })), (error) => {

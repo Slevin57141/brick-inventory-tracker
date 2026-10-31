@@ -116,13 +116,16 @@ export function createServer({ collection, keyStore, client, logger, publicDir, 
         throw error;
       }
     }
-    const remove = /^\/api\/sets\/([^/]+)$/.exec(path);
-    if (remove && method === 'DELETE') {
+    const one = /^\/api\/sets\/([^/]+)$/.exec(path);
+    if (one && (method === 'GET' || method === 'DELETE')) {
       let setNum;
       try {
-        setNum = decodeURIComponent(remove[1]);
+        setNum = decodeURIComponent(one[1]);
       } catch {
         throw createError('bad_request');
+      }
+      if (method === 'GET') {
+        return sendJson(response, 200, collection.getSet(setNum));
       }
       return sendJson(response, 200, { set: await collection.removeSet(setNum) });
     }
