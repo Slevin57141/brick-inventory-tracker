@@ -12,6 +12,7 @@ import {
   Color,
   CylinderGeometry,
   DirectionalLight,
+  DoubleSide,
   Float32BufferAttribute,
   InstancedMesh,
   Matrix4,
@@ -56,6 +57,15 @@ const LID_LIFT = 0.12;
 const STUD = { radius: 0.054, height: 0.03 };
 // Below this a container or lid is not drawn; also keeps divisions by the scale finite.
 const MIN_SCALE = 1e-4;
+// LDraw units per world unit: a 1 x 1 brick is 20 units wide and fills BLOCK_SIZE's width.
+const LDRAW_UNIT = BLOCK_SIZE.width / 20;
+// Part shapes asked of the server at the same time (D31).
+const SHAPE_REQUESTS = 6;
+// The space between stacked blocks: M11's layer pitch less a block's height, so plain bricks
+// stack exactly where M11 puts them.
+const STACK_GAP = 0.02;
+// How long arriving shapes are gathered before the blocks settle on them.
+const SETTLE_DELAY = 250;
 // A three-quarter view from slightly above (container-spec.md section 7). Lids open toward +z,
 // where M11 keeps room for them, so the camera looks from -z to see them behind their
 // containers.
@@ -76,6 +86,68 @@ const SELECTION_GLOW = 0x5a1510;
 const RING = { gap: 0.03, width: 0.035 };
 // A press that moves less than this many pixels is a click, not a turn of the view.
 const CLICK_SLOP = 5;
+
+/**
+ * A part's shape for a block (D31), from its LDraw triangles (LDraw units and axes, nine numbers
+ * per triangle): turned the right way up (LDraw's y points down), centred on the origin, and
+ * shrunk to fit BLOCK_SIZE if it is bigger, never enlarged, so small parts stay small.
+ */
+export function createPartGeometry(positions) {
+  const points = new Float32Array(positions.length);
+  for (let i = 0; i < positions.length; i += 3) {
+    // Half a turn about x: y up, and z flipped with it so the part is not mirrored.
+    points[i] = positions[i] * LDRAW_UNIT;
+    points[i + 1] = -positions[i + 1] * LDRAW_UNIT;
+    points[i + 2] = -positions[i + 2] * LDRAW_UNIT;
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new Float32BufferAttribute(points, 3));
+  geometry.computeBoundingBox();
+  const { min, max } = geometry.boundingBox;
+  const fit = Math.min(1, BLOCK_SIZE.width / Math.max(max.x - min.x, 1e-9),
+    BLOCK_SIZE.height / Math.max(max.y - min.y, 1e-9),
+    BLOCK_SIZE.depth / Math.max(max.z - min.z, 1e-9));
+  geometry.translate(-(min.x + max.x) / 2, -(min.y + max.y) / 2, -(min.z + max.z) / 2);
+  geometry.scale(fit, fit, fit);
+  // Flat normals from each face; LDraw's winding is not followed, and the materials draw
+  // both sides, which turns every normal toward the viewer.
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
+/**
+ * The layout with every block resting on the one below it in its column (D31), instead of
+ * standing in a cell as tall as a brick, so flat parts lie on each other. `heightOf(block)` is
+ * the height of the shape the block is drawn with. A column starts on its container's floor,
+ * where M11 puts the lowest layer; with every block a plain brick, nothing moves.
+ */
+export function stackBlocks(layout, heightOf) {
+  const floors = new Map();
+  const columns = new Map();
+  for (const block of layout.blocks) {
+    const bottom = block.position.y - BLOCK_SIZE.height / 2;
+    floors.set(block.categoryId, Math.min(floors.get(block.categoryId) ?? Infinity, bottom));
+    const key = `${block.categoryId}|${block.position.x}|${block.position.z}`;
+    if (!columns.has(key)) {
+      columns.set(key, []);
+    }
+    columns.get(key).push(block);
+  }
+  const heights = new Map();
+  for (const column of columns.values()) {
+    column.sort((a, b) => a.position.y - b.position.y);
+    let y = floors.get(column[0].categoryId);
+    for (const block of column) {
+      const height = heightOf(block);
+      heights.set(block.key, y + height / 2);
+      y += height + STACK_GAP;
+    }
+  }
+  return { ...layout, blocks: layout.blocks.map((block) => ({ ...block,
+    position: { ...block.position, y: heights.get(block.key) } })) };
+}
 
 /** The D14 brick, centred on the origin and exactly BLOCK_SIZE: a body with a stud on top. */
 export function createBrickGeometry() {
@@ -312,9 +384,12 @@ export function fitCamera(points, { fov, aspect }, direction) {
  * setting, followed as it changes. `onSelectionChange({ selected, focused })` is called when
  * the selected or focused container changes, or the selected one's piece count does:
  * `selected` is `{ categoryId, categoryName, pieces }` or null, `focused` a category ID or
- * null.
+ * null. `loadShape(names)` resolves with a part's LDraw triangles, or null (D31); without
+ * it every block is the plain brick.
  */
-export function createBrickScene(element, { reducedMotion, onSelectionChange = () => {} } = {}) {
+export function createBrickScene(element, {
+  reducedMotion, onSelectionChange = () => {}, loadShape = null,
+} = {}) {
   let renderer;
   try {
     renderer = new WebGLRenderer({ antialias: true });
@@ -339,7 +414,7 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
     'Storage containers, one per part category, holding blocks in the colours of the parts');
   const legend = document.createElement('p');
   legend.className = 'brick-scene-legend';
-  legend.textContent = `1 block = ${PIECES_PER_BLOCK} pieces`;
+  legend.textContent = `1 block = up to ${PIECES_PER_BLOCK} pieces of one part`;
   legend.style.position = 'absolute';
   const empty = document.createElement('p');
   empty.className = 'brick-scene-empty';
@@ -391,13 +466,21 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
   const labelGeometry = new PlaneGeometry(1, 1).rotateX(-Math.PI / 2).rotateY(Math.PI);
   // Hashed alpha keeps see-through bricks in the opaque pass, so they show through the
   // frosted walls like the others. Plain blending would draw them after the walls, which
-  // write depth and would hide them.
-  const blocks = {
-    solid: { material: new MeshStandardMaterial({ roughness: 0.3, metalness: 0 }),
-      mesh: null, capacity: 0 },
-    clear: { material: new MeshStandardMaterial({ roughness: 0.08, metalness: 0,
-      opacity: 0.5, alphaHash: true }), mesh: null, capacity: 0 },
+  // write depth and would hide them. Both sides are drawn for the LDraw shapes (D31).
+  const materials = {
+    solid: new MeshStandardMaterial({ roughness: 0.3, metalness: 0, side: DoubleSide }),
+    clear: new MeshStandardMaterial({ roughness: 0.08, metalness: 0, opacity: 0.5,
+      alphaHash: true, side: DoubleSide }),
   };
+  const blockMeshes = new Map(); // kind and shape -> { mesh, capacity }
+  // Part shapes by the LDraw names asked for: { geometry } once loaded, geometry null while
+  // loading or when the library has none, so the block stays the plain brick.
+  const shapes = new Map();
+  const plain = { key: '', geometry: brickGeometry };
+  const shapeQueue = [];
+  let shapeRequests = 0;
+  let blocksStale = false; // a shape arrived; the blocks are drawn again on the next frame
+  let settleTimer = 0;
   const colors = new Map();
   const containers = new Map(); // categoryId -> { container, label, item, lidMesh, ... }
   let selected = null; // category ID of the selected container
@@ -413,6 +496,7 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
   let lidHighlight = null; // the shared lid material, glowing; made on the first selection
 
   const empties = { piecesPerBlock: PIECES_PER_BLOCK, containers: [], blocks: [] };
+  let base = empties; // M11's layout, before blocks are stacked on each other
   let shown = empties; // the layout on screen once all motion ends
   let current = empties; // what is on screen now; a frame while a transition runs
   let transition = null;
@@ -443,7 +527,10 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
       applyContainers(current);
       applyBlocks(current);
       applySelection();
+    } else if (blocksStale) {
+      applyBlocks(current);
     }
+    blocksStale = false;
     if (lids.value !== lids.to) {
       const t = jump ? 1 : (now - lids.start) / DURATION;
       lids.value = t >= 1 ? lids.to : lids.from + (lids.to - lids.from) * easeInOutCubic(t);
@@ -527,14 +614,28 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
   const size = new Vector3();
   const turn = new Quaternion();
 
+  // Draws every block: one instanced mesh per shape and kind (solid or see-through).
   function applyBlocks(frame) {
-    const lists = { solid: [], clear: [] };
+    const groups = new Map();
     for (const block of frame.blocks) {
-      lists[block.colorIsTrans ? 'clear' : 'solid'].push(block);
+      const shape = shapeOf(block);
+      const kind = block.colorIsTrans ? 'clear' : 'solid';
+      const id = `${kind}|${shape.key}`;
+      if (!groups.has(id)) {
+        groups.set(id, { kind, geometry: shape.geometry, blocks: [] });
+      }
+      groups.get(id).blocks.push(block);
     }
-    for (const [kind, list] of Object.entries(lists)) {
-      const mesh = blockMesh(kind, list.length);
-      list.forEach((block, index) => {
+    for (const [id, slot] of blockMeshes) {
+      if (!groups.has(id)) {
+        scene.remove(slot.mesh);
+        slot.mesh.dispose();
+        blockMeshes.delete(id);
+      }
+    }
+    for (const [id, { kind, geometry, blocks }] of groups) {
+      const mesh = blockMesh(id, geometry, materials[kind], blocks.length);
+      blocks.forEach((block, index) => {
         place.set(block.position.x, block.position.y, block.position.z);
         size.setScalar(block.scale ?? 1); // only transition frames give blocks a scale
         mesh.setMatrixAt(index, matrix.compose(place, turn, size));
@@ -547,22 +648,87 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
     }
   }
 
-  // One instanced mesh per kind, replaced by a bigger one when the blocks outgrow it.
-  function blockMesh(kind, count) {
-    const slot = blocks[kind];
-    if (slot.mesh === null || slot.capacity < count) {
-      if (slot.mesh !== null) {
+  // One instanced mesh per shape and kind, replaced by a bigger one when its blocks outgrow
+  // it.
+  function blockMesh(id, geometry, material, count) {
+    let slot = blockMeshes.get(id);
+    if (slot === undefined || slot.capacity < count) {
+      if (slot !== undefined) {
         scene.remove(slot.mesh);
         slot.mesh.dispose();
       }
-      slot.capacity = Math.max(64, 2 ** Math.ceil(Math.log2(count)));
-      slot.mesh = new InstancedMesh(brickGeometry, slot.material, slot.capacity);
+      const capacity = Math.max(16, 2 ** Math.ceil(Math.log2(count)));
+      slot = { mesh: new InstancedMesh(geometry, material, capacity), capacity };
       // The bounds would have to be recomputed on every frame of a transition.
       slot.mesh.frustumCulled = false;
       scene.add(slot.mesh);
+      blockMeshes.set(id, slot);
     }
     slot.mesh.count = count;
     return slot.mesh;
+  }
+
+  // The shape a block is drawn with: its part's LDraw shape once loaded, the plain brick
+  // until then or when there is none (D31). The first time a part is seen, its shape is asked
+  // for, a few at a time.
+  function shapeOf(block) {
+    if (loadShape === null) {
+      return plain;
+    }
+    const names = [...(block.ldrawIds ?? []), block.partNum].filter((name) => name);
+    const key = names.join(',');
+    let shape = shapes.get(key);
+    if (shape === undefined) {
+      shape = { key, geometry: null };
+      shapes.set(key, shape);
+      shapeQueue.push({ shape, names });
+      loadShapes();
+    }
+    return shape.geometry === null ? plain : shape;
+  }
+
+  // How tall the shape a block is drawn with is.
+  function heightOf(block) {
+    const { min, max } = shapeOf(block).geometry.boundingBox;
+    return max.y - min.y;
+  }
+
+  // Once shapes stop arriving for a moment, the blocks settle on the new shapes: stacked
+  // again and moved there like any other change.
+  function settle() {
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+      if (disposed) {
+        return;
+      }
+      const next = stackBlocks(base, heightOf);
+      transition = { plan: planTransition(current, next), fades: new Map(),
+        start: performance.now() };
+      shown = next;
+      requestFrame();
+    }, SETTLE_DELAY);
+  }
+
+  function loadShapes() {
+    while (shapeRequests < SHAPE_REQUESTS && shapeQueue.length > 0) {
+      const { shape, names } = shapeQueue.shift();
+      shapeRequests += 1;
+      Promise.resolve(loadShape(names)).then((positions) => {
+        if (!disposed && positions instanceof Float32Array && positions.length >= 9) {
+          shape.geometry = createPartGeometry(positions);
+          blocksStale = true;
+          settle();
+          requestFrame();
+        }
+      }, () => {
+        // No shape: the block stays the plain brick.
+      }).finally(() => {
+        shapeRequests -= 1;
+        if (!disposed) {
+          loadShapes();
+        }
+      });
+    }
   }
 
   function colorOf(rgb) {
@@ -807,7 +973,8 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
       if (disposed) {
         return;
       }
-      const next = computeLayout(rows, { piecesPerBlock: PIECES_PER_BLOCK });
+      base = computeLayout(rows, { piecesPerBlock: PIECES_PER_BLOCK });
+      const next = stackBlocks(base, heightOf);
       const first = shown.containers.length === 0;
       const plan = planTransition(current, next);
       // Containers that enter or leave, with the scale at which their label is fully shown.
@@ -860,6 +1027,7 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
       }
       disposed = true;
       cancelAnimationFrame(frameRequest);
+      clearTimeout(settleTimer);
       resizer.disconnect();
       motionQuery?.removeEventListener('change', finishMotion);
       canvas.removeEventListener('pointerdown', onPointerDown);
@@ -875,9 +1043,14 @@ export function createBrickScene(element, { reducedMotion, onSelectionChange = (
       labelGeometry.dispose();
       lidHighlight?.dispose();
       controls.dispose();
-      for (const slot of Object.values(blocks)) {
-        slot.mesh?.dispose();
-        slot.material.dispose();
+      for (const slot of blockMeshes.values()) {
+        slot.mesh.dispose();
+      }
+      for (const material of Object.values(materials)) {
+        material.dispose();
+      }
+      for (const shape of shapes.values()) {
+        shape.geometry?.dispose();
       }
       brickGeometry.dispose();
       disposeSharedResources();

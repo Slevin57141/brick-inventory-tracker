@@ -1,5 +1,8 @@
 # The user's inventory: personal data, never committed (docs/plan.md R20).
 data/
 
+# The LDraw parts library and set models the user downloads (docs/plan.md D31).
+/ldraw/
+
 node_modules/
 *.log

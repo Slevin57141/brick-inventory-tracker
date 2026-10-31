@@ -1,0 +1,11 @@
+0 FILE 1234-1 - Test Model.ldr
+0 Test model
+1 4 0 0 0 1 0 0 0 1 0 0 0 1 test01.dat
+1 16 100 0 0 1 0 0 0 1 0 0 0 1 Sub.ldr
+1 0x2FF8800 0 0 50 1 0 0 0 1 0 0 0 1 test01.dat
+1 4 0 0 0 1 0 0 0 1 0 0 0 1 notinlibrary.dat
+3 47 0 0 0 1 0 0 0 0 1
+0 FILE sub.ldr
+1 16 0 -24 0 1 0 0 0 1 0 0 0 1 test01.dat
+1 72 0 0 10 0 0 1 0 1 0 -1 0 0 test01.dat
+4 0 0 0 0 1 0 0 1 0 1 0 0 1

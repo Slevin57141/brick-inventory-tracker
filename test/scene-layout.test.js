@@ -5,8 +5,9 @@ import {
   BLOCK_SIZE, computeLayout, planTransition, frameAt, easeInOutCubic,
 } from '../public/js/scene-layout.js';
 
-const row = (quantity, changes = {}) => ({ categoryId: 11, categoryName: 'Bricks',
-  colorId: 4, colorRgb: 'C91A09', colorIsTrans: false, quantity, ...changes });
+const row = (quantity, changes = {}) => ({ partNum: '3001', ldrawIds: ['3001'], categoryId: 11,
+  categoryName: 'Bricks', colorId: 4, colorRgb: 'C91A09', colorIsTrans: false, quantity,
+  ...changes });
 const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-10, `${a} != ${b}`);
 
 function freeze(value) {
@@ -17,7 +18,7 @@ function freeze(value) {
   return value;
 }
 
-test('block counts round up per colour after summing rows in a category', () => {
+test('block counts round up per part and colour after summing rows in a category', () => {
   for (const [quantity, count] of [[1, 1], [100, 1], [101, 2], [250, 3]]) {
     const layout = computeLayout([row(quantity)]);
     assert.equal(layout.blocks.length, count);
@@ -25,6 +26,9 @@ test('block counts round up per colour after summing rows in a category', () => 
   }
   assert.equal(computeLayout([row(50), row(50)]).blocks.length, 1);
   assert.equal(computeLayout([row(1), row(1, { colorId: 1 })]).blocks.length, 2);
+  // Each part has blocks of its own, even in the same colour (D31).
+  assert.equal(computeLayout([row(1), row(1, { partNum: '3003' })]).blocks.length, 2);
+  assert.equal(computeLayout([row(150), row(150, { partNum: '3003' })]).blocks.length, 4);
   assert.equal(computeLayout([row(101)], { piecesPerBlock: 50 }).blocks.length, 3);
   assert.deepEqual(computeLayout([]), { piecesPerBlock: 100, containers: [], blocks: [] });
   assert.deepEqual(computeLayout([row(0)]), computeLayout([]));
@@ -129,9 +133,20 @@ test('layout is deterministic across reordered, frozen rows and preserves colour
   const layout = computeLayout(rows);
   assert.deepEqual(computeLayout([...rows].reverse()), layout);
   assert.deepEqual(computeLayout(rows), layout);
-  assert.equal(layout.blocks[0].key, '11|1|0');
+  assert.equal(layout.blocks[0].key, '11|1|3001|0');
   assert.equal(layout.blocks[0].colorRgb, 'AABBCC');
   assert.equal(layout.blocks[0].colorIsTrans, true);
+  assert.equal(layout.blocks[0].partNum, '3001');
+  assert.deepEqual(layout.blocks[0].ldrawIds, ['3001']);
+});
+
+test('blocks keep their part, ordered by colour and then by part number', () => {
+  const layout = computeLayout([row(1, { partNum: '3010', ldrawIds: [] }),
+    row(1, { partNum: '3003', ldrawIds: ['3003'] }), row(1, { partNum: '3001', colorId: 9 }),
+    row(1, { partNum: '3009', ldrawIds: undefined })]);
+  assert.deepEqual(layout.blocks.map(block => block.key),
+    ['11|4|3003|0', '11|4|3009|0', '11|4|3010|0', '11|9|3001|0']);
+  assert.deepEqual(layout.blocks.map(block => block.ldrawIds), [['3003'], [], [], ['3001']]);
 });
 
 test('removing a colour shrinks the container and preserves the remaining keys', () => {
@@ -166,8 +181,8 @@ test('transition endpoints reproduce both layouts, with invisible entering/leavi
   assert.deepEqual(visible(frameAt(transition, -1)), renderedLayout(from));
   assert.deepEqual(visible(frameAt(transition, 2)), renderedLayout(to));
   const middle = frameAt(transition, 0.5);
-  const kept = transition.blocks.find(pair => pair.from.key === '11|4|0');
-  const moved = middle.blocks.find(block => block.key === '11|4|0');
+  const kept = transition.blocks.find(pair => pair.from.key === '11|4|3001|0');
+  const moved = middle.blocks.find(block => block.key === '11|4|3001|0');
   close(moved.position.x, (kept.from.position.x + kept.to.position.x) / 2);
   for (const pair of transition.blocks.filter(pair => pair.from.categoryId === 1)) {
     const container = to.containers.find(container => container.categoryId === 1);
@@ -175,7 +190,7 @@ test('transition endpoints reproduce both layouts, with invisible entering/leavi
     assert.equal(pair.from.scale, 0);
     assert.equal(pair.to.scale, 1);
   }
-  const leaving = transition.blocks.find(pair => pair.from.key === '11|4|2');
+  const leaving = transition.blocks.find(pair => pair.from.key === '11|4|3001|2');
   assert.deepEqual(leaving.from.position, leaving.to.position);
   assert.equal(leaving.to.scale, 0);
 });

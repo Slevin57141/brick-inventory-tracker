@@ -71,7 +71,13 @@ let setRows = []; // the parts of the set shown in the details dialog
 let setOpening = 0;
 
 let selection = { selected: null, focused: null };
-const scene = createBrickScene(page.scene, { onSelectionChange: showSelection });
+// The blocks take their parts' LDraw shapes when the server has the library (D31); without
+// it, they stay plain bricks and no part is asked for.
+const ldrawReady = api.getLdraw().then((answer) => answer.available, () => false);
+const scene = createBrickScene(page.scene, {
+  onSelectionChange: showSelection,
+  loadShape: async (names) => ((await ldrawReady) ? api.getLdrawPart(names) : null),
+});
 if (scene === null) {
   page.scene.hidden = true;
   page.noWebgl.hidden = false;

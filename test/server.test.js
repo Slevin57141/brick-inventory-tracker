@@ -4,8 +4,10 @@ import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createError } from '../src/errors.js';
 import { createKeyStore } from '../src/key-store.js';
+import { createLdrawLibrary } from '../src/ldraw-library.js';
 import { createLogger } from '../src/logger.js';
 import { createServer, listen } from '../src/server.js';
 import { send } from './helpers/http-client.js';
@@ -62,7 +64,8 @@ async function start(t, overrides = {}) {
   const { calls, collection, client } = fakes();
   Object.assign(collection, overrides.collection);
   Object.assign(client, overrides.client);
-  const server = createServer({ collection, keyStore, client, logger, publicDir, port: 0 });
+  const server = createServer({ collection, keyStore, client, logger, publicDir, port: 0,
+    ldraw: overrides.ldraw });
   const address = await listen(server, 0);
   t.after(async () => {
     await new Promise((resolve) => server.close(resolve));
@@ -482,4 +485,49 @@ test('the logger writes one redacted line per call', () => {
     '2026-10-31T12:00:00.000Z ERROR failed [redacted] {"detail":"also [redacted]"}',
     '2026-10-31T12:00:00.000Z INFO plain',
   ]);
+});
+
+const LDRAW = fileURLToPath(new URL('./fixtures/ldraw/', import.meta.url));
+const floats = (text) => {
+  const bytes = Buffer.from(text, 'base64');
+  return [...new Float32Array(bytes.buffer, bytes.byteOffset, bytes.length / 4)];
+};
+
+test('the LDraw routes say whether the library is there and serve its parts (D31)', async (t) => {
+  const { get } = await start(t, { ldraw: createLdrawLibrary({ root: LDRAW }) });
+  assert.deepEqual((await get('/api/ldraw')).json, { available: true });
+  const part = await get('/api/ldraw/part?names=missing,TEST01');
+  assert.equal(part.status, 200);
+  assert.equal(part.json.name, 'test01.dat');
+  const positions = floats(part.json.positions);
+  assert.equal(positions.length, 5 * 9);
+  assert.deepEqual(positions.slice(0, 9), [0, -8, 0, 10, -8, 0, 10, -8, 10]);
+  assert.equal(part.headers['cache-control'], 'no-store');
+  for (const path of ['/api/ldraw/part?names=missing', '/api/ldraw/part',
+    '/api/ldraw/part?names=..%2FLDConfig.ldr', '/api/ldraw/part?names=%2Fetc%2Fpasswd']) {
+    const response = await get(path);
+    assert.equal(response.status, 404, path);
+    assert.equal(response.json.error.code, 'not_found', path);
+  }
+  // Only the first eight names are tried.
+  const many = Array.from({ length: 8 }, (_, i) => `missing${i}`).join(',');
+  assert.equal((await get(`/api/ldraw/part?names=${many},test01`)).status, 404);
+});
+
+test('a set model comes from the library, or not_found (D31)', async (t) => {
+  const { get, json } = await start(t, { ldraw: createLdrawLibrary({ root: LDRAW }) });
+  const model = await get('/api/sets/1234-1/model');
+  assert.equal(model.status, 200);
+  assert.equal(model.json.instances.length, 4);
+  assert.deepEqual(model.json.colors[model.json.instances[0].color], { rgb: 'C91A09', alpha: 255 });
+  assert.deepEqual(model.json.loose.map((item) => floats(item.positions).length), [18, 9]);
+  assert.equal((await get('/api/sets/9999-1/model')).json.error.code, 'not_found');
+  assert.equal((await json('DELETE', '/api/sets/1234-1/model')).json.error.code, 'not_found');
+});
+
+test('without a library the LDraw routes answer that there is none', async (t) => {
+  const { get } = await start(t);
+  assert.deepEqual((await get('/api/ldraw')).json, { available: false });
+  assert.equal((await get('/api/ldraw/part?names=test01')).json.error.code, 'not_found');
+  assert.equal((await get('/api/sets/1234-1/model')).json.error.code, 'not_found');
 });

@@ -26,15 +26,34 @@ Then open <http://127.0.0.1:3000> in your browser.
   `-1`). Adding a set you already have adds another copy, without contacting Rebrickable. A
   pack that contains other sets counts as one set, with all of their parts.
 - **Remove a set:** "Remove one" takes away one copy and its parts.
-- **Parts:** filter by colour and by category, search by part number or name, and read the
+- **Parts:** filter and sort on every column, search by part number or name, and read the
   totals for what is listed. The 3D view always shows the same parts as the list, one block
-  per 100 pieces, and "Open lids" lifts every lid off to show the blocks from above. Drag to
-  turn the view and scroll to zoom.
+  for up to 100 pieces of one part, and "Open lids" lifts every lid off to show the blocks
+  from above. Drag to turn the view and scroll to zoom; click a container to select it and
+  double-click to zoom in on it.
 - **The container on its own:** <http://127.0.0.1:3000/container.html> shows one empty
   storage container, with buttons to take its lid off and to stack three.
 
 Everything except fetching a new set works offline. Part and set images come from
 Rebrickable and show a placeholder when they cannot load.
+
+### Real part shapes and built sets (optional)
+
+Rebrickable has no 3D models, so out of the box every block is a plain brick. With the free
+[LDraw](https://www.ldraw.org) parts library, each block takes the real shape of its part:
+
+1. Download the complete library,
+   <https://library.ldraw.org/library/updates/complete.zip> (about 150 MB).
+2. Unzip it into this folder, so that `ldraw/parts`, `ldraw/p` and `ldraw/LDConfig.ldr`
+   exist. The `ldraw/` folder is ignored by git. To keep the library elsewhere, set
+   `LDRAW_DIR` to its folder.
+3. Restart the app.
+
+Parts the library does not have stay plain bricks. For a 3D model of a built set, download
+its model file from the LDraw Official Model Repository (<https://library.ldraw.org/omr>)
+and put it in `ldraw/omr/`, keeping its name, which starts with the set number (for example
+`6024-1 - Bike Shop.mpd`). Models exist for some sets only. The library comes with its own
+licence files.
 
 ### Settings
 
@@ -42,6 +61,7 @@ Rebrickable and show a placeholder when they cannot load.
 | -------- | ------- | ------- |
 | `PORT` | `3000` | The port to listen on (`0` picks a free one). |
 | `DATA_FILE` | `data/inventory.json` in this folder | Where your sets are saved. A relative path starts from the folder you run the command in. |
+| `LDRAW_DIR` | `ldraw/` in this folder | Where the LDraw parts library is, if you use one. |
 
 For example, `PORT=3001 npm start` in a Unix shell, or `$env:PORT = '3001'; npm start` in
 PowerShell.

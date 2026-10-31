@@ -10,8 +10,9 @@ import { CONTAINER } from '../public/js/container-spec.js';
 import { LID_SKIRT } from '../public/js/container-model.js';
 import { BLOCK_SIZE, computeLayout } from '../public/js/scene-layout.js';
 import {
-  boxCorners, containerBoxes, createBrickGeometry, createBrickScene, createSelectionRingGeometry,
-  drawLabel, fitCamera, framingBoxes, labelBox, lidOffset, sceneBounds,
+  boxCorners, containerBoxes, createBrickGeometry, createBrickScene, createPartGeometry,
+  createSelectionRingGeometry, drawLabel, fitCamera, framingBoxes, labelBox, lidOffset,
+  sceneBounds, stackBlocks,
 } from '../public/js/brick-scene.js';
 
 const EPS = 1e-9;
@@ -69,6 +70,78 @@ test('a brick fills BLOCK_SIZE exactly, centred on its position, with a stud on 
   assert.ok(Math.max(...top) < BLOCK_SIZE.width / 2 - 0.02);
   assert.ok(geometry.getAttribute('normal'));
   geometry.dispose();
+});
+
+// A box of LDraw triangles (LDraw units and axes), from (x0, y0, z0) to (x1, y1, z1).
+function ldrawBox([x0, y0, z0], [x1, y1, z1]) {
+  const c = (x, y, z) => [x ? x1 : x0, y ? y1 : y0, z ? z1 : z0];
+  const quads = [
+    [c(0, 0, 0), c(1, 0, 0), c(1, 1, 0), c(0, 1, 0)],
+    [c(0, 0, 1), c(1, 0, 1), c(1, 1, 1), c(0, 1, 1)],
+    [c(0, 0, 0), c(0, 1, 0), c(0, 1, 1), c(0, 0, 1)],
+    [c(1, 0, 0), c(1, 1, 0), c(1, 1, 1), c(1, 0, 1)],
+    [c(0, 0, 0), c(1, 0, 0), c(1, 0, 1), c(0, 0, 1)],
+    [c(0, 1, 0), c(1, 1, 0), c(1, 1, 1), c(0, 1, 1)],
+  ];
+  return Float32Array.from(quads.flatMap(([a, b, d, e]) => [a, b, d, a, d, e].flat()));
+}
+
+test('a part shape is turned upright, centred, and shrunk to fit a block, never enlarged (D31)',
+  () => {
+    // A 2 x 4 brick's bounds, its studs up (LDraw's y points down): too big for a block.
+    const big = createPartGeometry(ldrawBox([-40, -4, -20], [40, 24, 20]));
+    const { min, max } = big.boundingBox;
+    for (const [axis, size] of [['x', BLOCK_SIZE.width], ['y', BLOCK_SIZE.height],
+      ['z', BLOCK_SIZE.depth]]) {
+      assert.ok(max[axis] - min[axis] <= size + 1e-6, `fits in ${axis}`);
+      assert.ok(Math.abs(min[axis] + max[axis]) < 1e-6, `centred in ${axis}`);
+    }
+    // The long side fills the block; the proportions stay (80 by 28 by 40).
+    assert.ok(Math.abs(max.x - min.x - BLOCK_SIZE.width) < 1e-6);
+    assert.ok(Math.abs((max.z - min.z) / (max.x - min.x) - 0.5) < 1e-6);
+    assert.ok(big.getAttribute('normal'));
+
+    // A small part keeps its real size: 4 LDraw units are 4 / 20 of a brick's width.
+    const small = createPartGeometry(ldrawBox([0, 0, 0], [4, 4, 4]));
+    const smallSize = small.boundingBox.max.x - small.boundingBox.min.x;
+    assert.ok(Math.abs(smallSize - (4 / 20) * BLOCK_SIZE.width) < 1e-6);
+
+    // Up is up: a point at LDraw y -10 (above) ends above one at y 0.
+    const tall = createPartGeometry(Float32Array.from([0, 0, 0, 1, 0, 0, 0, -10, 0]));
+    const ys = [0, 1, 2].map((i) => tall.getAttribute('position').getY(i));
+    assert.ok(ys[2] > ys[0]);
+  });
+
+test('plain bricks stack where M11 puts them; flat parts lie on each other (D31)', () => {
+  const layout = Object.freeze(computeLayout([row(1, 4, 2500), row(2, 1, 900)]));
+  const plain = stackBlocks(layout, () => BLOCK_SIZE.height);
+  plain.blocks.forEach((block, index) => {
+    assert.ok(Math.abs(block.position.y - layout.blocks[index].position.y) < 1e-9, block.key);
+    assert.deepEqual({ ...block, position: undefined },
+      { ...layout.blocks[index], position: undefined });
+  });
+
+  const flat = 0.05;
+  const stacked = stackBlocks(layout, () => flat);
+  const columns = new Map();
+  for (const block of stacked.blocks) {
+    const key = `${block.categoryId}|${block.position.x}|${block.position.z}`;
+    columns.set(key, [...(columns.get(key) ?? []), block.position.y]);
+  }
+  assert.ok([...columns.values()].some((ys) => ys.length > 1), 'some columns hold several');
+  for (const [key, ys] of columns) {
+    const categoryId = Number(key.split('|')[0]);
+    const floor = Math.min(...layout.blocks.filter((block) => block.categoryId === categoryId)
+      .map((block) => block.position.y - BLOCK_SIZE.height / 2));
+    ys.sort((a, b) => a - b).forEach((y, index) => {
+      assert.ok(Math.abs(y - (floor + flat / 2 + index * (flat + 0.02))) < 1e-9, key);
+    });
+  }
+  // Everything only went down, and the input is unchanged.
+  stacked.blocks.forEach((block, index) => {
+    assert.ok(block.position.y <= layout.blocks[index].position.y + 1e-9);
+  });
+  assert.equal(Object.isFrozen(layout), true);
 });
 
 test('a lid is on the rim when closed and on the floor behind its container when open (D26)',

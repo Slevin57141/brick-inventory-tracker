@@ -129,7 +129,7 @@ Modules and tests refer to these IDs.
 | D28 | Containers in the 3D view can be selected and focused (M12, M10). A click on a container (body, lid or floor label) selects it: its lid turns brighter, a ring appears on the floor around it, and its floor label turns red (D29). A click on empty floor clears the selection; a press that moves more than 5 pixels turns the view and selects nothing. A double click moves the camera to frame that container alone; a double click on empty floor, or "Show all", frames every container again. A bar floating over the top of the view names the selected container and offers "Zoom in", "Show all", "List its parts" (sets the category filter) and "Clear selection". Selection and focus end when their container leaves the view. | User's request, 2026-10-31. The bar floats over the view rather than above it: pushing the view down would move the container out from under the second click of a double click. |
 | D29 | Each container's label lies on the floor in front of it (M12): a card with the category name and the exact piece count, drawn from text into a canvas texture on a flat plane. It fills the 0.3 gap M11 leaves in front of every row (D26), clear of the open lids of the row in front, and reaches 0.12 past each side of the container. Long names shrink, then are cut short with "...". The selected container's card is red. Labels shrink and turn with the view like the rest of the scene and hide behind nearer containers, so none is ever hidden on purpose; in an overview of many containers they are small, and zooming in or focusing a container (D28) makes them readable. A click on a card selects its container. | User's request, 2026-10-31, replacing HTML labels above the containers. |
 | D30 | The add form takes one or more set numbers, separated by spaces, commas or semicolons, and adds them one after another (M10); the API still adds one set per request. The key is asked for when first needed and the batch goes on with it. A set Rebrickable has no record of, or that is not a valid number, is reported and the batch goes on; `rate_limited`, `api_unavailable`, `server_unreachable` or a cancelled key dialog stop the batch, since the sets still to come would fail the same way. What was not added stays in the field. "Your sets" folds away, and each set shows its number, year, Rebrickable's part count, the pieces saved for one copy (`pieces`, spares and minifigure parts included, D1), its copies and a link to its Rebrickable page. A double click on a set, or its "Details" button, opens a dialog with the set's facts and the parts of one copy, sortable like the parts list, from the new `GET /api/sets/{setNum}`. | User's request, 2026-10-31. |
-| D31 | Blocks in the 3D view take the exact shapes of the parts, from the LDraw parts library (ldraw.org), and set details show the LDraw model of the built set where one exists. Rebrickable has no 3D data, but lists each part's LDraw file names (`external_ids.LDraw`). The data file therefore saves each part line's `ldrawIds` and each set's `themeId` (for the theme, D30) as data format version 2; a version 1 file is upgraded in memory when loaded (empty `ldrawIds`, null `themeId`, no themes) and written as version 2 on the next save. Only plain file names (`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`) are kept. The library itself is not part of the repository: the user downloads it, and the server reads it (a later step of this decision). | User's choice, 2026-10-31, over shapes made up from part names. |
+| D31 | Blocks in the 3D view take the exact shapes of the parts, from the LDraw parts library (ldraw.org), and set details show the LDraw model of the built set where one exists. Rebrickable has no 3D data, but lists each part's LDraw file names (`external_ids.LDraw`). The data file therefore saves each part line's `ldrawIds` and each set's `themeId` (for the theme, D30) as data format version 2; a version 1 file is upgraded in memory when loaded (empty `ldrawIds`, null `themeId`, no themes) and written as version 2 on the next save. Only plain file names (`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`) are kept. The library itself is not part of the repository: the user downloads it into `ldraw/` (git-ignored) or points `LDRAW_DIR` at it, and the server reads it (M14). Blocks then stand for up to 100 pieces of one part in one colour, not of one colour (D15 otherwise unchanged), and take that part's shape, shrunk to fit a block and never enlarged; parts the library lacks, and everything when there is no library, stay plain bricks. Blocks rest on the ones below them, so flat parts lie on each other. Set models are LDraw model files (`.mpd`, `.ldr`) from the Official Model Repository, which the user puts in `ldraw/omr/` named from the set number (`6024-1 - Bike Shop.mpd`). | User's choice, 2026-10-31, over shapes made up from part names. |
 
 ## 4. Rebrickable API
 
@@ -272,6 +272,7 @@ src/
   storage.js                   M6
   collection.js                M7
   server.js, logger.js         M8
+  ldraw-library.js             M14 reads the downloaded LDraw library (D31)
   main.js                      M8  entry point
 public/
   index.html, styles.css, placeholder.svg      M10
@@ -290,6 +291,7 @@ test/
   fixtures/rebrickable/        captured by the user, plus handmade-*.json
   <module>.test.js             one file per module, plus key-leak.test.js
 data/inventory.json            git-ignored, created at runtime
+ldraw/                         git-ignored: the LDraw library and set models (D31)
 ```
 
 ## 6. Data model
@@ -373,6 +375,9 @@ The page acts on `code`, not on the status.
 | `GET /api/sets/{setNum}` | | `200 { set: SetSummary, rows: InventoryRow[] }`: the parts of one copy (D30) | `not_owned` |
 | `DELETE /api/sets/{setNum}` | | `200 { set: SetSummary or null }` (null when the last copy went) | `not_owned` |
 | `GET /api/inventory` | | `200 { rows: InventoryRow[] }` | |
+| `GET /api/ldraw` | | `200 { available }`: whether the LDraw library is there (D31) | |
+| `GET /api/ldraw/part?names=a,b` | | `200 { name, positions }`: the first of up to 8 LDraw names the library has, its triangles as base64 little-endian Float32 (LDraw units and axes) | `not_found` |
+| `GET /api/sets/{setNum}/model` | | `200 { colors, instances, loose }` (M14) with `loose[].positions` as base64 | `not_found` |
 | `GET /` and files under `public/` | | the file | `not_found` |
 
 Every route can also return `forbidden`, `bad_request`, `payload_too_large` and
@@ -732,6 +737,9 @@ identical minifigures; a second capture the same day added both, and a two-page 
   method, path, status, duration. Request bodies and headers are never logged. Static files
   get a `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser
   refuses module scripts under `nosniff`.
+  - The LDraw routes (D31) use M14 when `createServer` is given `ldraw`; without it they answer
+    `available: false` and `not_found`. `main.js` makes the library from `LDRAW_DIR`, or
+    `ldraw/` in the repository.
   - Key changes take effect in the order they arrived. A `PUT /api/key` whose check ends
     after a later PUT or DELETE has taken effect stores nothing, so "Forget key" during a
     check is not undone; a later PUT that fails changes nothing. The PUT answers `200` with
@@ -816,6 +824,9 @@ identical minifigures; a second capture the same day added both, and a two-page 
     getSet(setNum) -> { set, rows }        GET /api/sets/{setNum, percent-encoded}
     removeSet(setNum) -> SetSummary|null   DELETE /api/sets/{setNum, percent-encoded}
     getInventory() -> InventoryRow[]       GET /api/inventory
+    getLdraw() -> { available }            GET /api/ldraw
+    getLdrawPart(names) -> Float32Array|null    GET /api/ldraw/part
+    getSetModel(setNum) -> model|null      GET /api/sets/{setNum}/model
   }
   ApiError: an Error with `code` and `message`
   ```
@@ -879,18 +890,20 @@ identical minifigures; a second capture the same day added both, and a two-page 
   easeInOutCubic(t) -> number
   ```
   - `Layout`: `{ piecesPerBlock, containers: [{ categoryId, categoryName, pieces, position,
-    scale }], blocks: [{ key, categoryId, colorRgb, colorIsTrans, position }] }`.
+    scale }], blocks: [{ key, categoryId, colorRgb, colorIsTrans, partNum, ldrawIds,
+    position }] }`.
     Positions are world-space `{ x, y, z }`; container origins sit on the floor (`y: 0`),
     while block origins are the centres of their `BLOCK_SIZE` bounds (D26). Blocks stay
     fixed size as containers resize. `piecesPerBlock` is a positive finite number.
-  - Each colour in a category gets `ceil(pieces / piecesPerBlock)` blocks (D15). A block's
-    `key` is `categoryId|colorId|i` (the i-th block of that colour in that category), so a
-    block keeps its key from one layout to the next.
+  - Each part in each colour in a category gets `ceil(pieces / piecesPerBlock)` blocks (D15,
+    D31). A block's `key` is `categoryId|colorId|partNum|i` (the i-th block of that part in
+    that colour), so a block keeps its key from one layout to the next.
   - Inside a container, blocks are ordered by colour and packed bottom-up on a grid of
     `cols x rows x layers` (width, depth, height) whose ratios follow the container's
     interior from `container-spec.js` (M13): the smallest such grid that holds the blocks.
     The container's `scale` is the smallest at which `interiorBox(scale)` holds that grid
-    (D17, D26). Colours are ordered by numeric colour ID. Categories use English numeric
+    (D17, D26). Colours are ordered by numeric colour ID, then parts by number (D25).
+    Categories use English numeric
     name ordering, with category ID breaking name ties. Zero-quantity categories are omitted.
   - Containers are sorted by category name and stand on the floor in rows of
     `ceil(sqrt(count))`, with a gap, never overlapping (D18). A category with no blocks gets
@@ -907,15 +920,18 @@ identical minifigures; a second capture the same day added both, and a two-page 
     with a `scale` on every block, and includes both entering and leaving items. Thus the
     visible items at the endpoints equal the respective layouts. Frames can be used as
     the start of an interrupted transition. Easing clamps `t` to 0-1.
-- **Tests:** 1, 100, 101 and 250 pieces of one colour give 1, 1, 2 and 3 blocks; container
+- **Tests:** 1, 100, 101 and 250 pieces of one colour give 1, 1, 2 and 3 blocks; two parts
+  of one colour get blocks of their own; blocks keep their part and LDraw ids, ordered by
+  colour and part number; container
   scale grows with the number of blocks; every block lies inside `interiorBox(scale)` of its
   container; containers never overlap; the same rows always give the same layout; removing a
   colour shrinks the container and keeps the other blocks' keys; `frameAt(transition, 0)`
   equals the old layout and `frameAt(transition, 1)` the new one; new blocks start above
   their container; removed blocks end at scale 0; easing is 0 at 0, 1 at 1 and never
   decreases.
-- **Builder: Codex.** Pure, and needs only InventoryRow (section 6) and the
-  `container-spec.js` interface (M13, built in phase 0), so it is built in phase 1 next to M9.
+- **Builder: Codex**, and from 2026-10-31 Claude Code at the user's request (blocks per
+  part, D31), while Codex reviews and tests. Pure, and needs only InventoryRow (section 6)
+  and the `container-spec.js` interface (M13, built in phase 0), so it is built in phase 1 next to M9.
   Its only user, M12, is also Codex's, so the layout and the scene that draws it have one
   owner.
 
@@ -924,12 +940,17 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Responsibility:** draw and animate the 3D view with three.js (R24-R27, R29).
 - **Interface:**
   ```
-  createBrickScene(element, { reducedMotion, onSelectionChange })
+  createBrickScene(element, { reducedMotion, onSelectionChange, loadShape })
+      // loadShape(names) -> Promise<Float32Array | null>: a part's LDraw triangles (D31)
     -> { update(rows), setLidsOpen(open), select(categoryId), focus(categoryId),
          dispose() } | null
       // onSelectionChange({ selected: { categoryId, categoryName, pieces } | null,
       //                     focused: categoryId | null }), called on every change (D28)
   createBrickGeometry() -> BufferGeometry   // the D14 brick, exactly BLOCK_SIZE, centred
+  createPartGeometry(positions) -> BufferGeometry
+      // LDraw triangles turned upright, centred, shrunk to fit BLOCK_SIZE, never enlarged
+  stackBlocks(layout, heightOf) -> Layout
+      // every block resting on the one below it in its column; plain bricks do not move
   lidOffset(scale, progress) -> { x, y, z }
       // the lid's underside origin relative to its container's origin, world units, from
       // 0 (closed) to 1 (open on the floor, D26)
@@ -949,9 +970,12 @@ identical minifigures; a second capture the same day added both, and a two-page 
   changes. The other exports are the geometry behind the view, exported for its tests.
 - **Behaviour:**
   - Imports three.js only from `public/vendor/three/`.
-  - Blocks: the D14 brick shape (a 1 x 1 body with one stud, filling `BLOCK_SIZE`) in
-    instanced meshes, one solid and one see-through for transparent colours, coloured from
-    `colorRgb`. See-through blocks use hashed alpha (`alphaHash`): it keeps them in the
+  - Blocks: the D14 brick shape (a 1 x 1 body with one stud, filling `BLOCK_SIZE`) until
+    their part's LDraw shape arrives from `loadShape` (D31), asked for six at a time, once
+    per part. Instanced meshes per shape, solid and see-through for transparent colours,
+    coloured from `colorRgb`, drawn on both sides. Blocks rest on each other
+    (`stackBlocks`); once shapes stop arriving for 250 ms they settle on them, animated
+    like any change. The legend reads "1 block = up to 100 pieces of one part". See-through blocks use hashed alpha (`alphaHash`): it keeps them in the
     opaque pass, so they show through the frosted walls. Plain blending would draw them after
     the walls, whose depth would hide them.
   - Containers: one M13 container per category, sharing one model and scaled by the layout.
@@ -1078,6 +1102,47 @@ identical minifigures; a second capture the same day added both, and a two-page 
   out the load now that Codex builds the whole page. Its plain-number part comes first, in
   phase 0, so Codex can build M11 against it.
 
+### M14. ldraw-library
+
+- **Responsibility:** read the LDraw parts library (ldraw.org) and set models the user
+  downloads (D31), and turn parts and models into triangles for the 3D view.
+- **Interface:**
+  ```
+  createLdrawLibrary({ root, readFile, readdir }) -> {
+    available() -> Promise<boolean>        // the parts folder has parts
+    part(names) -> Promise<{ name, positions: Float32Array } | null>
+    model(setNum) -> Promise<{ colors: [{ rgb, alpha }],
+                               instances: [{ part, color, matrix }],
+                               loose: [{ color, positions }] } | null>
+  }
+  parseLdraw(text) -> Map<section, commands>   parseColors(text) -> Map<code, { rgb, alpha }>
+  normalizeName(name) -> string
+  ```
+- **Behaviour:**
+  - Files are looked up as LDraw files refer to each other: in `parts`, `parts/s`, `p`,
+    `p/48`, `p/8` and `models`, in that order, without regard to case, with `\` or `/`. The
+    folders are listed once; each file is read and parsed once, and each part's triangles
+    are built once.
+  - `part(names)` returns the first name the library has (`.dat` may be left out), with
+    its subfiles' faces moved into place. Only plain library names are looked up, through
+    the index of listed files, so no name can reach a file outside the library. Edge lines
+    (types 2 and 5) and face winding are left out: the view draws both faces. A missing
+    subfile is skipped; a file that refers back to itself is not followed.
+  - `model(setNum)` finds the `.mpd` or `.ldr` file in `omr/` whose name is the set number
+    followed by a space or a dot, unwraps its submodels into placed library files with
+    LDraw matrices, resolves colours from `LDConfig.ldr` (main colour 16 inherited, direct
+    colours `0x2RRGGBB`, unknown ones grey), and returns faces in the model itself as
+    `loose` triangles per colour.
+  - A missing or incomplete library is simply not available; nothing throws.
+- **Tests** (`test/ldraw-library.test.js`, against a small hand-made library in
+  `test/fixtures/ldraw/`): a part's faces moved into place through a subpart and a
+  mirrored primitive; names found without regard to case, slashes or `.dat`; the first
+  name found is used; names outside the library are never looked up; a missing subfile is
+  skipped and a self-reference stops; availability; a model unwrapped with inherited,
+  direct and table colours and loose faces; a model found only by the whole set number;
+  parsing of sections, quads and colours.
+- **Builder: Claude Code**, at the user's request (D31).
+
 ## 9. Ownership and build order
 
 | Phase | Claude Code (this machine) | Codex (other machine) | User |
@@ -1086,6 +1151,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
 | 1 | M2, M3, M4, M6, M13 | M1, M5, M9, M11 | Merge reviewed pull requests |
 | 2 | M7, M8 (after phase 1 is merged); M12, M10 (moved from Codex) | | Merge reviewed pull requests |
 | 3 | Review Codex's modules | Review Claude Code's modules, key path first | Manual checklist (section 10) |
+| 4 | The user's requests of 2026-10-31 (D27-D31), M14, and changes to M5, M9 and M11 | Review and test them | Capture the themes fixture; download the LDraw library |
 
 Each module gets its own branch and pull request, reviewed by the other tool before merging.
 AGENTS.md has the details.
