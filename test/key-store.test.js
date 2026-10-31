@@ -45,6 +45,9 @@ test('rejects keys of the wrong format with invalid_key_format', () => {
     '', '        ', 'k'.repeat(7), 'k'.repeat(201), ` ${'k'.repeat(7)} `,
     'key with space', 'key\twith-tab', 'key\nwith-newline', 'key\u0000nul00', 'key\u007fdel00',
     'key\u0085next0', 'key nbsp00', 'key line00',
+    // Characters a request header cannot carry, and a lone surrogate (Codex's review of PR 5).
+    'key-é-12345', 'key-€-12345', 'key-\u{1f511}-1234', `synthetic-${String.fromCharCode(0xd800)}`,
+    `synthetic-${String.fromCharCode(0xdc00)}`, 'key-​-12345', 'key-﻿-12345',
   ];
   for (const input of rejected) {
     assert.throws(() => normalizeKey(input), isInvalidKeyFormat, JSON.stringify(String(input)));
@@ -87,6 +90,17 @@ test('redact replaces every occurrence of the current key', () => {
 
   store.clear();
   assert.equal(store.redact(SENTINEL), SENTINEL);
+});
+
+test('redact returns a string for every accepted key, whatever the text', () => {
+  const store = createKeyStore();
+  let visibleAscii = '';
+  for (let code = 0x21; code <= 0x7e; code += 1) visibleAscii += String.fromCharCode(code);
+  store.set(visibleAscii);
+  for (const text of ['ordinary log message', String.fromCharCode(0xd800), '', visibleAscii]) {
+    assert.equal(typeof store.redact(text), 'string');
+  }
+  assert.equal(store.redact(`a ${visibleAscii} b`), 'a [redacted] b');
 });
 
 test('redact treats the key literally and also replaces its JSON and URL spellings', () => {

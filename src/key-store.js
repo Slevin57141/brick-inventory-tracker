@@ -5,7 +5,9 @@ import { createError } from './errors.js';
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 200;
-const FORBIDDEN = /[\s\p{Cc}]/u;
+// Visible ASCII only. A request header cannot carry most other characters, and a lone
+// surrogate would make encodeURIComponent, and with it redact, throw.
+const ALLOWED = /^[\x21-\x7e]+$/;
 const REDACTED = '[redacted]';
 
 /** The trimmed key, or throws invalid_key_format. Never stores anything or calls the API. */
@@ -14,7 +16,7 @@ export function normalizeKey(input) {
     throw createError('invalid_key_format');
   }
   const key = input.trim();
-  if (key.length < MIN_LENGTH || key.length > MAX_LENGTH || FORBIDDEN.test(key)) {
+  if (key.length < MIN_LENGTH || key.length > MAX_LENGTH || !ALLOWED.test(key)) {
     throw createError('invalid_key_format');
   }
   return key;

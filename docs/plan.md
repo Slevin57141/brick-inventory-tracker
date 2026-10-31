@@ -455,10 +455,11 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Responsibility:** hold the API key in memory only.
 - **Interface:** `createKeyStore() -> { set(key), get(), has(), clear(), redact(text) }` and
   `normalizeKey(input) -> string`.
-  - `normalizeKey` trims and checks the format (8-200 characters, no whitespace or control
-    characters) and returns the trimmed key, otherwise throws `invalid_key_format`. It
-    stores nothing, so the server can check the format before it sends a candidate key to
-    Rebrickable (M8).
+  - `normalizeKey` trims and checks the format (8-200 visible ASCII characters, `!` to `~`:
+    no spaces, control characters or anything a request header cannot carry, which also
+    keeps `redact` from throwing) and returns the trimmed key, otherwise throws
+    `invalid_key_format`. It stores nothing, so the server can check the format before it
+    sends a candidate key to Rebrickable (M8).
   - `set` applies `normalizeKey`, then stores the key; a rejected key leaves the current one
     in place. It does not call the API; the server checks the key with M3 first.
   - `get()` returns the key or null. Only M3 calls it.
