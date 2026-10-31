@@ -25,6 +25,13 @@ const page = {
   scene: byId('scene'),
   noWebgl: byId('no-webgl'),
   toggleLids: byId('toggle-lids'),
+  sceneHint: byId('scene-hint'),
+  selection: byId('selection'),
+  selectionText: byId('selection-text'),
+  focusSelected: byId('focus-selected'),
+  showAll: byId('show-all'),
+  listSelected: byId('list-selected'),
+  clearSelection: byId('clear-selection'),
   colorFilter: byId('color-filter'),
   categoryFilter: byId('category-filter'),
   search: byId('search'),
@@ -51,11 +58,13 @@ let refreshes = 0;
 let searchTimer = 0;
 let sort = { column: 'name', direction: 'asc' };
 
-const scene = createBrickScene(page.scene);
+let selection = { selected: null, focused: null };
+const scene = createBrickScene(page.scene, { onSelectionChange: showSelection });
 if (scene === null) {
   page.scene.hidden = true;
   page.noWebgl.hidden = false;
   page.toggleLids.hidden = true;
+  page.sceneHint.hidden = true;
 }
 
 // Helpers that build elements with text, never markup.
@@ -357,6 +366,31 @@ function clearFilters() {
   renderParts();
 }
 
+// The bar above the 3D view names the selected container and offers what to do with it
+// (D28). It shows while a container is selected or the camera is on one.
+function showSelection(state) {
+  selection = state;
+  const { selected, focused } = state;
+  page.selection.hidden = selected === null && focused === null;
+  page.selectionText.textContent = selected === null
+    ? 'No container selected.'
+    : `${selected.categoryName}: ${count(selected.pieces, 'piece', 'pieces')}`;
+  page.focusSelected.hidden = selected === null || focused === selected.categoryId;
+  page.showAll.hidden = focused === null;
+  page.listSelected.hidden = selected === null;
+  page.clearSelection.hidden = selected === null;
+}
+
+// Lists the selected container's parts: the category filter, which the 3D view follows too.
+function listSelected() {
+  if (selection.selected === null) {
+    return;
+  }
+  page.categoryFilter.value = String(selection.selected.categoryId);
+  renderParts();
+  page.parts.closest('.table-wrap').scrollIntoView({ block: 'start' });
+}
+
 function toggleLids() {
   lidsOpen = !lidsOpen;
   scene?.setLidsOpen(lidsOpen);
@@ -368,6 +402,10 @@ page.addForm.addEventListener('submit', addSet);
 page.forgetKey.addEventListener('click', forgetKey);
 page.keyCancel.addEventListener('click', () => page.keyDialog.close());
 page.toggleLids.addEventListener('click', toggleLids);
+page.focusSelected.addEventListener('click', () => scene?.focus(selection.selected?.categoryId));
+page.showAll.addEventListener('click', () => scene?.focus(null));
+page.listSelected.addEventListener('click', listSelected);
+page.clearSelection.addEventListener('click', () => scene?.select(null));
 page.colorFilter.addEventListener('change', renderParts);
 page.categoryFilter.addEventListener('change', renderParts);
 for (const input of [page.search, page.filterPart, page.filterName, page.filterMin,

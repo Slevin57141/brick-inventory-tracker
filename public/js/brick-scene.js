@@ -1,12 +1,14 @@
 // The 3D view (docs/plan.md M12, R24-R27, R29): one storage container (M13) per part category,
 // holding one block per 100 pieces in the pieces' colours, placed by the layout maths (M11).
 // Every change is animated (D16), and the view draws only while something moves or the user
-// turns it, so an idle view costs no CPU or GPU time. Labels are HTML elements written with
-// textContent and positioned over the canvas.
+// turns it, so an idle view costs no CPU or GPU time. Each container's label lies on the floor
+// in front of it, drawn from text into a texture (D29). A click selects a container and a
+// double click moves the camera to it (D28).
 
 import {
   BoxGeometry,
   BufferGeometry,
+  CanvasTexture,
   Color,
   CylinderGeometry,
   DirectionalLight,
@@ -14,15 +16,22 @@ import {
   InstancedMesh,
   Matrix4,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   NeutralToneMapping,
   PCFShadowMap,
   PMREMGenerator,
   PerspectiveCamera,
   PlaneGeometry,
+  Path,
   Quaternion,
+  Raycaster,
+  SRGBColorSpace,
   Scene,
   ShadowMaterial,
+  Shape,
+  ShapeGeometry,
+  Vector2,
   Vector3,
   WebGLRenderer,
 } from '../vendor/three/three.module.js';
@@ -53,8 +62,20 @@ const MIN_SCALE = 1e-4;
 const VIEW_DIRECTION = new Vector3(0.6, 0.62, -1.2).normalize();
 const LIGHT_DIRECTION = new Vector3(-2.5, 5, -3).normalize();
 const SHADOW_MAP_SIZE = 2048;
-const LABEL_GAP = 6; // pixels kept free around each label
-const LABEL_ROOM = 40; // pixels left above each container for its label
+// The label on the floor in front of each container, in world units (D29). It fits in the gap
+// that M11 leaves in front of every row, and reaches a little past the container's sides,
+// into the gap between neighbours. It sits just above the floor and just below the ring.
+const LABEL = { offset: 0.02, depth: 0.26, overhang: 0.12, height: 0.0015 };
+const LABEL_PIXELS = 420; // texture pixels per world unit, rounded to steps of 64
+const LABEL_FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+// The selected container's highlight: the page's accent red, and a ring on the floor around
+// the lid's outline (unit scale).
+const SELECTION_COLOR = 0xa63a32;
+const SELECTION_LID = 0xd0574b;
+const SELECTION_GLOW = 0x5a1510;
+const RING = { gap: 0.03, width: 0.035 };
+// A press that moves less than this many pixels is a click, not a turn of the view.
+const CLICK_SLOP = 5;
 
 /** The D14 brick, centred on the origin and exactly BLOCK_SIZE: a body with a stud on top. */
 export function createBrickGeometry() {
@@ -111,21 +132,103 @@ export function lidOffset(scale, progress) {
 }
 
 /**
- * One box per container of a layout, holding it with its lid closed, or with its lid on the
- * way and open on the floor when `lidsOpen`, as `{ min, max }` Vector3s.
+ * Where a container's floor label lies (D29): `{ minX, maxX, minZ, maxZ }` in world units, in
+ * front of the container (toward -z, where the camera starts) and a little wider than it.
+ */
+export function labelBox({ position, scale }) {
+  const halfWidth = (CONTAINER.width / 2 + CONTAINER.lidOverhang) * scale + LABEL.overhang;
+  const front = position.z - (CONTAINER.depth / 2 + CONTAINER.lidOverhang) * scale - LABEL.offset;
+  return { minX: position.x - halfWidth, maxX: position.x + halfWidth,
+    minZ: front - LABEL.depth, maxZ: front };
+}
+
+/**
+ * One box per container of a layout, holding it and its floor label with its lid closed, or
+ * with its lid on the way and open on the floor when `lidsOpen`, as `{ min, max }` Vector3s.
  */
 export function containerBoxes(layout, { lidsOpen = false } = {}) {
-  const { width, depth, height, lidHeight, lidOverhang } = CONTAINER;
-  return layout.containers.map(({ position, scale }) => {
-    const halfWidth = (width / 2 + lidOverhang) * scale;
+  const { depth, height, lidHeight, lidOverhang } = CONTAINER;
+  return layout.containers.map((container) => {
+    const { position, scale } = container;
     const halfDepth = (depth / 2 + lidOverhang) * scale;
+    const label = labelBox(container);
     const lid = lidsOpen ? { z: lidOffset(scale, 1).z, lift: LID_LIFT } : { z: 0, lift: 0 };
     return {
-      min: new Vector3(position.x - halfWidth, position.y, position.z - halfDepth),
-      max: new Vector3(position.x + halfWidth,
-        position.y + (height + lid.lift + lidHeight) * scale, position.z + lid.z + halfDepth),
+      min: new Vector3(label.minX, position.y, label.minZ),
+      max: new Vector3(label.maxX, position.y + (height + lid.lift + lidHeight) * scale,
+        position.z + lid.z + halfDepth),
     };
   });
+}
+
+/**
+ * The boxes the camera frames: only the focused container's while it is in the layout,
+ * otherwise every container's.
+ */
+export function framingBoxes(layout, { lidsOpen = false, focus = null } = {}) {
+  const boxes = containerBoxes(layout, { lidsOpen });
+  const index = layout.containers.findIndex((container) => container.categoryId === focus);
+  return index === -1 ? boxes : [boxes[index]];
+}
+
+/**
+ * The flat ring on the floor around a selected container, at unit scale: the lid's chamfered
+ * outline grown by RING.gap on the inside and by RING.width more on the outside.
+ */
+export function createSelectionRingGeometry() {
+  const { width, depth, chamfer, lidOverhang } = CONTAINER;
+  const outline = (grow) => {
+    const x = width / 2 + lidOverhang + grow;
+    const z = depth / 2 + lidOverhang + grow;
+    const cut = chamfer + grow * (2 - Math.SQRT2);
+    return [[x - cut, z], [-x + cut, z], [-x, z - cut], [-x, -z + cut], [-x + cut, -z],
+      [x - cut, -z], [x, -z + cut], [x, z - cut]].map(([px, pz]) => new Vector2(px, pz));
+  };
+  const shape = new Shape(outline(RING.gap + RING.width));
+  shape.holes.push(new Path(outline(RING.gap)));
+  // The shape is drawn in x and y; lying it down puts its y on -z, which the symmetric
+  // outline does not mind, and turns its face up.
+  return new ShapeGeometry(shape).rotateX(-Math.PI / 2);
+}
+
+/**
+ * Draws a floor label into a 2D canvas context: a rounded card with the category name and
+ * the piece count, red when its container is selected. Long names shrink, then are cut short.
+ */
+export function drawLabel(context, { name, count, selected }) {
+  const { width, height } = context.canvas;
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = selected ? '#a63a32' : '#ffffff';
+  context.beginPath();
+  context.roundRect(0, 0, width, height, height * 0.18);
+  context.fill();
+  if (!selected) {
+    const line = Math.max(2, height * 0.03);
+    context.strokeStyle = '#c3c8ce';
+    context.lineWidth = line;
+    context.beginPath();
+    context.roundRect(line / 2, line / 2, width - line, height - line, height * 0.18);
+    context.stroke();
+  }
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  const write = (text, weight, size, y, color) => {
+    const room = width * 0.9;
+    let px = size;
+    context.font = `${weight} ${px}px ${LABEL_FONT}`;
+    while (context.measureText(text).width > room && px > size * 0.6) {
+      px *= 0.92;
+      context.font = `${weight} ${px}px ${LABEL_FONT}`;
+    }
+    let shown = text;
+    while (context.measureText(shown).width > room && shown.length > 4) {
+      shown = `${shown.slice(0, -4)}...`;
+    }
+    context.fillStyle = color;
+    context.fillText(shown, width / 2, y);
+  };
+  write(name, 600, height * 0.34, height * 0.38, selected ? '#ffffff' : '#1f2328');
+  write(count, 400, height * 0.24, height * 0.73, selected ? '#f6dcd8' : '#59606a');
 }
 
 /** The box around all of `containerBoxes`; null for a layout with no containers. */
@@ -206,9 +309,12 @@ export function fitCamera(points, { fov, aspect }, direction) {
 /**
  * Draws the inventory in `element`. Returns null, leaving the element untouched, when the
  * browser has no WebGL (R29). `reducedMotion` defaults to the system's "reduce motion"
- * setting, followed as it changes.
+ * setting, followed as it changes. `onSelectionChange({ selected, focused })` is called when
+ * the selected or focused container changes, or the selected one's piece count does:
+ * `selected` is `{ categoryId, categoryName, pieces }` or null, `focused` a category ID or
+ * null.
  */
-export function createBrickScene(element, { reducedMotion } = {}) {
+export function createBrickScene(element, { reducedMotion, onSelectionChange = () => {} } = {}) {
   let renderer;
   try {
     renderer = new WebGLRenderer({ antialias: true });
@@ -231,9 +337,6 @@ export function createBrickScene(element, { reducedMotion } = {}) {
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label',
     'Storage containers, one per part category, holding blocks in the colours of the parts');
-  const labels = document.createElement('div');
-  labels.className = 'brick-scene-labels';
-  Object.assign(labels.style, { position: 'absolute', inset: '0', pointerEvents: 'none' });
   const legend = document.createElement('p');
   legend.className = 'brick-scene-legend';
   legend.textContent = `1 block = ${PIECES_PER_BLOCK} pieces`;
@@ -243,7 +346,7 @@ export function createBrickScene(element, { reducedMotion } = {}) {
   empty.textContent = 'No bricks to show.';
   empty.style.position = 'absolute';
   empty.hidden = true;
-  root.append(canvas, labels, legend, empty);
+  root.append(canvas, legend, empty);
   element.append(root);
 
   renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio ?? 1, 2));
@@ -283,6 +386,9 @@ export function createBrickScene(element, { reducedMotion } = {}) {
   });
 
   const brickGeometry = createBrickGeometry();
+  // A 1 x 1 card lying face up, its top edge away from the camera's starting side (+z) and
+  // its text running left to right as seen from there.
+  const labelGeometry = new PlaneGeometry(1, 1).rotateX(-Math.PI / 2).rotateY(Math.PI);
   // Hashed alpha keeps see-through bricks in the opaque pass, so they show through the
   // frosted walls like the others. Plain blending would draw them after the walls, which
   // write depth and would hide them.
@@ -293,7 +399,18 @@ export function createBrickScene(element, { reducedMotion } = {}) {
       opacity: 0.5, alphaHash: true }), mesh: null, capacity: 0 },
   };
   const colors = new Map();
-  const containers = new Map(); // categoryId -> { container, label, name, count, item }
+  const containers = new Map(); // categoryId -> { container, label, item, lidMesh, ... }
+  let selected = null; // category ID of the selected container
+  let focused = null; // category ID of the container the camera is on
+  let notice = '';
+  // One ring, moved to whichever container is selected; it never catches a click. It is
+  // solid, so it is drawn before the frosted walls and shows through them.
+  const ring = new Mesh(createSelectionRingGeometry(),
+    new MeshBasicMaterial({ color: SELECTION_COLOR }));
+  // Above the floor labels (LABEL.height) even on the smallest container.
+  ring.position.y = 0.008;
+  ring.raycast = () => {};
+  let lidHighlight = null; // the shared lid material, glowing; made on the first selection
 
   const empties = { piecesPerBlock: PIECES_PER_BLOCK, containers: [], blocks: [] };
   let shown = empties; // the layout on screen once all motion ends
@@ -325,6 +442,7 @@ export function createBrickScene(element, { reducedMotion } = {}) {
       }
       applyContainers(current);
       applyBlocks(current);
+      applySelection();
     }
     if (lids.value !== lids.to) {
       const t = jump ? 1 : (now - lids.start) / DURATION;
@@ -346,7 +464,6 @@ export function createBrickScene(element, { reducedMotion } = {}) {
       }
     }
     renderer.render(scene, camera);
-    placeLabels();
     if (moving) {
       requestFrame();
     }
@@ -365,17 +482,13 @@ export function createBrickScene(element, { reducedMotion } = {}) {
       group.visible = item.scale > MIN_SCALE;
       group.position.set(item.position.x, item.position.y, item.position.z);
       group.scale.setScalar(Math.max(item.scale, MIN_SCALE));
-      const count = `${item.pieces.toLocaleString('en')} ${item.pieces === 1 ? 'piece' : 'pieces'}`;
-      if (entry.name.textContent !== item.categoryName || entry.count.textContent !== count) {
-        entry.name.textContent = item.categoryName;
-        entry.count.textContent = count;
-        entry.size = null;
-      }
+      placeLabel(entry);
     }
     for (const [categoryId, entry] of containers) {
       if (!present.has(categoryId)) {
-        scene.remove(entry.container.group);
-        entry.label.remove();
+        scene.remove(entry.container.group, entry.label);
+        entry.label.material.map?.dispose();
+        entry.label.material.dispose();
         containers.delete(categoryId);
       }
     }
@@ -383,20 +496,19 @@ export function createBrickScene(element, { reducedMotion } = {}) {
 
   function addContainer(categoryId) {
     const container = createContainer();
+    container.group.userData.categoryId = categoryId;
     container.group.traverse((object) => {
       object.castShadow = true;
     });
     scene.add(container.group);
-    const label = document.createElement('div');
-    label.className = 'brick-scene-label';
-    Object.assign(label.style, { position: 'absolute', left: '0', top: '0' });
-    const name = document.createElement('span');
-    name.className = 'brick-scene-label-name';
-    const count = document.createElement('span');
-    count.className = 'brick-scene-label-count';
-    label.append(name, count);
-    labels.append(label);
-    const entry = { container, label, name, count, item: null, size: null };
+    // Solid with cut corners (alphaTest), so it is drawn before the frosted walls and shows
+    // through them like everything else on the floor. A click on it selects its container.
+    const label = new Mesh(labelGeometry, new MeshBasicMaterial({ alphaTest: 0.5 }));
+    label.userData.categoryId = categoryId;
+    scene.add(label);
+    const lidMesh = container.lid.children[0];
+    const entry = { container, label, labelKey: '', item: null, lidMesh,
+      lidMaterial: lidMesh.material };
     containers.set(categoryId, entry);
     return entry;
   }
@@ -462,72 +574,44 @@ export function createBrickScene(element, { reducedMotion } = {}) {
     return color;
   }
 
-  const center = new Vector3();
-
-  // Each label sits just above its container. Nearer labels go first, and a label that would
-  // cover one already placed, or a container nearer than its own, is hidden until the view
-  // is zoomed or turned. A large inventory stays readable, and no label seems to belong to
-  // the wrong container. Above rather than under: from above, the floor in front of a
-  // container is behind the nearer row, so a label there would always cover it.
-  function placeLabels() {
-    const width = root.clientWidth;
-    const height = root.clientHeight;
-    const candidates = [];
-    for (const entry of containers.values()) {
-      const { container, item, label } = entry;
-      center.set(item.position.x, item.position.y, item.position.z).project(camera);
-      if (!container.group.visible || center.z > 1) {
-        label.style.visibility = 'hidden';
-        continue;
-      }
-      // Measured once per text change; the transform below does not change the size.
-      entry.size ??= { width: label.offsetWidth, height: label.offsetHeight };
-      candidates.push({ entry, body: screenRect(item, width, height), depth: center.z });
-    }
-    candidates.sort((a, b) => a.depth - b.depth);
-    const apart = (a, b) => a.right <= b.left || b.right <= a.left || a.bottom <= b.top
-      || b.bottom <= a.top;
-    const placed = [];
-    for (const { entry, body, depth } of candidates) {
-      const { item, label, size } = entry;
-      const x = (body.left + body.right) / 2;
-      const box = { left: x - size.width / 2 - LABEL_GAP, right: x + size.width / 2 + LABEL_GAP,
-        top: body.top - size.height - LABEL_GAP, bottom: body.top };
-      const free = placed.every((other) => apart(box, other))
-        && candidates.every((other) => other.depth >= depth || apart(box, other.body));
-      label.style.visibility = free ? 'visible' : 'hidden';
-      if (!free) {
-        continue;
-      }
-      placed.push(box);
-      label.style.transform = `translate(${x.toFixed(1)}px, ${body.top.toFixed(1)}px) `
-        + 'translate(-50%, calc(-100% - 0.2rem))';
-      // The label of an entering or leaving container fades with it.
-      const full = transition?.fades.get(item.categoryId);
-      label.style.opacity = full === undefined ? '1' : String(Math.min(1, item.scale / full));
-    }
+  // Puts a container's floor label in front of it. The label of an entering or leaving
+  // container grows or shrinks with it.
+  function placeLabel(entry) {
+    const { item, label } = entry;
+    const box = labelBox(item);
+    const full = transition?.fades.get(item.categoryId);
+    const share = full === undefined ? 1 : Math.min(1, item.scale / full);
+    label.visible = entry.container.group.visible && share > 0.01;
+    label.position.set((box.minX + box.maxX) / 2, LABEL.height, (box.minZ + box.maxZ) / 2);
+    label.scale.set((box.maxX - box.minX) * share, 1, LABEL.depth * share);
+    paintLabel(entry);
   }
 
-  const corner = new Vector3();
-
-  // The screen rectangle around a container with its lid closed, in pixels.
-  function screenRect({ position, scale }, width, height) {
-    const rect = { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity };
-    const halfWidth = (CONTAINER.width / 2) * scale;
-    const halfDepth = (CONTAINER.depth / 2) * scale;
-    const top = (CONTAINER.height + CONTAINER.lidHeight) * scale;
-    for (const [sx, sz, level] of [[-1, -1, 0], [-1, 1, 0], [1, -1, 0], [1, 1, 0],
-      [-1, -1, top], [-1, 1, top], [1, -1, top], [1, 1, top]]) {
-      corner.set(position.x + sx * halfWidth, position.y + level, position.z + sz * halfDepth)
-        .project(camera);
-      const screenX = ((corner.x + 1) / 2) * width;
-      const screenY = ((1 - corner.y) / 2) * height;
-      rect.left = Math.min(rect.left, screenX);
-      rect.right = Math.max(rect.right, screenX);
-      rect.top = Math.min(rect.top, screenY);
-      rect.bottom = Math.max(rect.bottom, screenY);
+  // Draws the label's texture again only when its text, its selection or its size (in steps
+  // of 64 pixels) has changed.
+  function paintLabel(entry) {
+    const { item, label } = entry;
+    const box = labelBox(item);
+    const width = box.maxX - box.minX;
+    const pixels = Math.min(1024, Math.max(128, Math.round((width * LABEL_PIXELS) / 64) * 64));
+    const chosen = item.categoryId === selected;
+    const count = `${item.pieces.toLocaleString('en')} ${item.pieces === 1 ? 'piece' : 'pieces'}`;
+    const key = `${pixels}|${chosen}|${count}|${item.categoryName}`;
+    if (key === entry.labelKey) {
+      return;
     }
-    return rect;
+    entry.labelKey = key;
+    const card = document.createElement('canvas');
+    card.width = pixels;
+    card.height = Math.max(32, Math.round((pixels * LABEL.depth) / width));
+    drawLabel(card.getContext('2d'), { name: item.categoryName, count, selected: chosen });
+    const texture = new CanvasTexture(card);
+    texture.colorSpace = SRGBColorSpace;
+    // Seen at a slant on the floor; anisotropic filtering keeps the text sharp.
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    label.material.map?.dispose();
+    label.material.map = texture;
+    label.material.needsUpdate = true;
   }
 
   function placeCamera(target, distance, direction) {
@@ -536,24 +620,17 @@ export function createBrickScene(element, { reducedMotion } = {}) {
     controls.update();
   }
 
-  // Frames the layout's containers, and their open lids when the lids are open, keeping the
-  // direction the user has turned the view to.
+  // Frames the layout's containers, or only the focused one, with their open lids when the
+  // lids are open, keeping the direction the user has turned the view to.
   function aimCamera(layout, animate) {
-    const boxes = containerBoxes(layout, { lidsOpen: lids.to === 1 });
+    const boxes = framingBoxes(layout, { lidsOpen: lids.to === 1, focus: focused });
     if (boxes.length === 0) {
       cameraMove = null;
       return;
     }
-    const pointsWithRoom = (room) => boxes.flatMap(({ min, max }) =>
-      boxCorners({ min, max: new Vector3(max.x, max.y + room, max.z) }));
     const offset = camera.position.clone().sub(controls.target);
     const direction = offset.lengthSq() > 0 ? offset.normalize() : VIEW_DIRECTION.clone();
-    // Room above each container for its label: LABEL_ROOM pixels at the distance of a first
-    // fit without it.
-    const first = fitCamera(pointsWithRoom(0), camera, direction);
-    const perPixel = (2 * first.distance * Math.tan((camera.fov * Math.PI) / 360))
-      / Math.max(root.clientHeight, 1);
-    const goal = fitCamera(pointsWithRoom(LABEL_ROOM * perPixel), camera, direction);
+    const goal = fitCamera(boxes.flatMap(boxCorners), camera, direction);
     controls.maxDistance = Math.max(40, goal.distance * 3);
     if (!animate) {
       cameraMove = null;
@@ -590,6 +667,119 @@ export function createBrickScene(element, { reducedMotion } = {}) {
       bottom: -radius, near: 0.1, far: radius * 4 });
     light.shadow.camera.updateProjectionMatrix();
   }
+
+  // Selection and focus (D28).
+
+  function applySelection() {
+    for (const [categoryId, entry] of containers) {
+      const chosen = categoryId === selected;
+      if (chosen && lidHighlight === null) {
+        lidHighlight = entry.lidMaterial.clone();
+        lidHighlight.color.set(SELECTION_LID);
+        lidHighlight.emissive.set(SELECTION_GLOW);
+      }
+      entry.lidMesh.material = chosen ? lidHighlight : entry.lidMaterial;
+      paintLabel(entry);
+      if (chosen && ring.parent !== entry.container.group) {
+        entry.container.group.add(ring);
+      }
+    }
+    if (selected === null || !containers.has(selected)) {
+      ring.removeFromParent();
+    }
+  }
+
+  // Tells the page what is selected and focused, when that has changed.
+  function notify() {
+    const item = shown.containers.find((container) => container.categoryId === selected);
+    const state = {
+      selected: item === undefined ? null
+        : { categoryId: item.categoryId, categoryName: item.categoryName, pieces: item.pieces },
+      focused,
+    };
+    const text = JSON.stringify(state);
+    if (text !== notice) {
+      notice = text;
+      onSelectionChange(state);
+    }
+  }
+
+  const inLayout = (categoryId) => shown.containers.some((item) => item.categoryId === categoryId);
+
+  function select(categoryId) {
+    selected = inLayout(categoryId) ? categoryId : null;
+    applySelection();
+    notify();
+    requestFrame();
+  }
+
+  // Moves the camera to one container, or back to all of them with null. Asking again
+  // frames it again, after the user has turned or zoomed the view.
+  function focusOn(categoryId) {
+    focused = inLayout(categoryId) ? categoryId : null;
+    aimCamera(shown, !instant());
+    notify();
+    requestFrame();
+  }
+
+  const raycaster = new Raycaster();
+  const pointer = new Vector2();
+
+  // The category of the container (body, lid or floor label) under the pointer, or null.
+  function pick(event) {
+    const rect = canvas.getBoundingClientRect();
+    pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1,
+      -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    raycaster.setFromCamera(pointer, camera);
+    const targets = [...containers.values()].flatMap((entry) => [entry.container.group,
+      entry.label]).filter((object) => object.visible);
+    let object = raycaster.intersectObjects(targets, true)[0]?.object ?? null;
+    while (object !== null && object.userData.categoryId === undefined) {
+      object = object.parent;
+    }
+    return object === null ? null : object.userData.categoryId;
+  }
+
+  let press = null;
+  let hover = null;
+  const onPointerDown = (event) => {
+    press = { x: event.clientX, y: event.clientY };
+  };
+  // A click selects what is under it, and nothing on empty floor; a drag only turns the view.
+  const onPointerUp = (event) => {
+    if (press !== null && Math.hypot(event.clientX - press.x, event.clientY - press.y)
+      <= CLICK_SLOP) {
+      select(pick(event));
+    }
+    press = null;
+  };
+  // A double click moves the camera to a container, or on empty floor back to all of them.
+  const onDoubleClick = (event) => {
+    const categoryId = pick(event);
+    if (categoryId !== null) {
+      select(categoryId);
+    }
+    focusOn(categoryId);
+  };
+  // The pointer shows that a container can be clicked; checked once per frame at most.
+  const onPointerMove = (event) => {
+    if (event.buttons !== 0) {
+      return;
+    }
+    if (hover === null) {
+      requestAnimationFrame(() => {
+        if (!disposed) {
+          canvas.style.cursor = pick(hover) === null ? '' : 'pointer';
+        }
+        hover = null;
+      });
+    }
+    hover = event;
+  };
+  canvas.addEventListener('pointerdown', onPointerDown);
+  canvas.addEventListener('pointerup', onPointerUp);
+  canvas.addEventListener('dblclick', onDoubleClick);
+  canvas.addEventListener('pointermove', onPointerMove);
 
   const resizer = new ResizeObserver(() => {
     const width = root.clientWidth;
@@ -630,10 +820,28 @@ export function createBrickScene(element, { reducedMotion } = {}) {
       transition = { plan, fades, start: performance.now() };
       fitShadow(current, next);
       shown = next;
+      // A container that leaves takes its selection and focus with it.
+      if (!inLayout(selected)) {
+        selected = null;
+      }
+      if (!inLayout(focused)) {
+        focused = null;
+      }
+      notify();
       empty.hidden = next.containers.length > 0;
       // The first containers are framed at once; later changes move the camera with them.
       aimCamera(next, !first && !instant());
       requestFrame();
+    },
+    select(categoryId) {
+      if (!disposed) {
+        select(categoryId);
+      }
+    },
+    focus(categoryId) {
+      if (!disposed) {
+        focusOn(categoryId);
+      }
     },
     setLidsOpen(open) {
       if (disposed) {
@@ -654,6 +862,18 @@ export function createBrickScene(element, { reducedMotion } = {}) {
       cancelAnimationFrame(frameRequest);
       resizer.disconnect();
       motionQuery?.removeEventListener('change', finishMotion);
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('dblclick', onDoubleClick);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      ring.geometry.dispose();
+      ring.material.dispose();
+      for (const { label } of containers.values()) {
+        label.material.map?.dispose();
+        label.material.dispose();
+      }
+      labelGeometry.dispose();
+      lidHighlight?.dispose();
       controls.dispose();
       for (const slot of Object.values(blocks)) {
         slot.mesh?.dispose();
