@@ -104,7 +104,9 @@ function placeContainers(containers) {
       row[i].position = { x: x + widths[i] / 2, y: 0, z: z + depth / 2 };
       x += widths[i] + GAP;
     }
-    z += depth + GAP;
+    // Reserve a lid-sized strip behind each row even when lids are closed, so opening
+    // can set lids flat on the floor without moving the containers or covering another row.
+    z += 2 * (depth + GAP);
   }
   for (const container of containers) container.position.z -= (z - GAP) / 2;
 }
@@ -157,8 +159,11 @@ export function frameAt(transition, t) {
     },
     scale: mix(from.scale, to.scale, progress),
   });
-  return { piecesPerBlock: transition.piecesPerBlock,
-    containers: transition.containers.map(interpolate), blocks: transition.blocks.map(interpolate) };
+  return {
+    piecesPerBlock: transition.piecesPerBlock,
+    containers: transition.containers.map(interpolate),
+    blocks: transition.blocks.map(interpolate),
+  };
 }
 
 function mix(from, to, t) {

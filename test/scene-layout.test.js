@@ -1,7 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CONTAINER, interiorBox } from '../public/js/container-spec.js';
-import { BLOCK_SIZE, computeLayout, planTransition, frameAt, easeInOutCubic } from '../public/js/scene-layout.js';
+import {
+  BLOCK_SIZE, computeLayout, planTransition, frameAt, easeInOutCubic,
+} from '../public/js/scene-layout.js';
 
 const row = (quantity, changes = {}) => ({ categoryId: 11, categoryName: 'Bricks',
   colorId: 4, colorRgb: 'C91A09', colorIsTrans: false, quantity, ...changes });
@@ -45,7 +47,8 @@ test('container scale grows with blocks and bounds contain every whole brick', (
       assert.ok(block.position.y + BLOCK_SIZE.height / 2 <= box.floorY + box.height + 1e-10);
     }
   }
-  assert.ok(computeLayout([row(10000)]).containers[0].scale > computeLayout([row(100)]).containers[0].scale);
+  assert.ok(computeLayout([row(10000)]).containers[0].scale
+    > computeLayout([row(100)]).containers[0].scale);
 });
 
 test('grid uses the smallest uniform scale for its block count', () => {
@@ -98,6 +101,28 @@ test('containers sort by category name and never overlap, including their lids',
   }
 });
 
+test('open lids fit flat behind their containers without covering other containers or lids', () => {
+  const rows = Array.from({ length: 12 }, (_, i) => row(100 * (i + 1) ** 3,
+    { categoryId: i, categoryName: `Category ${i}` }));
+  const { containers } = computeLayout(rows);
+  const footprints = containers.flatMap(container => {
+    const width = (CONTAINER.width + 2 * CONTAINER.lidOverhang) * container.scale;
+    const depth = (CONTAINER.depth + 2 * CONTAINER.lidOverhang) * container.scale;
+    return [
+      { x: container.position.x, z: container.position.z, width, depth },
+      { x: container.position.x, z: container.position.z + depth + 0.3, width, depth },
+    ];
+  });
+  for (let i = 0; i < footprints.length; i += 1) {
+    for (let j = i + 1; j < footprints.length; j += 1) {
+      const a = footprints[i];
+      const b = footprints[j];
+      assert.ok(Math.abs(a.x - b.x) >= (a.width + b.width) / 2 + 0.3 - 1e-10
+        || Math.abs(a.z - b.z) >= (a.depth + b.depth) / 2 + 0.3 - 1e-10);
+    }
+  }
+});
+
 test('layout is deterministic across reordered, frozen rows and preserves colour metadata', () => {
   const rows = freeze([row(250), row(100, { colorId: 1, colorRgb: 'AABBCC', colorIsTrans: true }),
     row(10, { categoryId: 14, categoryName: 'Plates' })]);
@@ -131,7 +156,9 @@ function renderedLayout(layout) {
 }
 
 test('transition endpoints reproduce both layouts, with invisible entering/leaving items', () => {
-  const from = freeze(computeLayout([row(250), row(100, { categoryId: 14, categoryName: 'Plates' })]));
+  const from = freeze(computeLayout([
+    row(250), row(100, { categoryId: 14, categoryName: 'Plates' }),
+  ]));
   const to = freeze(computeLayout([row(100), row(101, { categoryId: 1, categoryName: 'Arches' })]));
   const transition = freeze(planTransition(from, to));
   assert.deepEqual(visible(frameAt(transition, 0)), renderedLayout(from));

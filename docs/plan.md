@@ -123,7 +123,7 @@ Modules and tests refer to these IDs.
 | D22 | No real 429 is captured. M3 waits for `Retry-After` when it is present and for the seconds in `detail` otherwise, and its tests cover both with hand-made fixtures. F6 stays unverified. | Forcing a 429 risks a temporary IP ban (section 4), and the client behaves correctly with either answer. |
 | D23 | The Content-Security-Policy allows images only from `https://cdn.rebrickable.com` (F3). An image on any other host is blocked and shows the placeholder (R11). | Every image URL in the captured responses is on that host. A wider policy would let the page load images from sites it has no reason to contact. |
 | D24 | For a set that contains other sets, M4 drops every line of the set's own parts response whose `set_num` is the number of a set inside it, at any depth, and adds each contained set's own import (minifigure parts included) times its quantity. Lines with any other `set_num` (the pack's own parts and its own minifigures' parts) are kept. | F2: a pack's response repeats its contained sets' ordinary parts but leaves out their minifigure parts. The contained sets' own responses count every part once, include the minifigure parts, and do not depend on how Rebrickable multiplies a contained quantity. No request is added: M4 already imports each contained set. |
-| D26 | M11 uses fixed brick bounds (including the stud) of width 0.18, depth 0.18 and height 0.22, centred on each block position. Grid pitches are 0.2, 0.2 and 0.24. It chooses the grid requiring the least uniform container scale, breaking ties by capacity and then width/depth iteration order. Containers have a 0.3 gap including lid overhang. Entering items start at scale 0; blocks also drop from above the destination lid. | Makes the previously unspecified block bounds, packing and transition endpoints precise for M12. Spacing keeps bricks apart, and invisible entering/leaving items reproduce the visible endpoint layouts. |
+| D26 | M11 uses fixed brick bounds (including the stud) of width 0.18, depth 0.18 and height 0.22, centred on each block position. Grid pitches are 0.2, 0.2 and 0.24. It chooses the grid requiring the least uniform container scale, breaking ties by capacity and then width/depth iteration order. Containers have a 0.3 gap including lid overhang. Every row also reserves space for lids to lie flat behind it, whether open or closed. M12 sets an open lid on the floor, its underside origin at the container's x, y 0 and z plus the scaled outer lid depth plus 0.3. Entering items start at scale 0; blocks also drop from above the destination lid. | Makes the previously unspecified block bounds, packing and transition endpoints precise for M12. Reserved lid space avoids overlap when opening lids (D19) and keeps container positions stable. Invisible entering/leaving items reproduce the visible endpoint layouts. |
 
 ## 4. Rebrickable API
 
@@ -708,7 +708,9 @@ identical minifigures; a second capture the same day added both, and a two-page 
     name ordering, with category ID breaking name ties. Zero-quantity categories are omitted.
   - Containers are sorted by category name and stand on the floor in rows of
     `ceil(sqrt(count))`, with a gap, never overlapping (D18). A category with no blocks gets
-    no container.
+    no container. Row spacing reserves room for flat open lids behind every container,
+    including lid overhang and a 0.3 gap on either side of the lid (D26). Opening and
+    closing lids therefore needs no layout change.
   - `planTransition` matches blocks by key and containers by category: kept ones move, new
     ones drop in from above their container, removed ones shrink to nothing where they are.
     `frameAt` returns every block's position and scale and every container's position and
