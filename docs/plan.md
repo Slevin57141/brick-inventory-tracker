@@ -123,6 +123,7 @@ Modules and tests refer to these IDs.
 | D22 | No real 429 is captured. M3 waits for `Retry-After` when it is present and for the seconds in `detail` otherwise, and its tests cover both with hand-made fixtures. F6 stays unverified. | Forcing a 429 risks a temporary IP ban (section 4), and the client behaves correctly with either answer. |
 | D23 | The Content-Security-Policy allows images only from `https://cdn.rebrickable.com` (F3). An image on any other host is blocked and shows the placeholder (R11). | Every image URL in the captured responses is on that host. A wider policy would let the page load images from sites it has no reason to contact. |
 | D24 | For a set that contains other sets, M4 drops every line of the set's own parts response whose `set_num` is the number of a set inside it, at any depth, and adds each contained set's own import (minifigure parts included) times its quantity. Lines with any other `set_num` (the pack's own parts and its own minifigures' parts) are kept. | F2: a pack's response repeats its contained sets' ordinary parts but leaves out their minifigure parts. The contained sets' own responses count every part once, include the minifigure parts, and do not depend on how Rebrickable multiplies a contained quantity. No request is added: M4 already imports each contained set. |
+| D25 | M5 inventory rows and M9 filter options compare names with `Intl.Collator('en', { numeric: true })`. | One explicit locale keeps the list and filter ordering independent of the machine's default language, and numeric ordering puts sizes such as 1 x 2 before 1 x 10. |
 | D26 | M11 uses fixed brick bounds (including the stud) of width 0.18, depth 0.18 and height 0.22, centred on each block position. Grid pitches are 0.2, 0.2 and 0.24. It chooses the grid requiring the least uniform container scale, breaking ties by capacity and then width/depth iteration order. Containers have a 0.3 gap including lid overhang. Every row also reserves space for lids to lie flat behind it, whether open or closed. M12 sets an open lid on the floor, its underside origin at the container's x, y `LID_SKIRT * scale` (M13) and z plus the scaled outer lid depth plus 0.3. Entering items start at scale 0; blocks also drop from above the destination lid. | Makes the previously unspecified block bounds, packing and transition endpoints precise for M12. Reserved lid space avoids overlap when opening lids (D19) and keeps container positions stable. The skirt offset keeps the lid above the floor. Invisible entering/leaving items reproduce the visible endpoint layouts. |
 
 ## 4. Rebrickable API
@@ -273,7 +274,8 @@ public/
   js/scene-layout.js                           M11
   js/brick-scene.js                            M12
   js/container-spec.js, js/container-model.js  M13
-  container.html, js/container-preview.js      M13  preview page (R28)
+  container.html, container.css                M13  preview page (R28)
+  js/container-preview.js                      M13
   vendor/three/                                M0   vendored three.js release (D13)
 scripts/capture-fixtures.js    M0  run by the user only
 test/
@@ -454,16 +456,24 @@ identical minifigures; a second capture the same day added both, and a two-page 
 ### M2. key-store
 
 - **Responsibility:** hold the API key in memory only.
-- **Interface:** `createKeyStore() -> { set(key), get(), has(), clear(), redact(text) }`.
-  - `set` trims and checks the format (8-200 characters, no whitespace or control
-    characters), otherwise throws `invalid_key_format`. It does not call the API; the server
-    checks the key with M3 first.
+- **Interface:** `createKeyStore() -> { set(key), get(), has(), clear(), redact(text) }` and
+  `normalizeKey(input) -> string`.
+  - `normalizeKey` trims and checks the format (8-200 visible ASCII characters, `!` to `~`:
+    no spaces, control characters or anything a request header cannot carry, which also
+    keeps `redact` from throwing) and returns the trimmed key, otherwise throws
+    `invalid_key_format`. It stores nothing, so the server can check the format before it
+    sends a candidate key to Rebrickable (M8).
+  - `set` applies `normalizeKey`, then stores the key; a rejected key leaves the current one
+    in place. It does not call the API; the server checks the key with M3 first.
   - `get()` returns the key or null. Only M3 calls it.
-  - `redact(text)` replaces every occurrence of the current key with `[redacted]`.
+  - `redact(text)` replaces every occurrence of the current key with `[redacted]`, including
+    its spellings inside a JSON string and a URL, and returns a string.
   - The key lives in a closure, so `JSON.stringify`, `String()`, `util.inspect` and
     `console.log` of the store never show it.
-- **Tests:** set, has, get, clear; rejected formats; redact with and without a key; a
-  sentinel key is absent from `JSON.stringify`, `String()` and `util.inspect` output.
+- **Tests:** set, has, get, clear; rejected formats, through both `normalizeKey` and `set`;
+  a rejected key keeps the current one; redact with and without a key, and the JSON and URL
+  spellings; a sentinel key is absent from `JSON.stringify`, `String()`, `util.inspect` and
+  `console.log` output.
 - **Builder: Claude Code.** M2, M3 and M8 are the path the key travels. Having one builder
   for the whole path applies the R16 rules the same way at every step, and Codex then reviews
   the whole path as a reader who did not write it.
@@ -475,7 +485,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Interface:**
   ```
   createRebrickableClient({ keyStore, fetch = globalThis.fetch,
-      baseUrl = 'https://rebrickable.com/api/v3', minIntervalMs = 1100, sleep, now })
+      baseUrl = 'https://rebrickable.com/api/v3', minIntervalMs = 1100, timeoutMs = 15000,
+      sleep, now })
     .checkKey(candidateKey) -> Promise<void>      // GET /lego/colors/?page_size=1
     .getSet(setNum) -> Promise<object>            // raw Rebrickable JSON
     .getSetParts(setNum) -> Promise<object[]>     // all pages joined
@@ -483,23 +494,29 @@ identical minifigures; a second capture the same day added both, and a two-page 
     .getPartCategories() -> Promise<object[]>
   ```
 - **Behaviour:**
-  - No key set: throws `key_required` without making a request.
+  - No key set: throws `key_required` without making a request. The key is read again for
+    every request, so a key forgotten during an import stops the remaining requests.
+    `checkKey` with an empty candidate also throws `key_required`.
   - The key goes only into the `Authorization` header. Path segments are encoded with
-    `encodeURIComponent`.
+    `encodeURIComponent`. A set number that is empty, `.` or `..` throws
+    `invalid_set_number`, because a dot segment would change the path even when encoded
+    (M1 already rejects these).
   - Requests start at least `minIntervalMs` apart, across all callers.
   - 429: waits (`Retry-After` if present, else the seconds in `detail`, else 5 seconds,
     capped at 30), retries at most twice, then throws `rate_limited`.
   - 401 or 403: `key_invalid`. 404 on a set request: `set_not_found`. Any other non-2xx,
-    network error, 15-second timeout (`AbortSignal.timeout`) or invalid JSON:
-    `api_unavailable`.
-  - Follows `next` only when its origin equals the base URL's origin.
+    network error, timeout (`AbortSignal.timeout(timeoutMs)`), invalid JSON or a body of
+    the wrong shape (no `results` array in a list, no object for a set): `api_unavailable`.
+  - Follows `next` only when its origin equals the base URL's origin, and for at most 50
+    pages; otherwise `api_unavailable` before anything is requested from that link.
   - Errors come from `createError` only and never carry a URL, header, response body or
     caught error (no `cause`).
 - **Tests** (fake fetch and fixtures): request URLs and headers are correct and no URL
-  contains the key; pagination over two pages; a `next` on another origin is refused; each
-  status maps to its code; 429 then success, with and without `Retry-After` (D22); 429 three
-  times; pacing with a fake clock; no key
-  means no request; a network error's message does not contain the sentinel key.
+  contains the key; pagination over two pages; a `next` on another origin is refused; an
+  endless `next` stops at 50 pages; each status and malformed body maps to its code; a
+  timeout; 429 then success, with and without `Retry-After` (D22); 429 three times; pacing
+  with a fake clock, across concurrent callers; no key means no request; a network error's
+  message does not contain the sentinel key.
 - **Builder: Claude Code.** Part of the key path (see M2), and it carries the API facts in
   section 4, which Claude Code checks in phase 0.
 
@@ -522,13 +539,33 @@ identical minifigures; a second capture the same day added both, and a two-page 
   that belong to a set inside it (D24); stops at depth 3 and on cycles; fetches categories
   only when a part has a category ID not in `knownCategoryIds`; uses Rebrickable's `set_num`
   as `setNum`. Client errors pass through unchanged.
-- **Tests:** `normalizeSet` on captured fixtures (field mapping, null images, `colorIsTrans`, spare flag kept,
-  minifigure parts present, a quantity-2 minifigure in 75449-1 not multiplied again, and
-  75045-1 giving one line for part 30377 in colour 71, not spare, with quantity 3); the pack
-  66495-1 gives exactly the parts of its three contained sets, minifigure parts included, each
-  counted once (D24); a hand-made contained-sets response with a quantity of 2 doubles that
-  set's parts; cycle guard with hand-made fixtures; categories fetched only when needed;
-  client errors pass through.
+  - Depth: the set asked for is depth 1, so the sets inside it at depth 3 are imported but
+    not the sets inside those. A set that is not imported (depth limit, or a cycle, compared
+    case-insensitively) is counted through the lines its parent keeps from its own
+    response, together with any deeper set whose lines are there. Each import passes up
+    every set number it already counts, imported or kept, and every set further up drops
+    those lines, so "a set inside it" means any set counted below it, however deep. A set
+    never drops lines with its own number. Minifigure numbers (`fig-...`) are never passed
+    up: a response holds no minifigure parts of the sets inside it (F2), so there is
+    nothing to drop above, and dropping would remove the upper set's own minifigures.
+  - `knownCategoryIds` is any iterable of IDs as numbers or numeric strings (the data file's
+    category keys are strings). `categories` is the whole fetched list, or null when nothing
+    was fetched.
+  - `normalizeSet` leaves `containedSets` empty; `importSet` fills it in. Colours are stored
+    in upper case.
+  - Every field M4 keeps is checked: a set, part line, contained set or category of the
+    wrong shape (for example a quantity that is not a positive integer, or an `rgb` that is
+    not 6 hex digits) gives `api_unavailable`, so nothing malformed is saved.
+- **Tests:** `normalizeSet` on captured fixtures (field mapping, null images, `colorIsTrans`,
+  spare flag kept, minifigure parts present, a quantity-2 minifigure in 75449-1 not multiplied
+  again, and 75045-1 giving one line for part 30377 in colour 71, not spare, with quantity
+  3); no repeated combination in any fixture set; the pack 66495-1 gives exactly the parts of
+  its three contained sets, minifigure parts included, each counted once (D24); a contained
+  set with a quantity of 2 doubles that set's parts; a pack keeps its own and minifigure
+  lines; a cycle, and four- and five-level chains, each part counted once; a minifigure in a
+  set and deep inside it counted for both; categories fetched only when
+  needed, with IDs as numbers, strings or a Set; client errors pass through as the same
+  object; malformed answers give `api_unavailable`.
 - **Builder: Claude Code.** It depends on F1 and F2, which Claude Code settles in phase 0, and
   it is the only consumer of M3's raw shapes, so one builder owns both sides of that boundary.
 
@@ -548,7 +585,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
   `buildInventory` sums `quantity * copies` over all sets, keyed by `partNum` and `colorId`,
   spares included (R6). `categoryName` comes from `state.categories`, or "Unknown category".
   `imgUrl` is the first non-null one. Rows are sorted by category name, part name, colour
-  name.
+  name, using the English numeric collator (D25).
 - **Tests:** table-driven: one set; two sets sharing a part and colour; the same part in two
   colours stays two rows; a second copy doubles quantities; removing one of two copies halves
   them; removing the last copy deletes the set; removing an unknown set throws; adding then
@@ -617,13 +654,13 @@ identical minifigures; a second capture the same day added both, and a two-page 
                listens on 127.0.0.1 and logs the URL; exits with the data_file_invalid
                message if the data file is bad.
   ```
-- **Behaviour:** `PUT /api/key` checks the format (M2), checks the key with Rebrickable
-  (`client.checkKey`), then stores it. When an add fails with `key_invalid`, the server clears
-  the key (R18). Errors that are not AppErrors become `internal_error`, and the real error is
-  logged (name and stack, passed through `redact`). One log line per request: method, path,
-  status, duration. Request bodies and headers are never logged. Static files get a
-  `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser refuses
-  module scripts under `nosniff`.
+- **Behaviour:** `PUT /api/key` checks the format (M2 `normalizeKey`), checks the key with
+  Rebrickable (`client.checkKey`), then stores it. When an add fails with `key_invalid`, the
+  server clears the key (R18). Errors that are not AppErrors become `internal_error`, and the
+  real error is logged (name and stack, passed through `redact`). One log line per request:
+  method, path, status, duration. Request bodies and headers are never logged. Static files
+  get a `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser
+  refuses module scripts under `nosniff`.
 - **Tests:** the server listens on 127.0.0.1 (checked from `server.address()`); every route,
   with fakes; wrong `Host` and missing or foreign `Origin` are refused; oversized body; path
   traversal attempts (plain and percent-encoded) get `not_found`; security headers present;
@@ -647,7 +684,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
   filterOptions(rows) -> { colors: [{ id, name, rgb }], categories: [{ id, name }] }
   ```
   Search is trimmed and case-insensitive, and matches part number or name. Options list only
-  values present in the rows, sorted by name.
+  values present in the rows, sorted by name using the English numeric collator (D25).
 - **Tests:** each filter alone and combined with search; search by number and by name,
   ignoring case and outer spaces; no matches; totals on filtered rows (D9); options unique and
   sorted.
@@ -784,10 +821,20 @@ identical minifigures; a second capture the same day added both, and a two-page 
   js/container-model.js
     createContainer() -> { group, body, lid }
         // group: THREE.Group at unit scale, origin at the centre of the base;
-        // lid: its own THREE.Group; geometry and materials shared by all copies
+        // body: one Mesh (shell and feet); lid: its own THREE.Group, origin at the
+        // centre of its underside, placed on the rim; geometry and materials shared
     stackHeight() -> number
         // base-to-base distance when one container sits on another's lid
-  container.html, js/container-preview.js   the preview page
+    LID_SKIRT -> number
+        // how far the lid's skirt hangs below the lid's origin (0.012 at unit scale);
+        // an open lid laid on the floor stands at y = LID_SKIRT * scale (D26)
+    LID_POCKETS -> [{ minX, maxX, minZ, maxZ, floorY }]
+        // the four foot pockets on the lid, in the lid's own coordinates
+    disposeSharedResources()
+        // frees the shared geometry and materials (M12's dispose); the next
+        // createContainer builds them again
+  container.html, container.css, js/container-preview.js   the preview page;
+        // ?stack=1 and ?lid=off in the address open it stacked or without the lid
   ```
 - **Behaviour** (each point from container-spec.md):
   - Body: hollow, built from a chamfered rectangle profile (eight sides), tapering slightly
@@ -795,7 +842,12 @@ identical minifigures; a second capture the same day added both, and a two-page 
     flat closed bottom and small feet near the corners. One compartment; no dividers, hinges,
     clasps, handles, studs or decorative patterns.
   - Body material: `MeshPhysicalMaterial`, very pale grey, transmission with some roughness
-    for the frosted look, slight refraction, `thickness` matching the wall (D20).
+    for the frosted look, slight refraction, `thickness` matching the wall (D20). Both sides
+    are drawn, because three.js shows the far walls through a transmissive surface only
+    when their back faces are rendered too.
+  - Stacking: an upper container's feet stand on the lid's recessed panel inside the corner
+    pockets, which the diagonal ridges frame; its bottom sits inside the lid's raised
+    perimeter, just above the ridges, so the perimeter positions it (spec section 4).
   - Lid: a separate `THREE.Group` in muted red `MeshStandardMaterial` (satin, no metalness),
     slightly overhanging the rim, with chamfered corners, a raised continuous perimeter, a
     recessed flat centre panel, shallow grooves along the perimeter, and diagonal ridges and
@@ -818,8 +870,11 @@ identical minifigures; a second capture the same day added both, and a two-page 
     (section 4).
   - Materials: body `MeshPhysicalMaterial` with transmission above 0; lid
     `MeshStandardMaterial` with metalness 0 (sections 5 and 6).
-  - Two containers share geometries and materials; `interiorBox` grows in proportion to
-    `scale`.
+  - Two containers share geometries and materials, until `disposeSharedResources`;
+    `interiorBox` grows in proportion to `scale`, and the body stays clear of it at scales
+    0.25, 1 and 2.
+  - Body and lid are closed surfaces facing outward (every edge shared by exactly two
+    faces in opposite directions, positive volume).
   - The look is checked by hand on the preview page against spec section 8 (section 10,
     item 19).
 - **Builder: Claude Code.** A self-contained modelling job behind a fixed interface. It
