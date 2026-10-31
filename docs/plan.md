@@ -124,6 +124,7 @@ Modules and tests refer to these IDs.
 | D23 | The Content-Security-Policy allows images only from `https://cdn.rebrickable.com` (F3). An image on any other host is blocked and shows the placeholder (R11). | Every image URL in the captured responses is on that host. A wider policy would let the page load images from sites it has no reason to contact. |
 | D24 | For a set that contains other sets, M4 drops every line of the set's own parts response whose `set_num` is the number of a set inside it, at any depth, and adds each contained set's own import (minifigure parts included) times its quantity. Lines with any other `set_num` (the pack's own parts and its own minifigures' parts) are kept. | F2: a pack's response repeats its contained sets' ordinary parts but leaves out their minifigure parts. The contained sets' own responses count every part once, include the minifigure parts, and do not depend on how Rebrickable multiplies a contained quantity. No request is added: M4 already imports each contained set. |
 | D25 | M5 inventory rows and M9 filter options compare names with `Intl.Collator('en', { numeric: true })`. | One explicit locale keeps the list and filter ordering independent of the machine's default language, and numeric ordering puts sizes such as 1 x 2 before 1 x 10. |
+| D26 | M11 uses fixed brick bounds (including the stud) of width 0.18, depth 0.18 and height 0.22, centred on each block position. Grid pitches are 0.2, 0.2 and 0.24. It chooses the grid requiring the least uniform container scale, breaking ties by capacity and then width/depth iteration order. Containers have a 0.3 gap including lid overhang. Every row also reserves space for lids to lie flat behind it, whether open or closed. M12 sets an open lid on the floor, its underside origin at the container's x, y `LID_SKIRT * scale` (M13) and z plus the scaled outer lid depth plus 0.3. Entering items start at scale 0; blocks also drop from above the destination lid. | Makes the previously unspecified block bounds, packing and transition endpoints precise for M12. Reserved lid space avoids overlap when opening lids (D19) and keeps container positions stable. The skirt offset keeps the lid above the floor. Invisible entering/leaving items reproduce the visible endpoint layouts. |
 
 ## 4. Rebrickable API
 
@@ -723,12 +724,16 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Interface:**
   ```
   computeLayout(rows, { piecesPerBlock = 100 }) -> Layout
+  BLOCK_SIZE -> { width: 0.18, depth: 0.18, height: 0.22 }  // frozen, includes stud
   planTransition(fromLayout, toLayout) -> Transition
   frameAt(transition, t) -> Frame        // t from 0 to 1; easing applied inside
   easeInOutCubic(t) -> number
   ```
   - `Layout`: `{ piecesPerBlock, containers: [{ categoryId, categoryName, pieces, position,
     scale }], blocks: [{ key, categoryId, colorRgb, colorIsTrans, position }] }`.
+    Positions are world-space `{ x, y, z }`; container origins sit on the floor (`y: 0`),
+    while block origins are the centres of their `BLOCK_SIZE` bounds (D26). Blocks stay
+    fixed size as containers resize. `piecesPerBlock` is a positive finite number.
   - Each colour in a category gets `ceil(pieces / piecesPerBlock)` blocks (D15). A block's
     `key` is `categoryId|colorId|i` (the i-th block of that colour in that category), so a
     block keeps its key from one layout to the next.
@@ -736,14 +741,23 @@ identical minifigures; a second capture the same day added both, and a two-page 
     `cols x rows x layers` (width, depth, height) whose ratios follow the container's
     interior from `container-spec.js` (M13): the smallest such grid that holds the blocks.
     The container's `scale` is the smallest at which `interiorBox(scale)` holds that grid
-    (D17).
+    (D17, D26). Colours are ordered by numeric colour ID. Categories use English numeric
+    name ordering, with category ID breaking name ties. Zero-quantity categories are omitted.
   - Containers are sorted by category name and stand on the floor in rows of
     `ceil(sqrt(count))`, with a gap, never overlapping (D18). A category with no blocks gets
-    no container.
+    no container. Row spacing reserves room for flat open lids behind every container,
+    including lid overhang and a 0.3 gap on either side of the lid (D26). Opening and
+    closing lids therefore needs no layout change.
   - `planTransition` matches blocks by key and containers by category: kept ones move, new
     ones drop in from above their container, removed ones shrink to nothing where they are.
     `frameAt` returns every block's position and scale and every container's position and
     scale at time `t`.
+    `Transition` is `{ piecesPerBlock, containers: [{ from, to }], blocks: [{ from, to }] }`,
+    with copied endpoint items and positions; block scale defaults to 1. Entering items
+    start at scale 0 and leaving items end at scale 0 (D26). `Frame` has the Layout shape
+    with a `scale` on every block, and includes both entering and leaving items. Thus the
+    visible items at the endpoints equal the respective layouts. Frames can be used as
+    the start of an interrupted transition. Easing clamps `t` to 0-1.
 - **Tests:** 1, 100, 101 and 250 pieces of one colour give 1, 1, 2 and 3 blocks; container
   scale grows with the number of blocks; every block lies inside `interiorBox(scale)` of its
   container; containers never overlap; the same rows always give the same layout; removing a
