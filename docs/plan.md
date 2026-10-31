@@ -119,6 +119,10 @@ Modules and tests refer to these IDs.
 | D18 | In the app, containers stand side by side on the floor in rows. Stacking is shown on the preview page (R28). | Containers of different sizes cannot interlock; the spec's stacking is about identical units. |
 | D19 | Lids are on by default. "Open lids" lifts each lid and sets it down behind its container, animated as in D16. | The lid is the spec's most recognizable feature, and the frosted walls still show the blocks. Opening shows them from above. |
 | D20 | The body uses `MeshPhysicalMaterial` with transmission (frosted, slight refraction), lit by RoomEnvironment for soft studio reflections. If that is too slow with many containers, the same material switches to plain `transparent` and `opacity`, and the change is recorded here. | The spec asks for soft reflections and subtle refraction. Transmission costs an extra render pass, so a fallback is planned. |
+| D21 | Set numbers go to Rebrickable with the case the user typed (M1). The saved `setNum` is Rebrickable's `set_num`, and `findSet` matches case-insensitively (M5). F5 stays unverified. | The captured set numbers are all digits, so they cannot show whether the API ignores case. The design works either way: if the API is case-sensitive, a set number with letters typed in the wrong case gets `set_not_found`, and the user can try again. |
+| D22 | No real 429 is captured. M3 waits for `Retry-After` when it is present and for the seconds in `detail` otherwise, and its tests cover both with hand-made fixtures. F6 stays unverified. | Forcing a 429 risks a temporary IP ban (section 4), and the client behaves correctly with either answer. |
+| D23 | The Content-Security-Policy allows images only from `https://cdn.rebrickable.com` (F3). An image on any other host is blocked and shows the placeholder (R11). | Every image URL in the captured responses is on that host. A wider policy would let the page load images from sites it has no reason to contact. |
+| D24 | For a set that contains other sets, M4 drops every line of the set's own parts response whose `set_num` is the number of a set inside it, at any depth, and adds each contained set's own import (minifigure parts included) times its quantity. Lines with any other `set_num` (the pack's own parts and its own minifigures' parts) are kept. | F2: a pack's response repeats its contained sets' ordinary parts but leaves out their minifigure parts. The contained sets' own responses count every part once, include the minifigure parts, and do not depend on how Rebrickable multiplies a contained quantity. No request is added: M4 already imports each contained set. |
 
 ## 4. Rebrickable API
 
@@ -146,23 +150,65 @@ Requests this app makes:
 Adding an ordinary set takes 3 requests (4 the first time, for categories), so about 3-4
 seconds at one request per second. A pack adds 3 requests per contained set.
 
-### Facts to verify against captured responses
+### Facts checked against captured responses
 
-The documentation does not settle these. Phase 0 checks them against the captured fixtures and
-records the answers here.
+The documentation does not settle these. They were checked on 2026-10-31 against two captures
+the user made that day, each with the details, parts, contained sets and minifigures of every
+set. The first has sets 31146-1, 42161-1, 76906-1 and 76991-1, the unknown set 99999999-1, the
+key check with a valid and a wrong key, and the part categories. The second has the pack
+66495-1 with the three sets it contains (75037-1, 75038-1, 75045-1), 75449-1 (two identical
+minifigures), and 76991-1 again at page size 100.
 
-- **F1.** Are minifigure part quantities from `inc_minifig_parts=1` already multiplied by the
-  number of that minifigure in the set? If not, the importer must multiply them using
-  `GET /lego/sets/{set_num}/minifigs/`.
-- **F2.** Does a pack's own `/parts/` response already include the parts of its contained
-  sets? If yes, R4 must not add them a second time.
-- **F3.** Which hosts serve `set_img_url` and `part_img_url` (needed for the page's
-  Content-Security-Policy), and can `part_img_url` be null?
-- **F4.** Status and body for an unknown set number (expected: 404).
-- **F5.** Are set numbers case-insensitive in the API?
-- **F6.** Does a 429 response carry a `Retry-After` header?
-- **F7.** Do colour objects in part lines carry `is_trans`? It is needed to draw transparent
-  colours see-through in the 3D view (expected: yes).
+- **F1. Answered: yes.** Minifigure part quantities from `inc_minifig_parts=1` are already
+  multiplied by the number of that minifigure in the set, so the importer uses them as they
+  are and never calls `/minifigs/`. In 75449-1 the clone trooper `fig-014194` has quantity 2,
+  and each of its four parts (head, legs, helmet, torso) has quantity 2. 75045-1 (two clone
+  troopers) and 75037-1 (two super battle droids: 2 torsos, 2 legs, 4 arms) agree. A
+  minifigure's part lines carry the minifigure's number in `set_num` (for example
+  `fig-014194`) instead of the set's.
+- **F2. Answered: partly, so the importer filters (D24).** The pack 66495-1 has
+  `num_parts: 0`, but its own `/parts/` response has 304 lines: exactly the ordinary part lines
+  of its three contained sets (same inventory IDs and quantities), each with the contained
+  set's number in `set_num`. It has none of their minifigure parts (47 lines, 69 pieces), even
+  with `inc_minifig_parts=1`. The pack has no minifigures or parts of its own. Each contained
+  set appears once, so whether the response multiplies by a contained quantity is unknown;
+  D24 does not depend on it.
+- **F3. Answered.** Every image URL is on `https://cdn.rebrickable.com`: all 4 `set_img_url`,
+  605 of 606 `part_img_url`, and the minifigure images. `part_img_url` can be null (one line in
+  76991-1: part 27456pr0003 in Blue). No `set_img_url` was null, but SetRecord keeps `imgUrl`
+  nullable. The Content-Security-Policy in section 7 allows only this host (D23).
+- **F4. Answered.** `GET /lego/sets/99999999-1/` returns 404 with the JSON body
+  `{"detail": "No Set matches the given query."}`. M3 maps it to `set_not_found` and never
+  passes on the `detail` text. A wrong key returns 401 with `{"detail": "Invalid token."}`.
+- **F5. Not verified, not needed (D21).** Every captured set number is digits only, so the
+  captures cannot show whether the API ignores case.
+- **F6. Not verified, not needed (D22).** The capture script stops at a 429 instead of saving
+  it, on purpose. M3 handles a 429 with or without `Retry-After`.
+- **F7. Answered: yes.** Every colour object in every part line has `is_trans` as a boolean
+  (35 transparent lines across the four sets). Colour objects also carry `id`, `name`, `rgb`
+  (6 upper-case hex digits) and `external_ids`.
+
+Other facts from the same captures, for M3 and M4:
+
+- A part line has `id`, `inv_part_id`, `part` (`part_num`, `name`, `part_cat_id`, `part_url`,
+  `part_img_url`, `external_ids`), `color`, `set_num`, `quantity`, `is_spare`, `element_id`
+  and `num_sets`.
+- `num_parts` from the set details is not a reliable count. It never includes spares, but it
+  includes the minifigure parts in most sets and leaves them out in 75037-1 (156, against 178
+  with its 22 minifigure pieces), and a pack has 0. It stays display only (section 6).
+- A contained-sets entry has `id`, `set_num`, `set_name`, `quantity` and `set_img_url`, which
+  map to `containedSets` in section 6.
+- An ordinary set's response never repeats a part, colour and spare flag combination. The
+  pack's response does (27 times, across its contained sets), so `mergePartLines` matters
+  whenever lines from several sets are joined.
+- Every `part_cat_id` appears in the part categories response (76 categories, one page).
+- At `page_size=1000` every parts response fits on one page (the largest, the pack, has 304
+  lines). At page size 100, 76991-1 gives two pages of 100 and 98 lines. Page 1's `next` is
+  `https://rebrickable.com/api/v3/lego/sets/76991-1/parts/?inc_minifig_parts=1&page=2&page_size=100`
+  (same origin, no key), page 2's `next` is null, and the two pages joined equal the
+  single-page response line for line.
+- The key check's `next` link is `https://rebrickable.com/api/v3/lego/colors/?page=2&page_size=1`:
+  same origin as the base URL and no key in it, as expected with header authentication (D8).
 
 ## 5. Architecture
 
@@ -341,7 +387,8 @@ Request rules for every route:
 - Static files are served only from `public/`; a path that resolves outside it is `not_found`.
 - Response headers: `Cache-Control: no-store` on `/api/*`; on every response
   `X-Content-Type-Options: nosniff` and
-  `Content-Security-Policy: default-src 'self'; img-src 'self' <image hosts from F3>; object-src 'none'; base-uri 'none'; frame-ancestors 'none'`.
+  `Content-Security-Policy: default-src 'self'; img-src 'self' https://cdn.rebrickable.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'`
+  (image host from F3, D23).
 - Scripts come only from this server, three.js included (`/vendor/three/`, D13). The page has
   no inline scripts, so the policy needs no exceptions.
 
@@ -382,7 +429,10 @@ After M0, the user captures fixtures for: one small set with minifigures and spa
 set with two identical minifigures (F1); one pack (F2); one unknown set number (F4); and the
 key check with a deliberately wrong key (401). Claude Code answers F1-F7 from them and
 updates sections 4, 6 and 7. Responses that cannot be captured on demand (429, 500, malformed
-JSON, a cycle of contained sets) are hand-made and named `handmade-*.json`.
+JSON, a cycle of contained sets, a contained set with a quantity above 1) are hand-made and
+named `handmade-*.json`. The first capture (2026-10-31) had neither a pack nor a set with two
+identical minifigures; a second capture the same day added both, and a two-page parts list
+(section 4).
 
 ### M1. set-number
 
@@ -443,7 +493,8 @@ JSON, a cycle of contained sets) are hand-made and named `handmade-*.json`.
     caught error (no `cause`).
 - **Tests** (fake fetch and fixtures): request URLs and headers are correct and no URL
   contains the key; pagination over two pages; a `next` on another origin is refused; each
-  status maps to its code; 429 then success; 429 three times; pacing with a fake clock; no key
+  status maps to its code; 429 then success, with and without `Retry-After` (D22); 429 three
+  times; pacing with a fake clock; no key
   means no request; a network error's message does not contain the sentinel key.
 - **Builder: Claude Code.** Part of the key path (see M2), and it carries the API facts in
   section 4, which Claude Code checks in phase 0.
@@ -460,14 +511,17 @@ JSON, a cycle of contained sets) are hand-made and named `handmade-*.json`.
   normalizeSet(rawSet, rawPartLines) -> SetRecord   // pure, exported for tests
   mergePartLines(lines) -> PartLine[]               // merges equal partNum + colorId + isSpare
   ```
-- **Behaviour:** fetches details, parts (with minifigure parts) and contained sets; imports
-  each contained set the same way and adds its parts times its quantity (subject to F2);
-  stops at depth 3 and on cycles; fetches categories only when a part has a category ID not
-  in `knownCategoryIds`; uses Rebrickable's `set_num` as `setNum`. Client errors pass through
-  unchanged.
+- **Behaviour:** fetches details, parts (with minifigure parts) and contained sets; uses
+  minifigure part quantities as they come (F1); imports each contained set the same way and
+  adds its parts times its quantity, after dropping the lines of the set's own parts response
+  that belong to a set inside it (D24); stops at depth 3 and on cycles; fetches categories
+  only when a part has a category ID not in `knownCategoryIds`; uses Rebrickable's `set_num`
+  as `setNum`. Client errors pass through unchanged.
 - **Tests:** `normalizeSet` on captured fixtures (field mapping, null images, `colorIsTrans`, spare flag kept,
-  minifigure parts present); the pack fixture counts contained parts once with multiplied
-  quantities; cycle guard with hand-made fixtures; categories fetched only when needed;
+  minifigure parts present, a quantity-2 minifigure in 75449-1 not multiplied again); the pack
+  66495-1 gives exactly the parts of its three contained sets, minifigure parts included, each
+  counted once (D24); a hand-made contained-sets response with a quantity of 2 doubles that
+  set's parts; cycle guard with hand-made fixtures; categories fetched only when needed;
   client errors pass through.
 - **Builder: Claude Code.** It depends on F1 and F2, which Claude Code settles in phase 0, and
   it is the only consumer of M3's raw shapes, so one builder owns both sides of that boundary.
