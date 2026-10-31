@@ -123,6 +123,7 @@ Modules and tests refer to these IDs.
 | D22 | No real 429 is captured. M3 waits for `Retry-After` when it is present and for the seconds in `detail` otherwise, and its tests cover both with hand-made fixtures. F6 stays unverified. | Forcing a 429 risks a temporary IP ban (section 4), and the client behaves correctly with either answer. |
 | D23 | The Content-Security-Policy allows images only from `https://cdn.rebrickable.com` (F3). An image on any other host is blocked and shows the placeholder (R11). | Every image URL in the captured responses is on that host. A wider policy would let the page load images from sites it has no reason to contact. |
 | D24 | For a set that contains other sets, M4 drops every line of the set's own parts response whose `set_num` is the number of a set inside it, at any depth, and adds each contained set's own import (minifigure parts included) times its quantity. Lines with any other `set_num` (the pack's own parts and its own minifigures' parts) are kept. | F2: a pack's response repeats its contained sets' ordinary parts but leaves out their minifigure parts. The contained sets' own responses count every part once, include the minifigure parts, and do not depend on how Rebrickable multiplies a contained quantity. No request is added: M4 already imports each contained set. |
+| D25 | M5 inventory rows and M9 filter options compare names with `Intl.Collator('en', { numeric: true })`. | One explicit locale keeps the list and filter ordering independent of the machine's default language, and numeric ordering puts sizes such as 1 x 2 before 1 x 10. |
 
 ## 4. Rebrickable API
 
@@ -555,7 +556,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
   `buildInventory` sums `quantity * copies` over all sets, keyed by `partNum` and `colorId`,
   spares included (R6). `categoryName` comes from `state.categories`, or "Unknown category".
   `imgUrl` is the first non-null one. Rows are sorted by category name, part name, colour
-  name.
+  name, using the English numeric collator (D25).
 - **Tests:** table-driven: one set; two sets sharing a part and colour; the same part in two
   colours stays two rows; a second copy doubles quantities; removing one of two copies halves
   them; removing the last copy deletes the set; removing an unknown set throws; adding then
@@ -654,7 +655,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
   filterOptions(rows) -> { colors: [{ id, name, rgb }], categories: [{ id, name }] }
   ```
   Search is trimmed and case-insensitive, and matches part number or name. Options list only
-  values present in the rows, sorted by name.
+  values present in the rows, sorted by name using the English numeric collator (D25).
 - **Tests:** each filter alone and combined with search; search by number and by name,
   ignoring case and outer spaces; no matches; totals on filtered rows (D9); options unique and
   sorted.
