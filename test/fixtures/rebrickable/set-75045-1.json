@@ -1,0 +1,17 @@
+{
+  "request": "GET /lego/sets/75045-1/",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "set_num": "75045-1",
+    "name": "Republic AV-7 Anti-Vehicle Cannon",
+    "year": 2014,
+    "theme_id": 158,
+    "num_parts": 434,
+    "set_img_url": "https://cdn.rebrickable.com/media/sets/75045-1/16205.jpg",
+    "set_url": "https://rebrickable.com/sets/75045-1/republic-av-7-anti-vehicle-cannon/",
+    "last_modified_dt": "2016-05-29T00:32:55.698112Z"
+  }
+}

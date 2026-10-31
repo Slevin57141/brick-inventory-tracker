@@ -1,0 +1,6832 @@
+{
+  "request": "GET /lego/sets/75449-1/parts/?inc_minifig_parts=1&page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 72,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 35432746,
+        "inv_part_id": 35432746,
+        "part": {
+          "part_num": "5414",
+          "name": "Brick Wedged, Curved 1 x 4 with Stud Notch Right",
+          "part_cat_id": 6,
+          "part_url": "https://rebrickable.com/parts/5414/brick-wedged-curved-1-x-4-with-stud-notch-right/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6527929.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "5414"
+            ],
+            "BrickOwl": [
+              "72770"
+            ],
+            "Brickset": [
+              "5414"
+            ],
+            "LDraw": [
+              "5414"
+            ],
+            "LEGO": [
+              "5414"
+            ]
+          }
+        },
+        "color": {
+          "id": 320,
+          "name": "Dark Red",
+          "rgb": "720E0F",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                59
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                56
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                154
+              ],
+              "ext_descrs": [
+                [
+                  "Dark red",
+                  "NEW DARK RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                320
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6558855",
+        "num_sets": 7
+      },
+      {
+        "id": 35432737,
+        "inv_part_id": 35432737,
+        "part": {
+          "part_num": "35480",
+          "name": "Plate Special 1 x 2 Rounded with 2 Open Studs",
+          "part_cat_id": 21,
+          "part_url": "https://rebrickable.com/parts/35480/plate-special-1-x-2-rounded-with-2-open-studs/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6212040.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "35480"
+            ],
+            "BrickOwl": [
+              "147240"
+            ],
+            "Brickset": [
+              "118726",
+              "35480"
+            ],
+            "LDraw": [
+              "35480"
+            ],
+            "LEGO": [
+              "118726",
+              "35480"
+            ]
+          }
+        },
+        "color": {
+          "id": 320,
+          "name": "Dark Red",
+          "rgb": "720E0F",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                59
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                56
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                154
+              ],
+              "ext_descrs": [
+                [
+                  "Dark red",
+                  "NEW DARK RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                320
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 4,
+        "is_spare": false,
+        "element_id": "6212040",
+        "num_sets": 75
+      },
+      {
+        "id": 35432735,
+        "inv_part_id": 35432735,
+        "part": {
+          "part_num": "32828",
+          "name": "Plate Special Round 1 x 1 with Hollow Stud and Horizontal Bar 1L",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/32828/plate-special-round-1-x-1-with-hollow-stud-and-horizontal-bar-1l/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6196548.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "32828"
+            ],
+            "BrickOwl": [
+              "801009"
+            ],
+            "Brickset": [
+              "32828"
+            ],
+            "LDraw": [
+              "32828"
+            ],
+            "LEGO": [
+              "32828"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 4,
+        "is_spare": false,
+        "element_id": "6196548",
+        "num_sets": 473
+      },
+      {
+        "id": 36563305,
+        "inv_part_id": 36563305,
+        "part": {
+          "part_num": "32828",
+          "name": "Plate Special Round 1 x 1 with Hollow Stud and Horizontal Bar 1L",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/32828/plate-special-round-1-x-1-with-hollow-stud-and-horizontal-bar-1l/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6196548.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "32828"
+            ],
+            "BrickOwl": [
+              "801009"
+            ],
+            "Brickset": [
+              "32828"
+            ],
+            "LDraw": [
+              "32828"
+            ],
+            "LEGO": [
+              "32828"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": true,
+        "element_id": "6196548",
+        "num_sets": 473
+      },
+      {
+        "id": 35432730,
+        "inv_part_id": 35432730,
+        "part": {
+          "part_num": "3023",
+          "name": "Plate 1 x 2",
+          "part_cat_id": 14,
+          "part_url": "https://rebrickable.com/parts/3023/plate-1-x-2/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4211063.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3023"
+            ],
+            "BrickOwl": [
+              "44980"
+            ],
+            "Brickset": [
+              "28653",
+              "3023",
+              "6225"
+            ],
+            "LDraw": [
+              "28653",
+              "3023b"
+            ],
+            "LEGO": [
+              "28653",
+              "3023",
+              "6225"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 7,
+        "is_spare": false,
+        "element_id": "4211063",
+        "num_sets": 1434
+      },
+      {
+        "id": 35432760,
+        "inv_part_id": 35432760,
+        "part": {
+          "part_num": "85984",
+          "name": "Brick Sloped 30° 1 x 2 x 2/3",
+          "part_cat_id": 3,
+          "part_url": "https://rebrickable.com/parts/85984/brick-sloped-30-1-x-2-x-23/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6083977.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "85984"
+            ],
+            "BrickOwl": [
+              "444606"
+            ],
+            "Brickset": [
+              "116163",
+              "118899",
+              "83473",
+              "85984"
+            ],
+            "LDraw": [
+              "85984"
+            ],
+            "LEGO": [
+              "116163",
+              "118899",
+              "83473",
+              "85984"
+            ],
+            "Peeron": [
+              "x1972"
+            ]
+          }
+        },
+        "color": {
+          "id": 320,
+          "name": "Dark Red",
+          "rgb": "720E0F",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                59
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                56
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                154
+              ],
+              "ext_descrs": [
+                [
+                  "Dark red",
+                  "NEW DARK RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                320
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6083977",
+        "num_sets": 122
+      },
+      {
+        "id": 35432728,
+        "inv_part_id": 35432728,
+        "part": {
+          "part_num": "3022",
+          "name": "Plate 2 x 2",
+          "part_cat_id": 14,
+          "part_url": "https://rebrickable.com/parts/3022/plate-2-x-2/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4163160.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3022"
+            ],
+            "BrickOwl": [
+              "566026"
+            ],
+            "Brickset": [
+              "3022",
+              "94148"
+            ],
+            "LDraw": [
+              "3022",
+              "94148"
+            ],
+            "LEGO": [
+              "3022",
+              "94148"
+            ]
+          }
+        },
+        "color": {
+          "id": 320,
+          "name": "Dark Red",
+          "rgb": "720E0F",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                59
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                56
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                154
+              ],
+              "ext_descrs": [
+                [
+                  "Dark red",
+                  "NEW DARK RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                320
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 3,
+        "is_spare": false,
+        "element_id": "4585479",
+        "num_sets": 198
+      },
+      {
+        "id": 35432732,
+        "inv_part_id": 35432732,
+        "part": {
+          "part_num": "3068b",
+          "name": "Tile 2 x 2 with Groove",
+          "part_cat_id": 19,
+          "part_url": "https://rebrickable.com/parts/3068b/tile-2-x-2-with-groove/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4211055.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3068"
+            ],
+            "BrickOwl": [
+              "462122"
+            ],
+            "Brickset": [
+              "113493",
+              "113506",
+              "1136",
+              "3068",
+              "63327",
+              "78814"
+            ],
+            "LDraw": [
+              "3068b"
+            ],
+            "LEGO": [
+              "113493",
+              "113506",
+              "1136",
+              "3068",
+              "63327",
+              "78814"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "4211055",
+        "num_sets": 551
+      },
+      {
+        "id": 35432740,
+        "inv_part_id": 35432740,
+        "part": {
+          "part_num": "3795",
+          "name": "Plate 2 x 6",
+          "part_cat_id": 14,
+          "part_url": "https://rebrickable.com/parts/3795/plate-2-x-6/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/379526.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3795"
+            ],
+            "BrickOwl": [
+              "735504"
+            ],
+            "Brickset": [
+              "3795"
+            ],
+            "LDraw": [
+              "3795"
+            ],
+            "LEGO": [
+              "3795"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "379526",
+        "num_sets": 1645
+      },
+      {
+        "id": 35432727,
+        "inv_part_id": 35432727,
+        "part": {
+          "part_num": "3021",
+          "name": "Plate 2 x 3",
+          "part_cat_id": 14,
+          "part_url": "https://rebrickable.com/parts/3021/plate-2-x-3/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4211043.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3021"
+            ],
+            "BrickOwl": [
+              "960521"
+            ],
+            "Brickset": [
+              "3021"
+            ],
+            "LDraw": [
+              "3021"
+            ],
+            "LEGO": [
+              "3021"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "4211043",
+        "num_sets": 1147
+      },
+      {
+        "id": 35432763,
+        "inv_part_id": 35432763,
+        "part": {
+          "part_num": "92589",
+          "name": "Door Grill 1 x 4 x 6",
+          "part_cat_id": 32,
+          "part_url": "https://rebrickable.com/parts/92589/door-grill-1-x-4-x-6/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6037621.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "92589"
+            ],
+            "BrickOwl": [
+              "499743"
+            ],
+            "Brickset": [
+              "92589"
+            ],
+            "LDraw": [
+              "92589"
+            ],
+            "LEGO": [
+              "92589"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6143247",
+        "num_sets": 26
+      },
+      {
+        "id": 35432714,
+        "inv_part_id": 35432714,
+        "part": {
+          "part_num": "11476",
+          "name": "Plate Special 1 x 2 with Clip Horizontal on Side",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/11476/plate-special-1-x-2-with-clip-horizontal-on-side/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6132731.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "11476"
+            ],
+            "BrickOwl": [
+              "871946"
+            ],
+            "Brickset": [
+              "11476",
+              "65458"
+            ],
+            "LDraw": [
+              "11476"
+            ],
+            "LEGO": [
+              "11476",
+              "65458"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6313116",
+        "num_sets": 402
+      },
+      {
+        "id": 35432775,
+        "inv_part_id": 35432775,
+        "part": {
+          "part_num": "99207",
+          "name": "Bracket 1 x 2 - 2 x 2 Inverted",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/99207/bracket-1-x-2-2-x-2-inverted/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4654580.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "99207"
+            ],
+            "BrickOwl": [
+              "723322"
+            ],
+            "Brickset": [
+              "99207"
+            ],
+            "LDraw": [
+              "99207"
+            ],
+            "LEGO": [
+              "99207"
+            ]
+          }
+        },
+        "color": {
+          "id": 71,
+          "name": "Light Bluish Gray",
+          "rgb": "A0A5A9",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                86
+              ],
+              "ext_descrs": [
+                [
+                  "Light Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                64
+              ],
+              "ext_descrs": [
+                [
+                  "Medium Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                194
+              ],
+              "ext_descrs": [
+                [
+                  "Medium stone grey",
+                  "MED. ST-GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "mdstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                71
+              ],
+              "ext_descrs": [
+                [
+                  "Light_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "4654580",
+        "num_sets": 714
+      },
+      {
+        "id": 35432764,
+        "inv_part_id": 35432764,
+        "part": {
+          "part_num": "92738",
+          "name": "Weapon Gun / Blaster Small (Star Wars)",
+          "part_cat_id": 73,
+          "part_url": "https://rebrickable.com/parts/92738/weapon-gun-blaster-small-star-wars/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4609050.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "92738"
+            ],
+            "BrickOwl": [
+              "850978"
+            ],
+            "Brickset": [
+              "77098",
+              "92738"
+            ],
+            "LDraw": [
+              "92738"
+            ],
+            "LEGO": [
+              "77098",
+              "92738"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 3,
+        "is_spare": false,
+        "element_id": "6360207",
+        "num_sets": 248
+      },
+      {
+        "id": 36563306,
+        "inv_part_id": 36563306,
+        "part": {
+          "part_num": "92738",
+          "name": "Weapon Gun / Blaster Small (Star Wars)",
+          "part_cat_id": 73,
+          "part_url": "https://rebrickable.com/parts/92738/weapon-gun-blaster-small-star-wars/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4609050.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "92738"
+            ],
+            "BrickOwl": [
+              "850978"
+            ],
+            "Brickset": [
+              "77098",
+              "92738"
+            ],
+            "LDraw": [
+              "92738"
+            ],
+            "LEGO": [
+              "77098",
+              "92738"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": true,
+        "element_id": "6360207",
+        "num_sets": 248
+      },
+      {
+        "id": 35432748,
+        "inv_part_id": 35432748,
+        "part": {
+          "part_num": "57899",
+          "name": "Weapon Gun / Blaster Long (Star Wars)",
+          "part_cat_id": 73,
+          "part_url": "https://rebrickable.com/parts/57899/weapon-gun-blaster-long-star-wars/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4498712.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "57899"
+            ],
+            "BrickOwl": [
+              "861782"
+            ],
+            "Brickset": [
+              "57899"
+            ],
+            "LDraw": [
+              "57899"
+            ],
+            "LEGO": [
+              "57899"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "4498712",
+        "num_sets": 121
+      },
+      {
+        "id": 35432731,
+        "inv_part_id": 35432731,
+        "part": {
+          "part_num": "3035",
+          "name": "Plate 4 x 8",
+          "part_cat_id": 14,
+          "part_url": "https://rebrickable.com/parts/3035/plate-4-x-8/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4211061.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3035"
+            ],
+            "BrickOwl": [
+              "936455"
+            ],
+            "Brickset": [
+              "3035"
+            ],
+            "LDraw": [
+              "3035"
+            ],
+            "LEGO": [
+              "3035"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "4211061",
+        "num_sets": 389
+      },
+      {
+        "id": 35432765,
+        "inv_part_id": 35432765,
+        "part": {
+          "part_num": "93274",
+          "name": "Bracket 1 x 2 - 2 x 4",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/93274/bracket-1-x-2-2-x-4/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4616245.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "93274"
+            ],
+            "BrickOwl": [
+              "41585"
+            ],
+            "Brickset": [
+              "21731",
+              "93274"
+            ],
+            "LDraw": [
+              "93274"
+            ],
+            "LEGO": [
+              "21731",
+              "93274"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 4,
+        "is_spare": false,
+        "element_id": "6118829",
+        "num_sets": 210
+      },
+      {
+        "id": 35432774,
+        "inv_part_id": 35432774,
+        "part": {
+          "part_num": "98560",
+          "name": "Brick Sloped 75° 2 x 2 x 3 [Solid Studs]",
+          "part_cat_id": 3,
+          "part_url": "https://rebrickable.com/parts/98560/brick-sloped-75-2-x-2-x-3-solid-studs/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6000853.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3684c"
+            ],
+            "BrickOwl": [
+              "463150"
+            ],
+            "Brickset": [
+              "98560"
+            ],
+            "LDraw": [
+              "3684c"
+            ],
+            "LEGO": [
+              "98560"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6000853",
+        "num_sets": 104
+      },
+      {
+        "id": 35432743,
+        "inv_part_id": 35432743,
+        "part": {
+          "part_num": "41740",
+          "name": "Plate Special 1 x 4 with 2 Studs with Groove [New Underside]",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/41740/plate-special-1-x-4-with-2-studs-with-groove-new-underside/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6254045.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "41740"
+            ],
+            "BrickOwl": [
+              "706084"
+            ],
+            "Brickset": [
+              "41740"
+            ],
+            "LDraw": [
+              "41740"
+            ],
+            "LEGO": [
+              "41740"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 4,
+        "is_spare": false,
+        "element_id": "6254045",
+        "num_sets": 374
+      },
+      {
+        "id": 35432753,
+        "inv_part_id": 35432753,
+        "part": {
+          "part_num": "65578",
+          "name": "Bar, Angled with 1 x 1 Round Plate / Stud on End",
+          "part_cat_id": 32,
+          "part_url": "https://rebrickable.com/parts/65578/bar-angled-with-1-x-1-round-plate-stud-on-end/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6443416.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "65578"
+            ],
+            "BrickOwl": [
+              "701885"
+            ],
+            "Brickset": [
+              "65578"
+            ],
+            "LDraw": [
+              "65578"
+            ],
+            "LEGO": [
+              "65578"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6510193",
+        "num_sets": 87
+      },
+      {
+        "id": 35432755,
+        "inv_part_id": 35432755,
+        "part": {
+          "part_num": "69755",
+          "name": "Launcher Trigger, Weapon Gun Trigger",
+          "part_cat_id": 68,
+          "part_url": "https://rebrickable.com/parts/69755/launcher-trigger-weapon-gun-trigger/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6360675.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "69755"
+            ],
+            "BrickOwl": [
+              "1265802"
+            ],
+            "Brickset": [
+              "69755"
+            ],
+            "LDraw": [
+              "69755"
+            ],
+            "LEGO": [
+              "69755"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6360675",
+        "num_sets": 211
+      },
+      {
+        "id": 35432758,
+        "inv_part_id": 35432758,
+        "part": {
+          "part_num": "81911",
+          "name": "Windscreen 2 x 4 Half Dome",
+          "part_cat_id": 47,
+          "part_url": "https://rebrickable.com/parts/81911/windscreen-2-x-4-half-dome/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6369941.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "81911"
+            ],
+            "BrickOwl": [
+              "286249"
+            ],
+            "Brickset": [
+              "81911"
+            ],
+            "LDraw": [
+              "81911"
+            ],
+            "LEGO": [
+              "81911"
+            ]
+          }
+        },
+        "color": {
+          "id": 47,
+          "name": "Trans-Clear",
+          "rgb": "FCFCFC",
+          "is_trans": true,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                12
+              ],
+              "ext_descrs": [
+                [
+                  "Trans-Clear"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                97
+              ],
+              "ext_descrs": [
+                [
+                  "Transparent"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                40
+              ],
+              "ext_descrs": [
+                [
+                  "Transparent",
+                  "TR."
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "clear"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                47
+              ],
+              "ext_descrs": [
+                [
+                  "Trans_Clear"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6514460",
+        "num_sets": 27
+      },
+      {
+        "id": 35432747,
+        "inv_part_id": 35432747,
+        "part": {
+          "part_num": "5415",
+          "name": "Brick Wedged, Curved 1 x 4 with Stud Notch Left",
+          "part_cat_id": 6,
+          "part_url": "https://rebrickable.com/parts/5415/brick-wedged-curved-1-x-4-with-stud-notch-left/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6527932.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "5415"
+            ],
+            "BrickOwl": [
+              "25754"
+            ],
+            "Brickset": [
+              "5415"
+            ],
+            "LDraw": [
+              "5415"
+            ],
+            "LEGO": [
+              "5415"
+            ]
+          }
+        },
+        "color": {
+          "id": 320,
+          "name": "Dark Red",
+          "rgb": "720E0F",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                59
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                56
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                154
+              ],
+              "ext_descrs": [
+                [
+                  "Dark red",
+                  "NEW DARK RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                320
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6558914",
+        "num_sets": 7
+      },
+      {
+        "id": 35432742,
+        "inv_part_id": 35432742,
+        "part": {
+          "part_num": "41682",
+          "name": "Bracket 2 x 2 with 1 x 2 Vertical Studs",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/41682/bracket-2-x-2-with-1-x-2-vertical-studs/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6250018.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "41682"
+            ],
+            "BrickOwl": [
+              "670485"
+            ],
+            "Brickset": [
+              "41682"
+            ],
+            "LDraw": [
+              "41682"
+            ],
+            "LEGO": [
+              "41682"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6250018",
+        "num_sets": 123
+      },
+      {
+        "id": 35432717,
+        "inv_part_id": 35432717,
+        "part": {
+          "part_num": "15712",
+          "name": "Tile Special 1 x 1 with Clip with Rounded Edges",
+          "part_cat_id": 15,
+          "part_url": "https://rebrickable.com/parts/15712/tile-special-1-x-1-with-clip-with-rounded-edges/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6071226.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "15712"
+            ],
+            "BrickOwl": [
+              "859237"
+            ],
+            "Brickset": [
+              "15712",
+              "44842"
+            ],
+            "LDraw": [
+              "15712"
+            ],
+            "LEGO": [
+              "15712",
+              "44842"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6344022",
+        "num_sets": 509
+      },
+      {
+        "id": 35432757,
+        "inv_part_id": 35432757,
+        "part": {
+          "part_num": "73825",
+          "name": "Bracket 1 x 1 - 1 x 2 Inverted",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/73825/bracket-1-x-1-1-x-2-inverted/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6336390.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "73825"
+            ],
+            "BrickOwl": [
+              "108285"
+            ],
+            "Brickset": [
+              "73825"
+            ],
+            "LDraw": [
+              "73825"
+            ],
+            "LEGO": [
+              "73825"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6336390",
+        "num_sets": 157
+      },
+      {
+        "id": 35432754,
+        "inv_part_id": 35432754,
+        "part": {
+          "part_num": "69754",
+          "name": "Launcher, Plate Special 1 x 2 with Mini Blaster Square",
+          "part_cat_id": 68,
+          "part_url": "https://rebrickable.com/parts/69754/launcher-plate-special-1-x-2-with-mini-blaster-square/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6345952.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "69754"
+            ],
+            "BrickOwl": [
+              "472925"
+            ],
+            "Brickset": [
+              "69754"
+            ],
+            "LDraw": [
+              "69754"
+            ],
+            "LEGO": [
+              "69754"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6345952",
+        "num_sets": 69
+      },
+      {
+        "id": 35432713,
+        "inv_part_id": 35432713,
+        "part": {
+          "part_num": "11153",
+          "name": "Brick Curved 4 x 1 No Studs [Stud Holder with Symmetric Ridges]",
+          "part_cat_id": 37,
+          "part_url": "https://rebrickable.com/parts/11153/brick-curved-4-x-1-no-studs-stud-holder-with-symmetric-ridges/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6042953.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "61678"
+            ],
+            "BrickOwl": [
+              "145568"
+            ],
+            "Brickset": [
+              "11153",
+              "66141"
+            ],
+            "LDraw": [
+              "61678"
+            ],
+            "LEGO": [
+              "11153",
+              "66141"
+            ]
+          }
+        },
+        "color": {
+          "id": 320,
+          "name": "Dark Red",
+          "rgb": "720E0F",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                59
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                56
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                154
+              ],
+              "ext_descrs": [
+                [
+                  "Dark red",
+                  "NEW DARK RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                320
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 4,
+        "is_spare": false,
+        "element_id": "6652129",
+        "num_sets": 64
+      },
+      {
+        "id": 35432729,
+        "inv_part_id": 35432729,
+        "part": {
+          "part_num": "3022",
+          "name": "Plate 2 x 2",
+          "part_cat_id": 14,
+          "part_url": "https://rebrickable.com/parts/3022/plate-2-x-2/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4211397.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3022"
+            ],
+            "BrickOwl": [
+              "566026"
+            ],
+            "Brickset": [
+              "3022",
+              "94148"
+            ],
+            "LDraw": [
+              "3022",
+              "94148"
+            ],
+            "LEGO": [
+              "3022",
+              "94148"
+            ]
+          }
+        },
+        "color": {
+          "id": 71,
+          "name": "Light Bluish Gray",
+          "rgb": "A0A5A9",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                86
+              ],
+              "ext_descrs": [
+                [
+                  "Light Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                64
+              ],
+              "ext_descrs": [
+                [
+                  "Medium Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                194
+              ],
+              "ext_descrs": [
+                [
+                  "Medium stone grey",
+                  "MED. ST-GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "mdstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                71
+              ],
+              "ext_descrs": [
+                [
+                  "Light_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "4211397",
+        "num_sets": 1386
+      },
+      {
+        "id": 35432756,
+        "inv_part_id": 35432756,
+        "part": {
+          "part_num": "69767",
+          "name": "Launcher, Weapon Gun / Blaster / Shooter Square",
+          "part_cat_id": 68,
+          "part_url": "https://rebrickable.com/parts/69767/launcher-weapon-gun-blaster-shooter-square/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6345880.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "69767"
+            ],
+            "BrickOwl": [
+              "738231"
+            ],
+            "Brickset": [
+              "69767"
+            ],
+            "LDraw": [
+              "69767"
+            ],
+            "LEGO": [
+              "69767"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6345880",
+        "num_sets": 29
+      },
+      {
+        "id": 35432749,
+        "inv_part_id": 35432749,
+        "part": {
+          "part_num": "58247",
+          "name": "Weapon Gun / Blaster Short (Star Wars)",
+          "part_cat_id": 73,
+          "part_url": "https://rebrickable.com/parts/58247/weapon-gun-blaster-short-star-wars/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4498713.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "58247"
+            ],
+            "BrickOwl": [
+              "111935"
+            ],
+            "Brickset": [
+              "58247"
+            ],
+            "LDraw": [
+              "58247"
+            ],
+            "LEGO": [
+              "58247"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "4498713",
+        "num_sets": 274
+      },
+      {
+        "id": 35432726,
+        "inv_part_id": 35432726,
+        "part": {
+          "part_num": "3020",
+          "name": "Plate 2 x 4",
+          "part_cat_id": 14,
+          "part_url": "https://rebrickable.com/parts/3020/plate-2-x-4/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4211395.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3020"
+            ],
+            "BrickOwl": [
+              "80025"
+            ],
+            "Brickset": [
+              "3020",
+              "5584"
+            ],
+            "LDraw": [
+              "3020"
+            ],
+            "LEGO": [
+              "3020",
+              "5584"
+            ]
+          }
+        },
+        "color": {
+          "id": 71,
+          "name": "Light Bluish Gray",
+          "rgb": "A0A5A9",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                86
+              ],
+              "ext_descrs": [
+                [
+                  "Light Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                64
+              ],
+              "ext_descrs": [
+                [
+                  "Medium Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                194
+              ],
+              "ext_descrs": [
+                [
+                  "Medium stone grey",
+                  "MED. ST-GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "mdstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                71
+              ],
+              "ext_descrs": [
+                [
+                  "Light_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "4211395",
+        "num_sets": 1466
+      },
+      {
+        "id": 35432722,
+        "inv_part_id": 35432722,
+        "part": {
+          "part_num": "26601",
+          "name": "Wedge Plate 2 x 2 Cut Corner",
+          "part_cat_id": 49,
+          "part_url": "https://rebrickable.com/parts/26601/wedge-plate-2-x-2-cut-corner/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6174243.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "26601"
+            ],
+            "BrickOwl": [
+              "260479"
+            ],
+            "Brickset": [
+              "26601"
+            ],
+            "LDraw": [
+              "26601"
+            ],
+            "LEGO": [
+              "26601"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6174243",
+        "num_sets": 274
+      },
+      {
+        "id": 35432721,
+        "inv_part_id": 35432721,
+        "part": {
+          "part_num": "2431pr0158",
+          "name": "Tile 1 x 4 with Black Diagonal Stripes Print",
+          "part_cat_id": 19,
+          "part_url": "https://rebrickable.com/parts/2431pr0158/tile-1-x-4-with-black-diagonal-stripes-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6329661.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "2431pb0725"
+            ],
+            "BrickOwl": [
+              "609021"
+            ],
+            "Brickset": [
+              "103166",
+              "73823"
+            ],
+            "LDraw": [
+              "2431p52"
+            ],
+            "LEGO": [
+              "103166",
+              "73823"
+            ]
+          }
+        },
+        "color": {
+          "id": 14,
+          "name": "Yellow",
+          "rgb": "F2CD37",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                3
+              ],
+              "ext_descrs": [
+                [
+                  "Yellow"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                93
+              ],
+              "ext_descrs": [
+                [
+                  "Yellow"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "yellow"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                14
+              ],
+              "ext_descrs": [
+                [
+                  "Yellow"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                24
+              ],
+              "ext_descrs": [
+                [
+                  "Bright yellow",
+                  "BR.YEL",
+                  "BRIGHT YELLOW, VERSION 2"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6329661",
+        "num_sets": 29
+      },
+      {
+        "id": 35432733,
+        "inv_part_id": 35432733,
+        "part": {
+          "part_num": "3069bpr0276",
+          "name": "Tile 1 x 2 with Controls Print",
+          "part_cat_id": 19,
+          "part_url": "https://rebrickable.com/parts/3069bpr0276/tile-1-x-2-with-controls-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6291791.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3069pb0777"
+            ],
+            "BrickOwl": [
+              "503890"
+            ],
+            "Brickset": [
+              "66894"
+            ],
+            "LDraw": [
+              "3069bpsa"
+            ],
+            "LEGO": [
+              "66894"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6291791",
+        "num_sets": 50
+      },
+      {
+        "id": 35432776,
+        "inv_part_id": 35432776,
+        "part": {
+          "part_num": "99563",
+          "name": "Tile Special 1 x 2 with Sloped Walls AKA Money / Gold Bar [Ingot]",
+          "part_cat_id": 15,
+          "part_url": "https://rebrickable.com/parts/99563/tile-special-1-x-2-with-sloped-walls-aka-money-gold-bar-ingot/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6331866.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "99563"
+            ],
+            "BrickOwl": [
+              "934455"
+            ],
+            "Brickset": [
+              "112415",
+              "13954",
+              "67117",
+              "95349",
+              "96910",
+              "99563"
+            ],
+            "LDraw": [
+              "96910"
+            ],
+            "LEGO": [
+              "112415",
+              "13954",
+              "67117",
+              "95349",
+              "96910",
+              "99563"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6331866",
+        "num_sets": 132
+      },
+      {
+        "id": 35432712,
+        "inv_part_id": 35432712,
+        "part": {
+          "part_num": "11090",
+          "name": "Bar Holder with Clip",
+          "part_cat_id": 32,
+          "part_url": "https://rebrickable.com/parts/11090/bar-holder-with-clip/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6015890.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "11090"
+            ],
+            "BrickOwl": [
+              "112838"
+            ],
+            "Brickset": [
+              "11090",
+              "44873"
+            ],
+            "LDraw": [
+              "11090"
+            ],
+            "LEGO": [
+              "11090",
+              "44873"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6336970",
+        "num_sets": 226
+      },
+      {
+        "id": 35432725,
+        "inv_part_id": 35432725,
+        "part": {
+          "part_num": "30031",
+          "name": "Handlebars",
+          "part_cat_id": 36,
+          "part_url": "https://rebrickable.com/parts/30031/handlebars/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4261908.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "30031"
+            ],
+            "BrickOwl": [
+              "784421"
+            ],
+            "Brickset": [
+              "30031",
+              "51723"
+            ],
+            "LDraw": [
+              "30031"
+            ],
+            "LEGO": [
+              "30031",
+              "51723"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "4261908",
+        "num_sets": 264
+      },
+      {
+        "id": 35432736,
+        "inv_part_id": 35432736,
+        "part": {
+          "part_num": "33909",
+          "name": "Plate Special 2 x 2 with Only 2 Studs",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/33909/plate-special-2-x-2-with-only-2-studs/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6192346.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "33909"
+            ],
+            "BrickOwl": [
+              "329884"
+            ],
+            "Brickset": [
+              "100767",
+              "33909"
+            ],
+            "LDraw": [
+              "33909"
+            ],
+            "LEGO": [
+              "100767",
+              "33909"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6192346",
+        "num_sets": 411
+      },
+      {
+        "id": 35432734,
+        "inv_part_id": 35432734,
+        "part": {
+          "part_num": "32803",
+          "name": "Brick Curved Inverted 2 x 2 x 2/3",
+          "part_cat_id": 37,
+          "part_url": "https://rebrickable.com/parts/32803/brick-curved-inverted-2-x-2-x-23/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6185676.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "32803"
+            ],
+            "BrickOwl": [
+              "301153"
+            ],
+            "Brickset": [
+              "32803"
+            ],
+            "LDraw": [
+              "32803"
+            ],
+            "LEGO": [
+              "32803"
+            ]
+          }
+        },
+        "color": {
+          "id": 71,
+          "name": "Light Bluish Gray",
+          "rgb": "A0A5A9",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                86
+              ],
+              "ext_descrs": [
+                [
+                  "Light Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                64
+              ],
+              "ext_descrs": [
+                [
+                  "Medium Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                194
+              ],
+              "ext_descrs": [
+                [
+                  "Medium stone grey",
+                  "MED. ST-GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "mdstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                71
+              ],
+              "ext_descrs": [
+                [
+                  "Light_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6185676",
+        "num_sets": 233
+      },
+      {
+        "id": 35432716,
+        "inv_part_id": 35432716,
+        "part": {
+          "part_num": "15068",
+          "name": "Brick Curved 2 x 2 x 2/3",
+          "part_cat_id": 37,
+          "part_url": "https://rebrickable.com/parts/15068/brick-curved-2-x-2-x-23/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6107758.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "15068"
+            ],
+            "BrickOwl": [
+              "593875"
+            ],
+            "Brickset": [
+              "118553",
+              "118723",
+              "15068",
+              "78565"
+            ],
+            "LDraw": [
+              "15068"
+            ],
+            "LEGO": [
+              "118553",
+              "118723",
+              "15068",
+              "78565"
+            ]
+          }
+        },
+        "color": {
+          "id": 320,
+          "name": "Dark Red",
+          "rgb": "720E0F",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                59
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                56
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                154
+              ],
+              "ext_descrs": [
+                [
+                  "Dark red",
+                  "NEW DARK RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                320
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6107758",
+        "num_sets": 121
+      },
+      {
+        "id": 35432773,
+        "inv_part_id": 35432773,
+        "part": {
+          "part_num": "98138",
+          "name": "Tile Round 1 x 1",
+          "part_cat_id": 67,
+          "part_url": "https://rebrickable.com/parts/98138/tile-round-1-x-1/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6022171.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "98138"
+            ],
+            "BrickOwl": [
+              "474589"
+            ],
+            "Brickset": [
+              "118722",
+              "118864",
+              "35380",
+              "35381",
+              "39797",
+              "98138"
+            ],
+            "LDraw": [
+              "98138"
+            ],
+            "LEGO": [
+              "118722",
+              "118864",
+              "35380",
+              "35381",
+              "39797",
+              "98138"
+            ]
+          }
+        },
+        "color": {
+          "id": 41,
+          "name": "Trans-Light Blue",
+          "rgb": "AEEFEC",
+          "is_trans": true,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                15
+              ],
+              "ext_descrs": [
+                [
+                  "Trans-Light Blue"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                101
+              ],
+              "ext_descrs": [
+                [
+                  "Transparent Light Blue"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "trltblue"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                43
+              ],
+              "ext_descrs": [
+                [
+                  "Trans_Medium_Blue"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                42
+              ],
+              "ext_descrs": [
+                [
+                  "Tr. Lg blue",
+                  "TR.L.BLUE",
+                  "TR. LIGHT BLUE"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6514192",
+        "num_sets": 473
+      },
+      {
+        "id": 35432751,
+        "inv_part_id": 35432751,
+        "part": {
+          "part_num": "61780",
+          "name": "Container Box 2 x 2 x 2 - Top Opening",
+          "part_cat_id": 7,
+          "part_url": "https://rebrickable.com/parts/61780/container-box-2-x-2-x-2-top-opening/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6346247.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "61780"
+            ],
+            "BrickOwl": [
+              "960691"
+            ],
+            "Brickset": [
+              "61780"
+            ],
+            "LDraw": [
+              "61780"
+            ],
+            "LEGO": [
+              "61780"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6346247",
+        "num_sets": 6
+      },
+      {
+        "id": 35432750,
+        "inv_part_id": 35432750,
+        "part": {
+          "part_num": "59900",
+          "name": "Cone 1 x 1 [Top Groove]",
+          "part_cat_id": 20,
+          "part_url": "https://rebrickable.com/parts/59900/cone-1-x-1-top-groove/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4567332.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "4589b"
+            ],
+            "BrickOwl": [
+              "583545"
+            ],
+            "Brickset": [
+              "15551",
+              "28701",
+              "55525",
+              "59900",
+              "64288"
+            ],
+            "LDraw": [
+              "59900"
+            ],
+            "LEGO": [
+              "15551",
+              "28701",
+              "55525",
+              "59900",
+              "64288"
+            ]
+          }
+        },
+        "color": {
+          "id": 46,
+          "name": "Trans-Yellow",
+          "rgb": "F5CD2F",
+          "is_trans": true,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                19
+              ],
+              "ext_descrs": [
+                [
+                  "Trans-Yellow"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                109
+              ],
+              "ext_descrs": [
+                [
+                  "Transparent Yellow"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                44
+              ],
+              "ext_descrs": [
+                [
+                  "Tr. Yellow",
+                  "TR.YEL"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null,
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "tryellow"
+                ],
+                [
+                  "trltyellow"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                46
+              ],
+              "ext_descrs": [
+                [
+                  "Trans_Yellow"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 4,
+        "is_spare": false,
+        "element_id": "6514022",
+        "num_sets": 178
+      },
+      {
+        "id": 35432744,
+        "inv_part_id": 35432744,
+        "part": {
+          "part_num": "4304",
+          "name": "Plate Special 2 x 2 x 2/3 with Two Studs On Side and Two Raised [Half Hollow Anti-stud] - Updated Version",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/4304/plate-special-2-x-2-x-23-with-two-studs-on-side-and-two-raised-half-hollow-anti-stud-updated-version/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6469445.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "4304"
+            ],
+            "BrickOwl": [
+              "600695"
+            ],
+            "Brickset": [
+              "4304"
+            ],
+            "LDraw": [
+              "4304"
+            ],
+            "LEGO": [
+              "4304"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6469445",
+        "num_sets": 179
+      },
+      {
+        "id": 35432739,
+        "inv_part_id": 35432739,
+        "part": {
+          "part_num": "37762",
+          "name": "Equipment Candlestick",
+          "part_cat_id": 27,
+          "part_url": "https://rebrickable.com/parts/37762/equipment-candlestick/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6290456.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "37762"
+            ],
+            "BrickOwl": [
+              "251209"
+            ],
+            "Brickset": [
+              "118721",
+              "37762"
+            ],
+            "LDraw": [
+              "37762"
+            ],
+            "LEGO": [
+              "118721",
+              "37762"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6290456",
+        "num_sets": 127
+      },
+      {
+        "id": 35432741,
+        "inv_part_id": 35432741,
+        "part": {
+          "part_num": "3832",
+          "name": "Plate 2 x 10",
+          "part_cat_id": 14,
+          "part_url": "https://rebrickable.com/parts/3832/plate-2-x-10/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4211462.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3832"
+            ],
+            "BrickOwl": [
+              "639151"
+            ],
+            "Brickset": [
+              "3832"
+            ],
+            "LDraw": [
+              "3832"
+            ],
+            "LEGO": [
+              "3832"
+            ]
+          }
+        },
+        "color": {
+          "id": 71,
+          "name": "Light Bluish Gray",
+          "rgb": "A0A5A9",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                86
+              ],
+              "ext_descrs": [
+                [
+                  "Light Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                64
+              ],
+              "ext_descrs": [
+                [
+                  "Medium Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                194
+              ],
+              "ext_descrs": [
+                [
+                  "Medium stone grey",
+                  "MED. ST-GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "mdstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                71
+              ],
+              "ext_descrs": [
+                [
+                  "Light_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "4211462",
+        "num_sets": 445
+      },
+      {
+        "id": 36563308,
+        "inv_part_id": 36563308,
+        "part": {
+          "part_num": "98138",
+          "name": "Tile Round 1 x 1",
+          "part_cat_id": 67,
+          "part_url": "https://rebrickable.com/parts/98138/tile-round-1-x-1/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6022171.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "98138"
+            ],
+            "BrickOwl": [
+              "474589"
+            ],
+            "Brickset": [
+              "118722",
+              "118864",
+              "35380",
+              "35381",
+              "39797",
+              "98138"
+            ],
+            "LDraw": [
+              "98138"
+            ],
+            "LEGO": [
+              "118722",
+              "118864",
+              "35380",
+              "35381",
+              "39797",
+              "98138"
+            ]
+          }
+        },
+        "color": {
+          "id": 41,
+          "name": "Trans-Light Blue",
+          "rgb": "AEEFEC",
+          "is_trans": true,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                15
+              ],
+              "ext_descrs": [
+                [
+                  "Trans-Light Blue"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                101
+              ],
+              "ext_descrs": [
+                [
+                  "Transparent Light Blue"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "trltblue"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                43
+              ],
+              "ext_descrs": [
+                [
+                  "Trans_Medium_Blue"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                42
+              ],
+              "ext_descrs": [
+                [
+                  "Tr. Lg blue",
+                  "TR.L.BLUE",
+                  "TR. LIGHT BLUE"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": true,
+        "element_id": "6514192",
+        "num_sets": 473
+      },
+      {
+        "id": 36563307,
+        "inv_part_id": 36563307,
+        "part": {
+          "part_num": "69755",
+          "name": "Launcher Trigger, Weapon Gun Trigger",
+          "part_cat_id": 68,
+          "part_url": "https://rebrickable.com/parts/69755/launcher-trigger-weapon-gun-trigger/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6360675.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "69755"
+            ],
+            "BrickOwl": [
+              "1265802"
+            ],
+            "Brickset": [
+              "69755"
+            ],
+            "LDraw": [
+              "69755"
+            ],
+            "LEGO": [
+              "69755"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": true,
+        "element_id": "6360675",
+        "num_sets": 211
+      },
+      {
+        "id": 35432759,
+        "inv_part_id": 35432759,
+        "part": {
+          "part_num": "85984",
+          "name": "Brick Sloped 30° 1 x 2 x 2/3",
+          "part_cat_id": 3,
+          "part_url": "https://rebrickable.com/parts/85984/brick-sloped-30-1-x-2-x-23/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4548180.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "85984"
+            ],
+            "BrickOwl": [
+              "444606"
+            ],
+            "Brickset": [
+              "116163",
+              "118899",
+              "83473",
+              "85984"
+            ],
+            "LDraw": [
+              "85984"
+            ],
+            "LEGO": [
+              "116163",
+              "118899",
+              "83473",
+              "85984"
+            ],
+            "Peeron": [
+              "x1972"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "4548180",
+        "num_sets": 958
+      },
+      {
+        "id": 35432715,
+        "inv_part_id": 35432715,
+        "part": {
+          "part_num": "14704",
+          "name": "Plate Special 1 x 2 5.9mm Centre Side Towball Socket",
+          "part_cat_id": 9,
+          "part_url": "https://rebrickable.com/parts/14704/plate-special-1-x-2-59mm-centre-side-towball-socket/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6043656.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "14704"
+            ],
+            "BrickOwl": [
+              "70567"
+            ],
+            "Brickset": [
+              "14704"
+            ],
+            "LDraw": [
+              "14704"
+            ],
+            "LEGO": [
+              "14704"
+            ]
+          }
+        },
+        "color": {
+          "id": 71,
+          "name": "Light Bluish Gray",
+          "rgb": "A0A5A9",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                86
+              ],
+              "ext_descrs": [
+                [
+                  "Light Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                64
+              ],
+              "ext_descrs": [
+                [
+                  "Medium Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                194
+              ],
+              "ext_descrs": [
+                [
+                  "Medium stone grey",
+                  "MED. ST-GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "mdstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                71
+              ],
+              "ext_descrs": [
+                [
+                  "Light_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6414561",
+        "num_sets": 855
+      },
+      {
+        "id": 36563304,
+        "inv_part_id": 36563304,
+        "part": {
+          "part_num": "65578",
+          "name": "Bar, Angled with 1 x 1 Round Plate / Stud on End",
+          "part_cat_id": 32,
+          "part_url": "https://rebrickable.com/parts/65578/bar-angled-with-1-x-1-round-plate-stud-on-end/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6443416.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "65578"
+            ],
+            "BrickOwl": [
+              "701885"
+            ],
+            "Brickset": [
+              "65578"
+            ],
+            "LDraw": [
+              "65578"
+            ],
+            "LEGO": [
+              "65578"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": true,
+        "element_id": "6510193",
+        "num_sets": 87
+      },
+      {
+        "id": 35432719,
+        "inv_part_id": 35432719,
+        "part": {
+          "part_num": "22484",
+          "name": "Bar 2L with Towball",
+          "part_cat_id": 32,
+          "part_url": "https://rebrickable.com/parts/22484/bar-2l-with-towball/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6158469.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "22484"
+            ],
+            "BrickOwl": [
+              "53899"
+            ],
+            "Brickset": [
+              "22484",
+              "67692",
+              "67853"
+            ],
+            "LDraw": [
+              "22484"
+            ],
+            "LEGO": [
+              "22484",
+              "67692",
+              "67853"
+            ]
+          }
+        },
+        "color": {
+          "id": 72,
+          "name": "Dark Bluish Gray",
+          "rgb": "6C6E68",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                85
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Bluish Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                50
+              ],
+              "ext_descrs": [
+                [
+                  "Dark Stone Gray"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                199
+              ],
+              "ext_descrs": [
+                [
+                  "Dark stone grey",
+                  "DK. ST. GREY"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "dkstone"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                72
+              ],
+              "ext_descrs": [
+                [
+                  "Dark_Bluish_Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6364352",
+        "num_sets": 258
+      },
+      {
+        "id": 35432720,
+        "inv_part_id": 35432720,
+        "part": {
+          "part_num": "23969",
+          "name": "Panel 1 x 2 x 1 with Rounded Corners and 2 Sides",
+          "part_cat_id": 23,
+          "part_url": "https://rebrickable.com/parts/23969/panel-1-x-2-x-1-with-rounded-corners-and-2-sides/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6174845.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "23969"
+            ],
+            "BrickOwl": [
+              "614655"
+            ],
+            "Brickset": [
+              "116327",
+              "23969",
+              "35387",
+              "35391"
+            ],
+            "LDraw": [
+              "23969"
+            ],
+            "LEGO": [
+              "116327",
+              "23969",
+              "35387",
+              "35391"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6248496",
+        "num_sets": 84
+      },
+      {
+        "id": 35432772,
+        "inv_part_id": 35432772,
+        "part": {
+          "part_num": "98138",
+          "name": "Tile Round 1 x 1",
+          "part_cat_id": 67,
+          "part_url": "https://rebrickable.com/parts/98138/tile-round-1-x-1/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4646864.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "98138"
+            ],
+            "BrickOwl": [
+              "474589"
+            ],
+            "Brickset": [
+              "118722",
+              "118864",
+              "35380",
+              "35381",
+              "39797",
+              "98138"
+            ],
+            "LDraw": [
+              "98138"
+            ],
+            "LEGO": [
+              "118722",
+              "118864",
+              "35380",
+              "35381",
+              "39797",
+              "98138"
+            ]
+          }
+        },
+        "color": {
+          "id": 36,
+          "name": "Trans-Red",
+          "rgb": "C91A09",
+          "is_trans": true,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                17
+              ],
+              "ext_descrs": [
+                [
+                  "Trans-Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                108
+              ],
+              "ext_descrs": [
+                [
+                  "Transparent Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                41
+              ],
+              "ext_descrs": [
+                [
+                  "Tr. Red",
+                  "TR.RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "trred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                36
+              ],
+              "ext_descrs": [
+                [
+                  "Trans_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6514189",
+        "num_sets": 665
+      },
+      {
+        "id": 36563309,
+        "inv_part_id": 36563309,
+        "part": {
+          "part_num": "98138",
+          "name": "Tile Round 1 x 1",
+          "part_cat_id": 67,
+          "part_url": "https://rebrickable.com/parts/98138/tile-round-1-x-1/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4646864.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "98138"
+            ],
+            "BrickOwl": [
+              "474589"
+            ],
+            "Brickset": [
+              "118722",
+              "118864",
+              "35380",
+              "35381",
+              "39797",
+              "98138"
+            ],
+            "LDraw": [
+              "98138"
+            ],
+            "LEGO": [
+              "118722",
+              "118864",
+              "35380",
+              "35381",
+              "39797",
+              "98138"
+            ]
+          }
+        },
+        "color": {
+          "id": 36,
+          "name": "Trans-Red",
+          "rgb": "C91A09",
+          "is_trans": true,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                17
+              ],
+              "ext_descrs": [
+                [
+                  "Trans-Red"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                108
+              ],
+              "ext_descrs": [
+                [
+                  "Transparent Red"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                41
+              ],
+              "ext_descrs": [
+                [
+                  "Tr. Red",
+                  "TR.RED"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "trred"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                36
+              ],
+              "ext_descrs": [
+                [
+                  "Trans_Red"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": true,
+        "element_id": "6514189",
+        "num_sets": 665
+      },
+      {
+        "id": 35432745,
+        "inv_part_id": 35432745,
+        "part": {
+          "part_num": "4740",
+          "name": "Dish 2 x 2 Inverted [Radar]",
+          "part_cat_id": 21,
+          "part_url": "https://rebrickable.com/parts/4740/dish-2-x-2-inverted-radar/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/4215339.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "4740"
+            ],
+            "BrickOwl": [
+              "739988"
+            ],
+            "Brickset": [
+              "111473",
+              "112025",
+              "17964",
+              "22669",
+              "30063",
+              "35395",
+              "4740",
+              "64938",
+              "71874"
+            ],
+            "LDraw": [
+              "4740"
+            ],
+            "LEGO": [
+              "111473",
+              "112025",
+              "17964",
+              "22669",
+              "30063",
+              "35395",
+              "4740",
+              "64938",
+              "71874"
+            ]
+          }
+        },
+        "color": {
+          "id": 41,
+          "name": "Trans-Light Blue",
+          "rgb": "AEEFEC",
+          "is_trans": true,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                15
+              ],
+              "ext_descrs": [
+                [
+                  "Trans-Light Blue"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                101
+              ],
+              "ext_descrs": [
+                [
+                  "Transparent Light Blue"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "trltblue"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                43
+              ],
+              "ext_descrs": [
+                [
+                  "Trans_Medium_Blue"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                42
+              ],
+              "ext_descrs": [
+                [
+                  "Tr. Lg blue",
+                  "TR.L.BLUE",
+                  "TR. LIGHT BLUE"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "75449-1",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6580378",
+        "num_sets": 157
+      },
+      {
+        "id": 35521403,
+        "inv_part_id": 35521403,
+        "part": {
+          "part_num": "28621pr9546",
+          "name": "Minifig Head Eyebrows, Dark Brown Creases, Frown Print",
+          "part_cat_id": 59,
+          "part_url": "https://rebrickable.com/parts/28621pr9546/minifig-head-eyebrows-dark-brown-creases-frown-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6541248.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3626pb3991"
+            ],
+            "BrickOwl": [
+              "105098"
+            ],
+            "Brickset": [
+              "112801"
+            ],
+            "LEGO": [
+              "112801"
+            ]
+          }
+        },
+        "color": {
+          "id": 1138,
+          "name": "Umber Brown",
+          "rgb": "5E3F33",
+          "is_trans": false,
+          "external_ids": {
+            "LDraw": {
+              "ext_ids": [
+                423
+              ],
+              "ext_descrs": [
+                [
+                  "Umber_Brown"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                168
+              ],
+              "ext_descrs": [
+                [
+                  "Umber"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                243
+              ],
+              "ext_descrs": [
+                [
+                  "Umber Brown"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                423
+              ],
+              "ext_descrs": [
+                [
+                  "Umber Brown"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017325",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6541248",
+        "num_sets": 4
+      },
+      {
+        "id": 35521399,
+        "inv_part_id": 35521399,
+        "part": {
+          "part_num": "973c75h03pr0007",
+          "name": "Torso, Dark Red/Light Bluish Grey Mandalorian Armor, Scratched Print, Pearl Titanium Arms, Black Hands",
+          "part_cat_id": 60,
+          "part_url": "https://rebrickable.com/parts/973c75h03pr0007/torso-dark-redlight-bluish-grey-mandalorian-armor-scratched-print-pearl-titanium-arms-black-hands/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6588605.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "973pb6482c01"
+            ],
+            "BrickOwl": [
+              "1095846"
+            ],
+            "Brickset": [
+              "76382"
+            ],
+            "LEGO": [
+              "76382"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017325",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6588605",
+        "num_sets": 1
+      },
+      {
+        "id": 35521400,
+        "inv_part_id": 35521400,
+        "part": {
+          "part_num": "970c75pr0026",
+          "name": "Hips and Pearl Titanium Legs with Black/Silver Armor Print",
+          "part_cat_id": 61,
+          "part_url": "https://rebrickable.com/parts/970c75pr0026/hips-and-pearl-titanium-legs-with-blacksilver-armor-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6581396.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "970c00pb1884"
+            ],
+            "BrickOwl": [
+              "687302"
+            ],
+            "Brickset": [
+              "115355"
+            ],
+            "LEGO": [
+              "115355"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017325",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6581396",
+        "num_sets": 1
+      },
+      {
+        "id": 35521401,
+        "inv_part_id": 35521401,
+        "part": {
+          "part_num": "87610pr0014",
+          "name": "Helmet Mandalorian with Holes, Black/Dark Red Markings, Scratches Print",
+          "part_cat_id": 65,
+          "part_url": "https://rebrickable.com/parts/87610pr0014/helmet-mandalorian-with-holes-blackdark-red-markings-scratches-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6581394.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "87610pb28"
+            ],
+            "BrickOwl": [
+              "826780"
+            ],
+            "Brickset": [
+              "115353"
+            ],
+            "LEGO": [
+              "115353"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017325",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6581394",
+        "num_sets": 1
+      },
+      {
+        "id": 35521402,
+        "inv_part_id": 35521402,
+        "part": {
+          "part_num": "64802",
+          "name": "Minifig Neckwear Jet Pack with Nozzles (Mandalorian)",
+          "part_cat_id": 71,
+          "part_url": "https://rebrickable.com/parts/64802/minifig-neckwear-jet-pack-with-nozzles-mandalorian/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6009242.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "64802"
+            ],
+            "BrickOwl": [
+              "636174"
+            ],
+            "Brickset": [
+              "64802"
+            ],
+            "LEGO": [
+              "64802"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017325",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6356454",
+        "num_sets": 26
+      },
+      {
+        "id": 35521740,
+        "inv_part_id": 35521740,
+        "part": {
+          "part_num": "973c03h75pr0001",
+          "name": "Torso, Mandalorian Armor, Dark Red Panel with Yellow Triangles Print, Black Arms, Pearl Titanium Hands",
+          "part_cat_id": 60,
+          "part_url": "https://rebrickable.com/parts/973c03h75pr0001/torso-mandalorian-armor-dark-red-panel-with-yellow-triangles-print-black-arms-pearl-titanium-hands/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6588746.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "973pb6483c01"
+            ],
+            "BrickOwl": [
+              "853013"
+            ],
+            "Brickset": [
+              "76382"
+            ],
+            "LEGO": [
+              "76382"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017326",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6588746",
+        "num_sets": 1
+      },
+      {
+        "id": 35521741,
+        "inv_part_id": 35521741,
+        "part": {
+          "part_num": "87610pr0015",
+          "name": "Helmet Mandalorian with Holes, Black/Dark Red Markings, Scratches Print",
+          "part_cat_id": 65,
+          "part_url": "https://rebrickable.com/parts/87610pr0015/helmet-mandalorian-with-holes-blackdark-red-markings-scratches-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6581397.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "87610pb29"
+            ],
+            "BrickOwl": [
+              "395312"
+            ],
+            "Brickset": [
+              "115356"
+            ],
+            "LEGO": [
+              "115356"
+            ]
+          }
+        },
+        "color": {
+          "id": 0,
+          "name": "Black",
+          "rgb": "05131D",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                11
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                38
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                26,
+                342
+              ],
+              "ext_descrs": [
+                [
+                  "Black",
+                  "BLACK"
+                ],
+                [
+                  "CONDUCT. BLACK"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "black"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                0,
+                256
+              ],
+              "ext_descrs": [
+                [
+                  "Black"
+                ],
+                [
+                  "Rubber_Black"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017326",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6581397",
+        "num_sets": 1
+      },
+      {
+        "id": 35521742,
+        "inv_part_id": 35521742,
+        "part": {
+          "part_num": "28621pr9553",
+          "name": "Minifig Head Black Eyebrows, Peach Lips, Stern Stare Print",
+          "part_cat_id": 59,
+          "part_url": "https://rebrickable.com/parts/28621pr9553/minifig-head-black-eyebrows-peach-lips-stern-stare-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6541249.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3626pb3989"
+            ],
+            "BrickOwl": [
+              "1506846"
+            ],
+            "Brickset": [
+              "112802"
+            ],
+            "LEGO": [
+              "112802"
+            ]
+          }
+        },
+        "color": {
+          "id": 78,
+          "name": "Light Nougat",
+          "rgb": "F6D7B3",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                90
+              ],
+              "ext_descrs": [
+                [
+                  "Light Nougat"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                65
+              ],
+              "ext_descrs": [
+                [
+                  "Light Flesh"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                283
+              ],
+              "ext_descrs": [
+                [
+                  "Light Nougat",
+                  "L.NOUGAT"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "ltflesh"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                78
+              ],
+              "ext_descrs": [
+                [
+                  "Light_Flesh"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017326",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6541249",
+        "num_sets": 5
+      },
+      {
+        "id": 35521743,
+        "inv_part_id": 35521743,
+        "part": {
+          "part_num": "970c75pr0025",
+          "name": "Hips and Pearl Titanium Legs with Black/Silver Armor, Dark Red Trim Print",
+          "part_cat_id": 61,
+          "part_url": "https://rebrickable.com/parts/970c75pr0025/hips-and-pearl-titanium-legs-with-blacksilver-armor-dark-red-trim-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6581399.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "970c00pb1885"
+            ],
+            "BrickOwl": [
+              "1211645"
+            ],
+            "Brickset": [
+              "115358"
+            ],
+            "LEGO": [
+              "115358"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017326",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6581399",
+        "num_sets": 1
+      },
+      {
+        "id": 35521744,
+        "inv_part_id": 35521744,
+        "part": {
+          "part_num": "64802",
+          "name": "Minifig Neckwear Jet Pack with Nozzles (Mandalorian)",
+          "part_cat_id": 71,
+          "part_url": "https://rebrickable.com/parts/64802/minifig-neckwear-jet-pack-with-nozzles-mandalorian/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6009242.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "64802"
+            ],
+            "BrickOwl": [
+              "636174"
+            ],
+            "Brickset": [
+              "64802"
+            ],
+            "LEGO": [
+              "64802"
+            ]
+          }
+        },
+        "color": {
+          "id": 1103,
+          "name": "Pearl Titanium",
+          "rgb": "3E3C39",
+          "is_trans": false,
+          "external_ids": {
+            "LEGO": {
+              "ext_ids": [
+                316
+              ],
+              "ext_descrs": [
+                [
+                  "Titanium Metallic",
+                  "TITAN. METAL."
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                87
+              ],
+              "ext_descrs": [
+                [
+                  "Metallic_Dark_Gray"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                119
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                77
+              ],
+              "ext_descrs": [
+                [
+                  "Pearl Dark Gray"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-017326",
+        "quantity": 1,
+        "is_spare": false,
+        "element_id": "6356454",
+        "num_sets": 26
+      },
+      {
+        "id": 18469657,
+        "inv_part_id": 18469657,
+        "part": {
+          "part_num": "3626cpr3262",
+          "name": "Minifig Head Clone Trooper, Cheek Lines, Chin Dimple, Frown Print",
+          "part_cat_id": 59,
+          "part_url": "https://rebrickable.com/parts/3626cpr3262/minifig-head-clone-trooper-cheek-lines-chin-dimple-frown-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6308125.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "3626pb2651"
+            ],
+            "BrickOwl": [
+              "401552"
+            ],
+            "Brickset": [
+              "68714"
+            ],
+            "LDraw": [
+              "3626cps6"
+            ],
+            "LEGO": [
+              "68714"
+            ]
+          }
+        },
+        "color": {
+          "id": 92,
+          "name": "Nougat",
+          "rgb": "D09168",
+          "is_trans": false,
+          "external_ids": {
+            "BrickOwl": {
+              "ext_ids": [
+                6
+              ],
+              "ext_descrs": [
+                [
+                  "Flesh"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                18
+              ],
+              "ext_descrs": [
+                [
+                  "Nougat"
+                ]
+              ]
+            },
+            "BrickLink": {
+              "ext_ids": [
+                28
+              ],
+              "ext_descrs": [
+                [
+                  "Nougat"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "flesh"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                92
+              ],
+              "ext_descrs": [
+                [
+                  "Nougat"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-014194",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6308125",
+        "num_sets": 32
+      },
+      {
+        "id": 18469659,
+        "inv_part_id": 18469659,
+        "part": {
+          "part_num": "970c27pr1928",
+          "name": "Hips and White Legs with Black and Dark Azure Clone Trooper Armor Print",
+          "part_cat_id": 61,
+          "part_url": "https://rebrickable.com/parts/970c27pr1928/hips-and-white-legs-with-black-and-dark-azure-clone-trooper-armor-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6308127.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "970c00pb1115"
+            ],
+            "BrickOwl": [
+              "169552"
+            ],
+            "Brickset": [
+              "115361",
+              "68716"
+            ],
+            "LEGO": [
+              "115361",
+              "68716"
+            ]
+          }
+        },
+        "color": {
+          "id": 15,
+          "name": "White",
+          "rgb": "FFFFFF",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                1
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                92
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "white"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                15
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                1
+              ],
+              "ext_descrs": [
+                [
+                  "White",
+                  "WHITE V.3"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-014194",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6581402",
+        "num_sets": 10
+      },
+      {
+        "id": 18469656,
+        "inv_part_id": 18469656,
+        "part": {
+          "part_num": "2019pr0424",
+          "name": "Helmet Clone Trooper Phase 2, Closed Front, Holes for Visor with Orange Markings Print",
+          "part_cat_id": 65,
+          "part_url": "https://rebrickable.com/parts/2019pr0424/helmet-clone-trooper-phase-2-closed-front-holes-for-visor-with-orange-markings-print/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6444184.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "2019pb06"
+            ],
+            "BrickOwl": [
+              "421075"
+            ],
+            "Brickset": [
+              "104322",
+              "115359"
+            ],
+            "LEGO": [
+              "104322",
+              "115359"
+            ]
+          }
+        },
+        "color": {
+          "id": 15,
+          "name": "White",
+          "rgb": "FFFFFF",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                1
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                92
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "white"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                15
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                1
+              ],
+              "ext_descrs": [
+                [
+                  "White",
+                  "WHITE V.3"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-014194",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6581400",
+        "num_sets": 3
+      },
+      {
+        "id": 18469660,
+        "inv_part_id": 18469660,
+        "part": {
+          "part_num": "973c27h03pr5237",
+          "name": "Torso, Armor, Blue Chest Marking Print, White Arms, Black Hands",
+          "part_cat_id": 60,
+          "part_url": "https://rebrickable.com/parts/973c27h03pr5237/torso-armor-blue-chest-marking-print-white-arms-black-hands/",
+          "part_img_url": "https://cdn.rebrickable.com/media/parts/elements/6311398.jpg",
+          "external_ids": {
+            "BrickLink": [
+              "973pb3972c01"
+            ],
+            "BrickOwl": [
+              "457466"
+            ],
+            "Brickset": [
+              "76382"
+            ],
+            "LEGO": [
+              "76382"
+            ]
+          }
+        },
+        "color": {
+          "id": 15,
+          "name": "White",
+          "rgb": "FFFFFF",
+          "is_trans": false,
+          "external_ids": {
+            "BrickLink": {
+              "ext_ids": [
+                1
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "BrickOwl": {
+              "ext_ids": [
+                92
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "Peeron": {
+              "ext_ids": [
+                null
+              ],
+              "ext_descrs": [
+                [
+                  "white"
+                ]
+              ]
+            },
+            "LDraw": {
+              "ext_ids": [
+                15
+              ],
+              "ext_descrs": [
+                [
+                  "White"
+                ]
+              ]
+            },
+            "LEGO": {
+              "ext_ids": [
+                1
+              ],
+              "ext_descrs": [
+                [
+                  "White",
+                  "WHITE V.3"
+                ]
+              ]
+            }
+          }
+        },
+        "set_num": "fig-014194",
+        "quantity": 2,
+        "is_spare": false,
+        "element_id": "6588791",
+        "num_sets": 8
+      }
+    ]
+  }
+}

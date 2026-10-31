@@ -1,0 +1,17 @@
+{
+  "request": "GET /lego/sets/66495-1/",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "set_num": "66495-1",
+    "name": "Star Wars Super Pack 3 in 1",
+    "year": 2014,
+    "theme_id": 158,
+    "num_parts": 0,
+    "set_img_url": "https://cdn.rebrickable.com/media/sets/66495-1/16178.jpg",
+    "set_url": "https://rebrickable.com/sets/66495-1/star-wars-super-pack-3-in-1/",
+    "last_modified_dt": "2020-01-07T12:04:49.242000Z"
+  }
+}

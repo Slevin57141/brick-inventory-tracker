@@ -1,0 +1,35 @@
+{
+  "request": "GET /lego/sets/75449-1/minifigs/?page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 36571,
+        "set_num": "fig-014194",
+        "set_name": "Clone Trooper, 332nd Company, Orange Markings, Visor Holes",
+        "quantity": 2,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-014194/181999.jpg"
+      },
+      {
+        "id": 36510,
+        "set_num": "fig-017326",
+        "set_name": "Mandalorian, Light Nougat Head",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-017326/166348.jpg"
+      },
+      {
+        "id": 36509,
+        "set_num": "fig-017325",
+        "set_name": "Mandalorian, Umber Brown Head",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-017325/166347.jpg"
+      }
+    ]
+  }
+}

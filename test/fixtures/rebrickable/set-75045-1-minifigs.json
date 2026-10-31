@@ -1,0 +1,35 @@
+{
+  "request": "GET /lego/sets/75045-1/minifigs/?page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 9525,
+        "set_num": "fig-004038",
+        "set_name": "Clone Trooper, Wolfpack",
+        "quantity": 2,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-004038/74689.jpg"
+      },
+      {
+        "id": 9526,
+        "set_num": "fig-004039",
+        "set_name": "Droideka / Destroyer Droid, Reddish Brown Shell, Flat Silver Legs",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-004039/74690.jpg"
+      },
+      {
+        "id": 9524,
+        "set_num": "fig-004036",
+        "set_name": "Plo Koon, Dark Tan Undershirt",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-004036/84249.jpg"
+      }
+    ]
+  }
+}
