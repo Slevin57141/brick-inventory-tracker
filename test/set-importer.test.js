@@ -244,6 +244,45 @@ test('imports stop at depth 3, and the deepest set is counted once', async () =>
     [['A', 1], ['B', 1], ['C', 1], ['D', 1]]);
 });
 
+test('sets below the depth limit are counted once, however deep (Codex, PR 9)', async () => {
+  const chain = ['A', 'B', 'C', 'D', 'E'];
+  const sets = {};
+  chain.forEach((name, index) => {
+    sets[`${name}-1`] = {
+      contains: index + 1 < chain.length ? [[`${chain[index + 1]}-1`, 1]] : [],
+      lines: chain.slice(index).map((below) => rawLine(`${below}-1`, below)),
+    };
+  });
+  const { client, calls } = syntheticClient(sets);
+  const { record } = await importWithKnownCategory(client, 'A-1');
+  assert.deepEqual(calls.filter(([name]) => name === 'getSet').map(([, setNum]) => setNum),
+    ['A-1', 'B-1', 'C-1']);
+  assert.deepEqual(record.parts.map((line) => [line.partNum, line.quantity]),
+    [['A', 1], ['B', 1], ['C', 1], ['D', 1], ['E', 1]]);
+});
+
+test('a minifigure in a set and in a set deep inside it is counted for both', async () => {
+  const { client } = syntheticClient({
+    'A-1': {
+      contains: [['B-1', 1]],
+      lines: [rawLine('A-1', 'a'), rawLine('fig-000001', 'head'), rawLine('B-1', 'b'),
+        rawLine('C-1', 'c'), rawLine('D-1', 'd')],
+    },
+    'B-1': {
+      contains: [['C-1', 1]],
+      lines: [rawLine('B-1', 'b'), rawLine('C-1', 'c'), rawLine('D-1', 'd')],
+    },
+    'C-1': {
+      contains: [['D-1', 1]],
+      lines: [rawLine('C-1', 'c'), rawLine('fig-000001', 'head'), rawLine('D-1', 'd')],
+    },
+    'D-1': { lines: [rawLine('D-1', 'd')] },
+  });
+  const { record } = await importWithKnownCategory(client, 'A-1');
+  assert.deepEqual(record.parts.map((line) => [line.partNum, line.quantity]),
+    [['a', 1], ['head', 2], ['b', 1], ['c', 1], ['d', 1]]);
+});
+
 test('categories are fetched only when a part has an unknown category ID', async () => {
   const usedIds = [...new Set(lines('31146-1').map((line) => line.part.part_cat_id))];
 

@@ -523,9 +523,13 @@ identical minifigures; a second capture the same day added both, and a two-page 
   as `setNum`. Client errors pass through unchanged.
   - Depth: the set asked for is depth 1, so the sets inside it at depth 3 are imported but
     not the sets inside those. A set that is not imported (depth limit, or a cycle, compared
-    case-insensitively) is counted through the lines of its parent's own response, so every
-    set further up drops its lines too: "a set inside it" means any set listed anywhere
-    below, imported or not. A set never drops lines with its own number.
+    case-insensitively) is counted through the lines its parent keeps from its own
+    response, together with any deeper set whose lines are there. Each import passes up
+    every set number it already counts, imported or kept, and every set further up drops
+    those lines, so "a set inside it" means any set counted below it, however deep. A set
+    never drops lines with its own number. Minifigure numbers (`fig-...`) are never passed
+    up: a response holds no minifigure parts of the sets inside it (F2), so there is
+    nothing to drop above, and dropping would remove the upper set's own minifigures.
   - `knownCategoryIds` is any iterable of IDs as numbers or numeric strings (the data file's
     category keys are strings). `categories` is the whole fetched list, or null when nothing
     was fetched.
@@ -540,7 +544,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
   3); no repeated combination in any fixture set; the pack 66495-1 gives exactly the parts of
   its three contained sets, minifigure parts included, each counted once (D24); a contained
   set with a quantity of 2 doubles that set's parts; a pack keeps its own and minifigure
-  lines; a cycle and a four-level chain, each part counted once; categories fetched only when
+  lines; a cycle, and four- and five-level chains, each part counted once; a minifigure in a
+  set and deep inside it counted for both; categories fetched only when
   needed, with IDs as numbers, strings or a Set; client errors pass through as the same
   object; malformed answers give `api_unavailable`.
 - **Builder: Claude Code.** It depends on F1 and F2, which Claude Code settles in phase 0, and

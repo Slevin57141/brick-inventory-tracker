@@ -9,10 +9,10 @@ const RGB = /^[0-9A-Fa-f]{6}$/;
 
 export function createSetImporter({ client }) {
   // Imports one set with everything inside it, at depth 1 for the set the user asked for.
-  // Returns the record and `listed`: every set number listed anywhere below this set. Those
-  // sets' parts are counted inside this record, either through their own import or, when the
-  // depth limit or a cycle stopped it, through the lines of their parent's response, so every
-  // set further up drops their lines from its own response (D24).
+  // Returns the record and `counted`: every set number other than its own whose parts this
+  // record already holds, through an import or through lines kept from a response (a set the
+  // depth limit or a cycle stopped, and anything below it). Every set further up drops those
+  // sets' lines from its own response, so each is counted once (D24).
   async function importOne(setNum, depth, ancestors) {
     const details = normalizeSet(await client.getSet(setNum), []);
     const rawLines = await client.getSetParts(setNum);
@@ -20,7 +20,6 @@ export function createSetImporter({ client }) {
 
     const self = key(details.setNum);
     const path = new Set(ancestors).add(self);
-    const listed = new Set(containedSets.map((contained) => key(contained.setNum)));
     const inside = new Set();
     const childLines = [];
     for (const contained of containedSets) {
@@ -30,9 +29,8 @@ export function createSetImporter({ client }) {
       }
       const child = await importOne(contained.setNum, depth + 1, path);
       inside.add(id);
-      for (const below of child.listed) {
+      for (const below of child.counted) {
         inside.add(below);
-        listed.add(below);
       }
       for (const line of child.record.parts) {
         childLines.push({ ...line, quantity: line.quantity * contained.quantity });
@@ -40,15 +38,23 @@ export function createSetImporter({ client }) {
     }
     // A set never drops its own lines, even when bad data lists it inside itself.
     inside.delete(self);
-    listed.delete(self);
 
     const ownLines = rawLines.filter((line) => !inside.has(key(line?.set_num)));
+    const ownParts = ownLines.map(toPartLine); // checks every line before it is read below
+    const counted = new Set(inside);
+    for (const line of ownLines) {
+      // A response never holds the minifigure parts of the sets inside it (F2), so the sets
+      // above have no such lines to drop, and dropping would remove their own minifigures.
+      if (key(line.set_num) !== self && !isMinifigure(line.set_num)) {
+        counted.add(key(line.set_num));
+      }
+    }
     const record = {
       ...details,
       containedSets,
-      parts: mergePartLines([...ownLines.map(toPartLine), ...childLines]),
+      parts: mergePartLines([...ownParts, ...childLines]),
     };
-    return { record, listed };
+    return { record, counted };
   }
 
   return Object.freeze({
@@ -137,6 +143,11 @@ function toCategory(raw) {
 
 function key(setNum) {
   return typeof setNum === 'string' ? setNum.toLowerCase() : setNum;
+}
+
+// Rebrickable numbers every minifigure fig-NNNNNN, and its part lines carry that number.
+function isMinifigure(setNum) {
+  return typeof setNum === 'string' && setNum.toLowerCase().startsWith('fig-');
 }
 
 function isObject(value) {
