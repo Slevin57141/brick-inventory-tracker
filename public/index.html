@@ -47,16 +47,11 @@
       <section class="panel" aria-labelledby="parts-title">
         <h2 id="parts-title">Parts</h2>
         <div class="filters">
-          <label>Colour
-            <select id="color-filter"><option value="">All colours</option></select>
-          </label>
-          <label>Category
-            <select id="category-filter"><option value="">All categories</option></select>
-          </label>
           <label>Search
             <input id="search" type="search" autocomplete="off" spellcheck="false"
               placeholder="Part number or name">
           </label>
+          <button id="clear-filters" type="button">Clear filters</button>
         </div>
         <p id="totals" class="totals" aria-live="polite"></p>
         <div class="table-wrap">
@@ -64,11 +59,42 @@
             <thead>
               <tr>
                 <th scope="col"><span class="visually-hidden">Image</span></th>
-                <th scope="col">Part</th>
-                <th scope="col">Name</th>
-                <th scope="col">Colour</th>
-                <th scope="col">Category</th>
-                <th scope="col" class="number">Quantity</th>
+                <th scope="col" data-sort="partNum"><button type="button">Part</button></th>
+                <th scope="col" data-sort="name"><button type="button">Name</button></th>
+                <th scope="col" data-sort="colorName"><button type="button">Colour</button></th>
+                <th scope="col" data-sort="categoryName">
+                  <button type="button">Category</button>
+                </th>
+                <th scope="col" data-sort="quantity" class="number">
+                  <button type="button">Quantity</button>
+                </th>
+              </tr>
+              <tr class="column-filters">
+                <td></td>
+                <td>
+                  <input id="filter-part" type="search" autocomplete="off" spellcheck="false"
+                    placeholder="Filter" aria-label="Filter by part number">
+                </td>
+                <td>
+                  <input id="filter-name" type="search" autocomplete="off" spellcheck="false"
+                    placeholder="Filter" aria-label="Filter by name">
+                </td>
+                <td>
+                  <select id="color-filter" aria-label="Filter by colour">
+                    <option value="">All</option>
+                  </select>
+                </td>
+                <td>
+                  <select id="category-filter" aria-label="Filter by category">
+                    <option value="">All</option>
+                  </select>
+                </td>
+                <td class="number quantity-filter">
+                  <input id="filter-min" type="number" min="0" step="1" inputmode="numeric"
+                    placeholder="Min" aria-label="Smallest quantity">
+                  <input id="filter-max" type="number" min="0" step="1" inputmode="numeric"
+                    placeholder="Max" aria-label="Largest quantity">
+                </td>
               </tr>
             </thead>
             <tbody id="parts"></tbody>

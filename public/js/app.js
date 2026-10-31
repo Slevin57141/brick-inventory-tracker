@@ -1,11 +1,12 @@
 // The page (docs/plan.md M10): the key status, the add form and its key dialog, the sets list,
-// the 3D view (M12) and the parts list with filters, search and totals (M9). Text from the API
+// the 3D view (M12) and the parts list with a filter and a sort on every column, search and
+// totals (M9). Text from the API
 // goes in only through textContent and DOM properties, and the key is never kept anywhere: it
 // leaves the dialog's field as soon as it is sent.
 
 import { createApi } from './api.js';
 import { createBrickScene } from './brick-scene.js';
-import { computeTotals, filterOptions, filterRows } from './inventory-view.js';
+import { computeTotals, filterOptions, filterRows, sortRows } from './inventory-view.js';
 
 const PLACEHOLDER = 'placeholder.svg';
 const SEARCH_DELAY = 150; // milliseconds of quiet typing before the list and view follow
@@ -27,6 +28,12 @@ const page = {
   colorFilter: byId('color-filter'),
   categoryFilter: byId('category-filter'),
   search: byId('search'),
+  filterPart: byId('filter-part'),
+  filterName: byId('filter-name'),
+  filterMin: byId('filter-min'),
+  filterMax: byId('filter-max'),
+  clearFilters: byId('clear-filters'),
+  sortHeads: [...document.querySelectorAll('th[data-sort]')],
   totals: byId('totals'),
   parts: byId('parts'),
   partsEmpty: byId('parts-empty'),
@@ -42,6 +49,7 @@ let rows = [];
 let lidsOpen = false;
 let refreshes = 0;
 let searchTimer = 0;
+let sort = { column: 'name', direction: 'asc' };
 
 const scene = createBrickScene(page.scene);
 if (scene === null) {
@@ -148,12 +156,13 @@ function setItem(set) {
   return item;
 }
 
-// Filters and search (R9, D10): single choice, options from the whole inventory.
+// Filters, search and sorting (R9, D10, D27). Colour and category are single choices from
+// the whole inventory; every column can be filtered and sorted.
 
 function renderFilters() {
   const { colors, categories } = filterOptions(rows);
-  fillSelect(page.colorFilter, colors, 'All colours');
-  fillSelect(page.categoryFilter, categories, 'All categories');
+  fillSelect(page.colorFilter, colors, 'All');
+  fillSelect(page.categoryFilter, categories, 'All');
 }
 
 function fillSelect(select, options, allLabel) {
@@ -166,17 +175,27 @@ function fillSelect(select, options, allLabel) {
 
 const chosenId = (select) => (select.value === '' ? null : Number(select.value));
 
+// A quantity bound, or null when the field is empty or not a number of pieces.
+function bound(input) {
+  const value = Number(input.value);
+  return input.value.trim() === '' || !Number.isFinite(value) || value < 0 ? null : value;
+}
+
 function renderParts() {
   const shown = filterRows(rows, {
     colorId: chosenId(page.colorFilter),
     categoryId: chosenId(page.categoryFilter),
     search: page.search.value,
+    partNum: page.filterPart.value,
+    name: page.filterName.value,
+    minQuantity: bound(page.filterMin),
+    maxQuantity: bound(page.filterMax),
   });
   const { distinctParts, totalPieces } = computeTotals(shown);
   page.totals.textContent = `${count(distinctParts, 'distinct part', 'distinct parts')}, `
     + count(totalPieces, 'piece', 'pieces');
   const body = document.createDocumentFragment();
-  for (const row of shown) {
+  for (const row of sortRows(shown, sort)) {
     body.append(partRow(row));
   }
   page.parts.replaceChildren(body);
@@ -312,6 +331,32 @@ async function forgetKey() {
   }
 }
 
+// A heading sorts by its column; the same heading again turns the order around.
+function sortBy(column) {
+  sort = { column, direction: sort.column === column && sort.direction === 'asc' ? 'desc' : 'asc' };
+  showSort();
+  renderParts();
+}
+
+function showSort() {
+  for (const head of page.sortHeads) {
+    if (head.dataset.sort === sort.column) {
+      head.setAttribute('aria-sort', sort.direction === 'asc' ? 'ascending' : 'descending');
+    } else {
+      head.removeAttribute('aria-sort');
+    }
+  }
+}
+
+function clearFilters() {
+  for (const input of [page.search, page.filterPart, page.filterName, page.filterMin,
+    page.filterMax, page.colorFilter, page.categoryFilter]) {
+    input.value = '';
+  }
+  clearTimeout(searchTimer);
+  renderParts();
+}
+
 function toggleLids() {
   lidsOpen = !lidsOpen;
   scene?.setLidsOpen(lidsOpen);
@@ -325,10 +370,18 @@ page.keyCancel.addEventListener('click', () => page.keyDialog.close());
 page.toggleLids.addEventListener('click', toggleLids);
 page.colorFilter.addEventListener('change', renderParts);
 page.categoryFilter.addEventListener('change', renderParts);
-page.search.addEventListener('input', () => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(renderParts, SEARCH_DELAY);
-});
+for (const input of [page.search, page.filterPart, page.filterName, page.filterMin,
+  page.filterMax]) {
+  input.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderParts, SEARCH_DELAY);
+  });
+}
+page.clearFilters.addEventListener('click', clearFilters);
+for (const head of page.sortHeads) {
+  head.querySelector('button').addEventListener('click', () => sortBy(head.dataset.sort));
+}
+showSort();
 
 refresh().catch((error) => {
   say(error.message, { error: true });
