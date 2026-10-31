@@ -1,0 +1,17 @@
+{
+  "request": "GET /lego/sets/75449-1/",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "set_num": "75449-1",
+    "name": "Siege of Mandalore Battle Pack",
+    "year": 2026,
+    "theme_id": 158,
+    "num_parts": 116,
+    "set_img_url": "https://cdn.rebrickable.com/media/sets/75449-1/164308.jpg",
+    "set_url": "https://rebrickable.com/sets/75449-1/siege-of-mandalore-battle-pack/",
+    "last_modified_dt": "2025-12-02T14:11:56.317945Z"
+  }
+}

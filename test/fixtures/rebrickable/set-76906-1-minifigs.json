@@ -1,0 +1,21 @@
+{
+  "request": "GET /lego/sets/76906-1/minifigs/?page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 25238,
+        "set_num": "fig-012344",
+        "set_name": "Race Driver, White Ferrari Racing Suit, White Helmet",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-012344/99871.jpg"
+      }
+    ]
+  }
+}

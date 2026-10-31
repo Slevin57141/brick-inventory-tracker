@@ -1,0 +1,28 @@
+{
+  "request": "GET /lego/sets/75038-1/minifigs/?page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 9514,
+        "set_num": "fig-004031",
+        "set_name": "Anakin Skywalker, Black Robe, Dark Brown Legs, Printed Headset",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-004031/109863.jpg"
+      },
+      {
+        "id": 9513,
+        "set_num": "fig-002473",
+        "set_name": "Astromech Droid, R2-D2, Flat Silver Dome, Dark Blue Print with Red Dots",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-002473/82079.jpg"
+      }
+    ]
+  }
+}

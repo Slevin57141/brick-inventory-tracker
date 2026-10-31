@@ -1,0 +1,10 @@
+{
+  "request": "GET /lego/colors/?page_size=1",
+  "status": 401,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "detail": "Invalid token."
+  }
+}

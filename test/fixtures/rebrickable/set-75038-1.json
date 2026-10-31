@@ -1,0 +1,17 @@
+{
+  "request": "GET /lego/sets/75038-1/",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "set_num": "75038-1",
+    "name": "Jedi Interceptor",
+    "year": 2014,
+    "theme_id": 158,
+    "num_parts": 223,
+    "set_img_url": "https://cdn.rebrickable.com/media/sets/75038-1/7175.jpg",
+    "set_url": "https://rebrickable.com/sets/75038-1/jedi-interceptor/",
+    "last_modified_dt": "2016-05-29T00:32:52.884933Z"
+  }
+}

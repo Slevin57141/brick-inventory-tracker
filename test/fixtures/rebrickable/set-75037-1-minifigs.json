@@ -1,0 +1,42 @@
+{
+  "request": "GET /lego/sets/75037-1/minifigs/?page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 4,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 28684,
+        "set_num": "fig-002330",
+        "set_name": "Battle Droid, One Bent Arm, One Straight Arm",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-002330/108353.jpg"
+      },
+      {
+        "id": 28685,
+        "set_num": "fig-003612",
+        "set_name": "Battle Droid, Two Bent Arms",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-003612/58550.jpg"
+      },
+      {
+        "id": 28687,
+        "set_num": "fig-004032",
+        "set_name": "Clone BARC Trooper, Dark Red Markings - Clone Commander Neyo",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-004032/109155.jpg"
+      },
+      {
+        "id": 29521,
+        "set_num": "fig-014070",
+        "set_name": "Super Battle Droid, Pearl Titanium",
+        "quantity": 2,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/fig-014070/126136.jpg"
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "request": "GET /lego/sets/76991-1/",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "set_num": "76991-1",
+    "name": "Tails' Workshop and Tornado Plane",
+    "year": 2023,
+    "theme_id": 747,
+    "num_parts": 376,
+    "set_img_url": "https://cdn.rebrickable.com/media/sets/76991-1/120819.jpg",
+    "set_url": "https://rebrickable.com/sets/76991-1/tails-workshop-and-tornado-plane/",
+    "last_modified_dt": "2023-04-23T13:11:38.242633Z"
+  }
+}

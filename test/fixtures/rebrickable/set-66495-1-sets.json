@@ -1,0 +1,35 @@
+{
+  "request": "GET /lego/sets/66495-1/sets/?page_size=1000",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 54,
+        "set_num": "75037-1",
+        "set_name": "Battle on Saleucami",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/75037-1/15773.jpg"
+      },
+      {
+        "id": 1042,
+        "set_num": "75038-1",
+        "set_name": "Jedi Interceptor",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/75038-1/7175.jpg"
+      },
+      {
+        "id": 305,
+        "set_num": "75045-1",
+        "set_name": "Republic AV-7 Anti-Vehicle Cannon",
+        "quantity": 1,
+        "set_img_url": "https://cdn.rebrickable.com/media/sets/75045-1/16205.jpg"
+      }
+    ]
+  }
+}
