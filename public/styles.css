@@ -1,0 +1,452 @@
+/* The page (docs/plan.md M10), including the looks of the 3D view's labels and legend (M12
+   positions them). The preview page has its own container.css. */
+
+:root {
+  color-scheme: light;
+  --background: #f4f5f7;
+  --surface: #ffffff;
+  --scene: #e8e9eb;
+  --text: #1f2328;
+  --muted: #59606a;
+  --border: #d3d7dc;
+  --border-strong: #b8bcc2;
+  --accent: #a63a32;
+  --accent-text: #ffffff;
+  --accent-soft: #f3e3e1;
+  --error: #a3241b;
+  --ok: #1e6b3a;
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 1.2rem;
+}
+
+h2 {
+  font-size: 1.05rem;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+button[type='submit'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+button[type='submit']:hover:not(:disabled) {
+  background: #8e2f2a;
+}
+
+input,
+select {
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Header */
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.key {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.key-status {
+  color: var(--muted);
+}
+
+.key-status.has-key {
+  color: var(--ok);
+}
+
+/* Sections */
+
+main {
+  display: grid;
+  /* minmax(0, ...) lets the wide parts table scroll in its own box instead of widening the
+     page on a narrow screen. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2rem;
+}
+
+.panel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.message {
+  min-height: 1.45em;
+  margin: 0;
+  color: var(--muted);
+}
+
+.message.error {
+  color: var(--error);
+}
+
+.message.busy::before {
+  content: '';
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.5em;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  vertical-align: -0.1em;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message.busy::before {
+    animation: none;
+  }
+}
+
+/* Add form */
+
+.add-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.add-form input {
+  width: 14rem;
+}
+
+/* Sets */
+
+.sets {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.set {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 0.9rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.set-image {
+  width: 96px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: var(--background);
+}
+
+.set-info p {
+  margin: 0;
+}
+
+.set-name {
+  font-weight: 600;
+}
+
+.set-meta,
+.set-copies,
+.contained {
+  color: var(--muted);
+}
+
+.contained-title {
+  margin-top: 0.3rem !important;
+  font-size: 0.9em;
+}
+
+.contained {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.9em;
+}
+
+/* 3D view */
+
+.scene {
+  height: min(70vh, 560px);
+  min-height: 320px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--scene);
+}
+
+.brick-scene-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.brick-scene-label-name {
+  font-weight: 600;
+}
+
+.brick-scene-label-count {
+  color: var(--muted);
+}
+
+.brick-scene-legend {
+  left: 0.75rem;
+  bottom: 0.5rem;
+  margin: 0;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 70%);
+  font-size: 0.8rem;
+}
+
+.brick-scene-empty {
+  top: 45%;
+  left: 50%;
+  margin: 0;
+  color: var(--muted);
+  transform: translateX(-50%);
+}
+
+/* Parts */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+}
+
+.filters label {
+  display: grid;
+  gap: 0.2rem;
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+.filters select,
+.filters input {
+  min-width: 12rem;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.totals {
+  margin: 0;
+  font-weight: 600;
+}
+
+.table-wrap {
+  max-height: 70vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.parts {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.parts th,
+.parts td {
+  padding: 0.35rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.parts th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.parts .number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.parts .picture {
+  width: 64px;
+}
+
+.part-image {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.part-num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.color {
+  white-space: nowrap;
+}
+
+.swatch {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.45em;
+  border: 1px solid rgb(0 0 0 / 25%);
+  border-radius: 3px;
+  vertical-align: -0.1em;
+}
+
+/* Transparent colours get a half-clear swatch with a dashed outline. */
+.swatch.trans {
+  opacity: 0.6;
+  outline: 1px dashed var(--border-strong);
+  outline-offset: 1px;
+}
+
+/* Key dialog */
+
+dialog {
+  width: min(28rem, calc(100vw - 2rem));
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+dialog::backdrop {
+  background: rgb(31 35 40 / 45%);
+}
+
+.key-form {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1.1rem 1.2rem;
+}
+
+.key-form p {
+  margin: 0;
+}
+
+.key-form .message {
+  color: var(--error);
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .set {
+    grid-template-columns: auto 1fr;
+  }
+
+  .set .remove {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}

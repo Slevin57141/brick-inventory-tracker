@@ -381,6 +381,11 @@ Error codes (defined once in `src/errors.js`):
 | `data_file_invalid` | 500 | The data file could not be read. It has not been changed. |
 | `internal_error` | 500 | Something went wrong. See the server log. |
 
+The page's `api.js` (M10) adds one code the server never sends: `server_unreachable`, "The
+app could not reach its server. Check that it is still running.", when a request gets no
+answer at all. An answer that is not the expected JSON becomes `internal_error` with the
+fixed message above.
+
 Request rules for every route:
 
 - The `Host` header must be `127.0.0.1:<port>` or `localhost:<port>`, otherwise `forbidden`.
@@ -727,24 +732,52 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Responsibility:** the page: `public/index.html`, `styles.css`, `placeholder.svg`,
   `js/api.js` (one function per route in section 7; returns data or throws
   `{ code, message }`) and `js/app.js` (the DOM).
+- **Interface** (`js/api.js`):
+  ```
+  createApi({ fetch = globalThis.fetch }) -> {
+    getStatus() -> { hasKey }              GET /api/status
+    setKey(key) -> { hasKey }              PUT /api/key
+    forgetKey() -> { hasKey }              DELETE /api/key
+    listSets() -> SetSummary[]             GET /api/sets
+    addSet(setNumber) -> SetSummary        POST /api/sets
+    removeSet(setNum) -> SetSummary|null   DELETE /api/sets/{setNum, percent-encoded}
+    getInventory() -> InventoryRow[]       GET /api/inventory
+  }
+  ApiError: an Error with `code` and `message`
+  ```
+  An error response throws its own `{ code, message }`. No answer throws
+  `server_unreachable`, and an answer without the expected field throws `internal_error`
+  (section 7). Only requests with a body send `Content-Type: application/json`.
 - **Behaviour:**
-  - Header shows "API key set" or "No API key" and a "Forget key" button (R17).
+  - Header shows "API key set" or "No API key" and a "Forget key" button (R17), disabled
+    while there is no key.
   - Add-set form. On `key_required` or `key_invalid` it opens a key dialog (password field,
-    `autocomplete="off"`), sends `PUT /api/key`, clears the field, then retries the add. It
-    shows progress while adding, since an add takes several seconds.
+    `autocomplete="off"`), sends `PUT /api/key`, clears the field, then retries the add. A
+    key Rebrickable rejects keeps the dialog open with the error; Cancel or Escape stops the
+    add. A PUT answering `hasKey: false` (the key was forgotten during the check, M8) asks
+    again. It shows progress while adding, since an add takes several seconds.
   - Sets list (R7) with a "Remove one" button per set; a pack lists its contained sets.
-  - Parts list (R8-R10) with the colour filter, category filter, search and totals.
+    The part count is left out when Rebrickable reports 0, as it does for packs.
+  - Parts list (R8-R10) with the colour filter, category filter, search and totals. Filter
+    options come from the whole inventory; a chosen option that no longer exists falls
+    back to "All". Search follows typing after 150 ms of quiet.
   - A 3D view section (M12) between the sets list and the parts list. Whenever the
     inventory, a filter or the search changes, M10 passes the same filtered rows to
     `scene.update`, so the containers and the list always agree (R25). An "Open lids" /
     "Close lids" button calls `scene.setLidsOpen` (R27). If `createBrickScene` returns null,
     the section shows "The 3D view needs WebGL." (R29).
-  - Images use `loading="lazy"` and fall back to the placeholder (R11).
+  - After every change the page reloads the key status, sets and inventory together; when
+    two reloads overlap, only the later one is shown.
+  - Images use `loading="lazy"` and `referrerpolicy="no-referrer"`, are tried only for
+    https addresses, and fall back to the placeholder (R11).
   - Text from the API is inserted with `textContent` or DOM properties, never `innerHTML`.
   - The key is never kept in `localStorage`, `sessionStorage`, cookies or the URL.
-- **Tests:** `api.js` with an injected fetch (paths, methods, bodies, error parsing). The DOM
-  is checked by hand with the checklist in section 10, because a browser test runner would
-  need a dependency (D3).
+- **Tests:** `test/api.test.js`, with an injected fetch: every route's method, path, body
+  and content type, and what each function returns; a set number percent-encoded into the
+  path; the key only in the PUT body, never in the path or a header; an error response
+  thrown as its code and message; answers that are not the expected JSON; an unreachable
+  server. The DOM is checked by hand with the checklist in section 10, because a browser
+  test runner would need a dependency (D3).
 - **Builder: Claude Code** (moved from Codex at the user's request on 2026-10-31, together
   with M12). It depends only on section 7, M9 and M12.
 
