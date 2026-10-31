@@ -1,3 +1,5 @@
+const compareNames = new Intl.Collator('en', { numeric: true }).compare;
+
 export function filterRows(rows, { colorId = null, categoryId = null, search = '' } = {}) {
   const query = search.trim().toLowerCase();
   return rows.filter(row =>
@@ -25,7 +27,7 @@ export function filterOptions(rows) {
       categories.set(row.categoryId, { id: row.categoryId, name: row.categoryName });
     }
   }
-  const byName = (a, b) => a.name.localeCompare(b.name);
+  const byName = (a, b) => compareNames(a.name, b.name);
   return {
     colors: [...colors.values()].sort(byName),
     categories: [...categories.values()].sort(byName),

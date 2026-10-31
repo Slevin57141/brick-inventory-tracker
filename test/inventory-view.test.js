@@ -75,6 +75,15 @@ test('options are unique by ID, sorted by name and contain only present values',
   assert.deepEqual(filterOptions([]), { colors: [], categories: [] });
 });
 
+test('options use English numeric ordering like the inventory list', () => {
+  const options = filterOptions([
+    { ...rows[0], colorId: 10, colorName: 'Color 10', categoryId: 10, categoryName: 'Category 10' },
+    { ...rows[0], colorId: 2, colorName: 'Color 2', categoryId: 2, categoryName: 'Category 2' },
+  ]);
+  assert.deepEqual(options.colors.map(color => color.id), [2, 10]);
+  assert.deepEqual(options.categories.map(category => category.id), [2, 10]);
+});
+
 test('option objects can be changed without changing the input rows', () => {
   const options = filterOptions(rows);
   options.colors[0].name = 'Changed';
