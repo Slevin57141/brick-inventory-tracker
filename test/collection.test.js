@@ -69,7 +69,9 @@ folderTest('adding a new set imports it, saves it and returns its summary', asyn
   const { collection, importer, storage } = await open(folder);
   const added = await collection.addSet(' 31146 ');
 
-  const { parts, ...expected } = { ...record('31146-1'), copies: 1 };
+  const { parts, ...rest } = { ...record('31146-1'), copies: 1 };
+  // The summary counts the pieces in one copy, spares included (D1).
+  const expected = { ...rest, pieces: 288 };
   assert.deepEqual(added, expected);
   assert.deepEqual(importer.calls, [{ setNum: '31146-1', knownCategoryIds: [] }]);
   assert.deepEqual(collection.listSets(), [expected]);
@@ -80,6 +82,30 @@ folderTest('adding a new set imports it, saves it and returns its summary', asyn
     sets: { '31146-1': { ...record('31146-1'), copies: 1 } },
   });
   assert.ok(collection.getInventory().every((row) => row.categoryName !== 'Unknown category'));
+});
+
+folderTest('one saved set comes with the parts of one copy', async (folder) => {
+  const { collection } = await open(folder);
+  await collection.addSet('31146-1');
+  await collection.addSet('31146-1');
+  await collection.addSet('76906-1');
+  const { set, rows } = collection.getSet('31146-1');
+  assert.equal(set.setNum, '31146-1');
+  assert.equal(set.copies, 2);
+  assert.equal(set.pieces, 288);
+  assert.equal(set.parts, undefined, 'the summary has no parts list');
+  // One copy only, and only this set's parts.
+  assert.equal(pieces(rows), 288);
+  assert.ok(rows.every((row) => row.categoryName !== 'Unknown category'));
+  const all = collection.getInventory();
+  for (const row of rows) {
+    assert.ok(all.some((other) => other.partNum === row.partNum && other.colorId === row.colorId
+      && other.quantity >= row.quantity));
+  }
+  assert.deepEqual(collection.getSet('31146-1'), { set, rows });
+  for (const missing of ['10270-1', '', 42, null, undefined]) {
+    assert.throws(() => collection.getSet(missing), isCode('not_owned'), String(missing));
+  }
 });
 
 folderTest('adding a saved set again adds a copy without calling the importer', async (folder) => {

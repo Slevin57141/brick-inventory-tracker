@@ -66,6 +66,7 @@ test('the API key never leaves the Authorization header', async (t) => {
     addSet: (input) => collection.addSet(input),
     removeSet: (setNum) => collection.removeSet(setNum),
     listSets: () => collection.listSets(),
+    getSet: (setNum) => collection.getSet(setNum),
     getInventory: () => {
       throw new Error(`unexpected failure with ${SENTINEL} in it`);
     },
@@ -99,6 +100,8 @@ test('the API key never leaves the Authorization header', async (t) => {
   assert.equal(code(await call('POST', '/api/sets', { setNumber: '75038' })), 'api_unavailable');
   assert.equal(code(await call('GET', '/api/inventory')), 'internal_error');
   await call('GET', '/api/sets');
+  await call('GET', '/api/sets/31146-1');
+  await call('GET', '/api/sets/10270-1');
   await call('DELETE', '/api/sets/31146-1');
   await call('POST', '/api/sets', { setNumber: '31146' });
 

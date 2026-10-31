@@ -128,6 +128,7 @@ Modules and tests refer to these IDs.
 | D27 | Every column of the parts list can be filtered and sorted (M9, M10). A filter row under the headings holds a text filter for part number and for name, the colour and category choices (D10), and smallest and largest quantity; the search box stays and combines with them. Clicking a heading sorts by that column, and clicking it again reverses the order; the list starts sorted by name. Sorting changes only the list; the 3D view shows the filtered rows as before (R25). | User's request, 2026-10-31. |
 | D28 | Containers in the 3D view can be selected and focused (M12, M10). A click on a container (body, lid or floor label) selects it: its lid turns brighter, a ring appears on the floor around it, and its floor label turns red (D29). A click on empty floor clears the selection; a press that moves more than 5 pixels turns the view and selects nothing. A double click moves the camera to frame that container alone; a double click on empty floor, or "Show all", frames every container again. A bar floating over the top of the view names the selected container and offers "Zoom in", "Show all", "List its parts" (sets the category filter) and "Clear selection". Selection and focus end when their container leaves the view. | User's request, 2026-10-31. The bar floats over the view rather than above it: pushing the view down would move the container out from under the second click of a double click. |
 | D29 | Each container's label lies on the floor in front of it (M12): a card with the category name and the exact piece count, drawn from text into a canvas texture on a flat plane. It fills the 0.3 gap M11 leaves in front of every row (D26), clear of the open lids of the row in front, and reaches 0.12 past each side of the container. Long names shrink, then are cut short with "...". The selected container's card is red. Labels shrink and turn with the view like the rest of the scene and hide behind nearer containers, so none is ever hidden on purpose; in an overview of many containers they are small, and zooming in or focusing a container (D28) makes them readable. A click on a card selects its container. | User's request, 2026-10-31, replacing HTML labels above the containers. |
+| D30 | The add form takes one or more set numbers, separated by spaces, commas or semicolons, and adds them one after another (M10); the API still adds one set per request. The key is asked for when first needed and the batch goes on with it. A set Rebrickable has no record of, or that is not a valid number, is reported and the batch goes on; `rate_limited`, `api_unavailable`, `server_unreachable` or a cancelled key dialog stop the batch, since the sets still to come would fail the same way. What was not added stays in the field. "Your sets" folds away, and each set shows its number, year, Rebrickable's part count, the pieces saved for one copy (`pieces`, spares and minifigure parts included, D1), its copies and a link to its Rebrickable page. A double click on a set, or its "Details" button, opens a dialog with the set's facts and the parts of one copy, sortable like the parts list, from the new `GET /api/sets/{setNum}`. | User's request, 2026-10-31. |
 
 ## 4. Rebrickable API
 
@@ -339,7 +340,8 @@ Types used in the interfaces below:
 - **SetEntry**: a SetRecord plus `copies` (integer, 1 or more). This is what the data file
   stores under `sets`.
 - **State**: `{ version: 1, categories: { [id]: name }, sets: { [setNum]: SetEntry } }`.
-- **SetSummary** (sent to the browser): SetEntry without `parts`.
+- **SetSummary** (sent to the browser): SetEntry without `parts`, plus `pieces`: the sum of
+  the quantities in one copy's parts list, spares and minifigure parts included (D1, D30).
 - **InventoryRow**: `partNum`, `name`, `categoryId`, `categoryName`, `colorId`, `colorName`,
   `colorRgb`, `colorIsTrans`, `imgUrl`, `quantity`.
 
@@ -359,6 +361,7 @@ The page acts on `code`, not on the status.
 | `DELETE /api/key` | | `200 { hasKey: false }` | |
 | `GET /api/sets` | | `200 { sets: SetSummary[] }` | |
 | `POST /api/sets` | `{ setNumber }` | `200 { set: SetSummary }` | `invalid_set_number`, `key_required`, `key_invalid`, `set_not_found`, `rate_limited`, `api_unavailable` |
+| `GET /api/sets/{setNum}` | | `200 { set: SetSummary, rows: InventoryRow[] }`: the parts of one copy (D30) | `not_owned` |
 | `DELETE /api/sets/{setNum}` | | `200 { set: SetSummary or null }` (null when the last copy went) | `not_owned` |
 | `GET /api/inventory` | | `200 { rows: InventoryRow[] }` | |
 | `GET /` and files under `public/` | | the file | `not_found` |
@@ -656,6 +659,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
     .addSet(input) -> Promise<SetSummary>
     .removeSet(setNum) -> Promise<SetSummary | null>   // null when the last copy went
     .listSets() -> SetSummary[]
+    .getSet(setNum) -> { set: SetSummary, rows: InventoryRow[] }   // one copy's parts (D30)
     .getInventory() -> InventoryRow[]
   ```
 - **Behaviour:** `addSet` normalizes the input (M1). If a saved set matches (M5 `findSet`), it
@@ -663,6 +667,9 @@ identical minifigures; a second capture the same day added both, and a two-page 
   `key_required` when there is no key) and saves new categories. Changes run one at a time.
   Each change computes the new state, saves it, and only then replaces the in-memory state;
   if saving fails, the in-memory state is unchanged and the error propagates.
+  - `getSet` finds the set like `addSet` does (M5 `findSet`) and builds the rows of one copy
+    with M5 `buildInventory`; a set that is not saved, or a set number that is not a string,
+    is `not_owned`.
   - The import runs inside the change, so a second add of the same new set waits, then
     finds it saved and makes no API call. A failed change rejects only its own caller.
   - The importer gets the saved category IDs (the data file's keys, as strings).
@@ -678,7 +685,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
   categories reach the next import; a failed import changes nothing; a set number
   Rebrickable writes differently is saved once; use before `init()`; the pack 66495-1
   imported by the real M4 importer is saved, passes M6's shape check on reload and gives
-  874 pieces.
+  874 pieces; a summary counts the pieces in one copy; `getSet` returns one copy's parts and
+  `not_owned` for a set that is not saved.
 - **Builder: Claude Code.** It is built after phase 1 is merged and wires M1, M4, M5 and M6
   together. Claude Code owns M4 and the server that calls the collection.
 
@@ -787,6 +795,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
     forgetKey() -> { hasKey }              DELETE /api/key
     listSets() -> SetSummary[]             GET /api/sets
     addSet(setNumber) -> SetSummary        POST /api/sets
+    getSet(setNum) -> { set, rows }        GET /api/sets/{setNum, percent-encoded}
     removeSet(setNum) -> SetSummary|null   DELETE /api/sets/{setNum, percent-encoded}
     getInventory() -> InventoryRow[]       GET /api/inventory
   }
@@ -798,13 +807,18 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Behaviour:**
   - Header shows "API key set" or "No API key" and a "Forget key" button (R17), disabled
     while there is no key.
-  - Add-set form. On `key_required` or `key_invalid` it opens a key dialog (password field,
+  - Add form for one or more set numbers, added one after another (D30). On `key_required`
+    or `key_invalid` it opens a key dialog (password field,
     `autocomplete="off"`), sends `PUT /api/key`, clears the field, then retries the add. A
     key Rebrickable rejects keeps the dialog open with the error; Cancel or Escape stops the
     add. A PUT answering `hasKey: false` (the key was forgotten during the check, M8) asks
     again. It shows progress while adding, since an add takes several seconds.
-  - Sets list (R7) with a "Remove one" button per set; a pack lists its contained sets.
-    The part count is left out when Rebrickable reports 0, as it does for packs.
+  - Sets list (R7) in a panel that folds away, its summary counting sets and copies. Each
+    set shows its facts (D30) and "Details" and "Remove one" buttons; a pack lists its
+    contained sets. The part count is left out when Rebrickable reports 0, as it does for
+    packs. A double click on a set, outside its buttons and link, opens its details.
+  - The set details dialog: the set's image, facts and contained sets, and the parts of one
+    copy with totals, sortable on every column independently of the parts list.
   - Parts list (R8-R10) with search, a filter and a sort on every column (D27), totals,
     and a "Clear filters" button. Headings are buttons and carry `aria-sort`; the headings
     and filter row stay in view while the list scrolls. Colour and category options come

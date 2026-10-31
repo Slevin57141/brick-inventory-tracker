@@ -19,21 +19,27 @@
 
     <main>
       <section class="panel" aria-labelledby="add-title">
-        <h2 id="add-title">Add a set</h2>
+        <h2 id="add-title">Add sets</h2>
         <form id="add-form" class="add-form">
-          <label for="set-number">Set number</label>
+          <label for="set-number">Set numbers</label>
           <input id="set-number" name="setNumber" required autocomplete="off" spellcheck="false"
-            placeholder="10270 or 10270-1">
-          <button id="add-button" type="submit">Add set</button>
+            placeholder="10270, 31146-1 75192" aria-describedby="add-hint">
+          <button id="add-button" type="submit">Add</button>
         </form>
+        <p id="add-hint" class="hint">One or more, separated by spaces or commas. A number
+          without a suffix gets -1.</p>
         <p id="message" class="message" role="status" aria-live="polite"></p>
       </section>
 
-      <section class="panel" aria-labelledby="sets-title">
-        <h2 id="sets-title">Your sets</h2>
+      <details id="sets-panel" class="panel sets-panel" open>
+        <summary>
+          <h2 id="sets-title">Your sets</h2>
+          <span id="sets-count" class="sets-count"></span>
+        </summary>
+        <p class="hint">Double-click a set, or press Details, to see the parts it contains.</p>
         <p id="sets-empty" class="empty" hidden>No sets yet. Add one above.</p>
         <ul id="sets" class="sets"></ul>
-      </section>
+      </details>
 
       <section class="panel" aria-labelledby="view-title">
         <div class="panel-head">
@@ -116,6 +122,41 @@
         <p id="parts-empty" class="empty" hidden></p>
       </section>
     </main>
+
+    <dialog id="set-dialog" class="set-dialog" aria-labelledby="set-dialog-title">
+      <div class="set-dialog-head">
+        <h2 id="set-dialog-title">Set</h2>
+        <button id="set-dialog-close" type="button">Close</button>
+      </div>
+      <p id="set-dialog-message" class="message" role="status"></p>
+      <div id="set-dialog-body" class="set-dialog-body" hidden>
+        <div class="set-overview">
+          <div id="set-dialog-picture" class="set-dialog-picture"></div>
+          <div id="set-dialog-facts"></div>
+        </div>
+        <h3 id="set-dialog-parts-title">Parts in one copy</h3>
+        <p id="set-dialog-totals" class="totals"></p>
+        <div class="table-wrap">
+          <table class="parts">
+            <thead>
+              <tr>
+                <th scope="col"><span class="visually-hidden">Image</span></th>
+                <th scope="col" data-sort="partNum"><button type="button">Part</button></th>
+                <th scope="col" data-sort="name"><button type="button">Name</button></th>
+                <th scope="col" data-sort="colorName"><button type="button">Colour</button></th>
+                <th scope="col" data-sort="categoryName">
+                  <button type="button">Category</button>
+                </th>
+                <th scope="col" data-sort="quantity" class="number">
+                  <button type="button">Quantity</button>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="set-dialog-parts"></tbody>
+          </table>
+        </div>
+      </div>
+    </dialog>
 
     <dialog id="key-dialog" aria-labelledby="key-title">
       <form id="key-form" class="key-form">

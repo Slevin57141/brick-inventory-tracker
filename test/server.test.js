@@ -32,6 +32,10 @@ function fakes() {
       calls.push(['removeSet', setNum]);
       return null;
     },
+    getSet: (setNum) => {
+      calls.push(['getSet', setNum]);
+      return { set: SET, rows: [ROW] };
+    },
   };
   const client = {
     checkKey: async (key) => {
@@ -209,7 +213,20 @@ test('the set and inventory routes pass through to the collection', async (t) =>
   const removed = await json('DELETE', '/api/sets/10270-1');
   assert.deepEqual(removed.json, { set: null });
   await json('DELETE', '/api/sets/AbC%2D1');
-  assert.deepEqual(calls, [['addSet', '10270'], ['removeSet', '10270-1'], ['removeSet', 'AbC-1']]);
+  assert.deepEqual((await get('/api/sets/AbC%2D1')).json, { set: SET, rows: [ROW] });
+  assert.deepEqual(calls, [['addSet', '10270'], ['removeSet', '10270-1'], ['removeSet', 'AbC-1'],
+    ['getSet', 'AbC-1']]);
+});
+
+test('a set that is not saved is not_owned, and a bad path is bad_request', async (t) => {
+  const { get } = await start(t, {
+    collection: { getSet: () => { throw createError('not_owned'); } },
+  });
+  const missing = await get('/api/sets/10270-1');
+  assert.equal(missing.status, 404);
+  assert.equal(missing.json.error.code, 'not_owned');
+  assert.equal((await get('/api/sets/%E0%A4%A')).json.error.code, 'bad_request');
+  assert.equal((await get('/api/sets/10270-1/parts')).json.error.code, 'not_found');
 });
 
 test('collection errors become their fixed error responses', async (t) => {
