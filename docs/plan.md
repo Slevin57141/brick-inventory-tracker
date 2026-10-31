@@ -351,7 +351,7 @@ The page acts on `code`, not on the status.
 | Method and path | Body | Success | Possible error codes |
 | --------------- | ---- | ------- | -------------------- |
 | `GET /api/status` | | `200 { hasKey }` | |
-| `PUT /api/key` | `{ key }` | `200 { hasKey: true }` | `invalid_key_format`, `key_invalid`, `rate_limited`, `api_unavailable` |
+| `PUT /api/key` | `{ key }` | `200 { hasKey }` (false when the key was forgotten during the check, see M8) | `invalid_key_format`, `key_invalid`, `rate_limited`, `api_unavailable` |
 | `DELETE /api/key` | | `200 { hasKey: false }` | |
 | `GET /api/sets` | | `200 { sets: SetSummary[] }` | |
 | `POST /api/sets` | `{ setNumber }` | `200 { set: SetSummary }` | `invalid_set_number`, `key_required`, `key_invalid`, `set_not_found`, `rate_limited`, `api_unavailable` |
@@ -697,6 +697,11 @@ identical minifigures; a second capture the same day added both, and a two-page 
   method, path, status, duration. Request bodies and headers are never logged. Static files
   get a `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser
   refuses module scripts under `nosniff`.
+  - Key changes take effect in the order they arrived. A `PUT /api/key` whose check ends
+    after a later PUT or DELETE has taken effect stores nothing, so "Forget key" during a
+    check is not undone; a later PUT that fails changes nothing. The PUT answers `200` with
+    the actual `hasKey`. An add that fails with `key_invalid` clears the key only if no key
+    change took effect while it ran.
   - Checks run in order: security headers on every response, then `Host`, then (for any
     method but GET and HEAD) `Origin`, then the body: present only with a JSON content type,
     at most 10 KB (`payload_too_large`, by declared length or as it streams). A body that

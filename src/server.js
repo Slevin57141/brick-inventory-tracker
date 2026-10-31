@@ -32,6 +32,11 @@ export function createServer({ collection, keyStore, client, logger, publicDir, 
   let realRoot = null;
   // Tests listen on port 0, so the checks use the port actually in use.
   const currentPort = () => server.address()?.port ?? port;
+  // Key changes take effect in the order they arrived: each PUT and DELETE of the key gets a
+  // number, and a PUT whose check ends after a later change has taken effect is dropped.
+  // Otherwise a "Forget key" sent during the check would be undone when the check ends.
+  let keyArrived = 0;
+  let keyApplied = 0;
 
   const server = createHttpServer((request, response) => {
     const started = process.hrtime.bigint();
@@ -81,24 +86,32 @@ export function createServer({ collection, keyStore, client, logger, publicDir, 
     }
     if (path === '/api/key' && method === 'PUT') {
       const candidate = normalizeKey(jsonObject(body).key);
+      const change = ++keyArrived;
       await client.checkKey(candidate);
-      keyStore.set(candidate);
-      return sendJson(response, 200, { hasKey: true });
+      if (change > keyApplied) {
+        keyStore.set(candidate);
+        keyApplied = change;
+      }
+      return sendJson(response, 200, { hasKey: keyStore.has() });
     }
     if (path === '/api/key' && method === 'DELETE') {
       keyStore.clear();
+      keyApplied = ++keyArrived;
       return sendJson(response, 200, { hasKey: false });
     }
     if (path === '/api/sets' && method === 'GET') {
       return sendJson(response, 200, { sets: collection.listSets() });
     }
     if (path === '/api/sets' && method === 'POST') {
+      const keySeen = keyApplied;
       try {
         const set = await collection.addSet(jsonObject(body).setNumber);
         return sendJson(response, 200, { set });
       } catch (error) {
-        if (error instanceof AppError && error.code === 'key_invalid') {
-          keyStore.clear(); // R18, D12: Rebrickable rejected the stored key
+        // R18, D12: Rebrickable rejected the stored key. A key set or forgotten while the add
+        // ran is left alone, since the rejection may have been for the key it replaced.
+        if (error instanceof AppError && error.code === 'key_invalid' && keySeen === keyApplied) {
+          keyStore.clear();
         }
         throw error;
       }

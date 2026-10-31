@@ -76,6 +76,22 @@ async function start(t, overrides = {}) {
 
 const errorBody = (code, message) => ({ error: { code, message } });
 
+/** A checkKey that waits until the test settles each call. */
+function heldChecks() {
+  const pending = [];
+  const checkKey = (key) => new Promise((resolve, reject) => {
+    pending.push({ key, resolve, reject });
+  });
+  return { pending, checkKey };
+}
+
+async function until(condition) {
+  for (let i = 0; i < 500 && !condition(); i += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 2));
+  }
+  assert.ok(condition(), 'timed out waiting');
+}
+
 test('the server listens on 127.0.0.1 only', async (t) => {
   const { address } = await start(t);
   assert.equal(address.address, '127.0.0.1');
@@ -129,6 +145,58 @@ test('DELETE /api/key forgets the key', async (t) => {
   assert.equal(keyStore.has(), false);
 });
 
+test('a Forget key sent while a key is being checked is not undone (R17)', async (t) => {
+  const held = heldChecks();
+  const { json, get, keyStore } = await start(t, { client: { checkKey: held.checkKey } });
+  const put = json('PUT', '/api/key', { key: 'pending-key-12345' });
+  await until(() => held.pending.length === 1);
+  assert.deepEqual((await json('DELETE', '/api/key')).json, { hasKey: false });
+  held.pending[0].resolve();
+  const response = await put;
+  assert.equal(response.status, 200);
+  assert.deepEqual(response.json, { hasKey: false }, 'the dropped key is not reported as set');
+  assert.deepEqual((await get('/api/status')).json, { hasKey: false });
+  assert.equal(keyStore.has(), false);
+});
+
+test('overlapping key changes take effect in the order they arrived', async (t) => {
+  // Each case starts PUT a, then PUT b, and settles their checks in the given order. The end
+  // state is the one the two requests would give one after the other.
+  const cases = [
+    ['b finishes first', ['b', 'a'], { a: 'ok', b: 'ok' }, 'key-b-1234567'],
+    ['a finishes first', ['a', 'b'], { a: 'ok', b: 'ok' }, 'key-b-1234567'],
+    ['b is rejected', ['b', 'a'], { a: 'ok', b: 'key_invalid' }, 'key-a-1234567'],
+  ];
+  for (const [name, order, outcome, stored] of cases) {
+    const held = heldChecks();
+    const { json, keyStore } = await start(t, { client: { checkKey: held.checkKey } });
+    const responses = {
+      a: json('PUT', '/api/key', { key: 'key-a-1234567' }),
+    };
+    await until(() => held.pending.length === 1);
+    responses.b = json('PUT', '/api/key', { key: 'key-b-1234567' });
+    await until(() => held.pending.length === 2);
+    const checks = { a: held.pending[0], b: held.pending[1] };
+    for (const which of order) {
+      if (outcome[which] === 'ok') {
+        checks[which].resolve();
+      } else {
+        checks[which].reject(createError(outcome[which]));
+      }
+      await responses[which];
+    }
+    assert.equal(keyStore.get(), stored, name);
+    for (const which of ['a', 'b']) {
+      const response = await responses[which];
+      if (outcome[which] === 'ok') {
+        assert.deepEqual(response.json, { hasKey: true }, `${name}: ${which}`);
+      } else {
+        assert.equal(response.json.error.code, outcome[which], `${name}: ${which}`);
+      }
+    }
+  }
+});
+
 test('the set and inventory routes pass through to the collection', async (t) => {
   const { get, json, calls } = await start(t);
   assert.deepEqual((await get('/api/sets')).json, { sets: [SET] });
@@ -170,6 +238,21 @@ test('a key Rebrickable rejects while adding a set is forgotten (R18)', async (t
   const response = await json('POST', '/api/sets', { setNumber: '10270' });
   assert.equal(response.json.error.code, 'key_invalid');
   assert.equal(keyStore.has(), false);
+});
+
+test('a rejection that ends after the key was replaced keeps the new key', async (t) => {
+  let rejectAdd;
+  const { json, keyStore } = await start(t, {
+    collection: { addSet: () => new Promise((resolve, reject) => { rejectAdd = reject; }) },
+  });
+  keyStore.set('old-key-1234567');
+  const add = json('POST', '/api/sets', { setNumber: '10270' });
+  await until(() => rejectAdd !== undefined);
+  assert.deepEqual((await json('PUT', '/api/key', { key: 'new-key-1234567' })).json,
+    { hasKey: true });
+  rejectAdd(createError('key_invalid'));
+  assert.equal((await add).json.error.code, 'key_invalid');
+  assert.equal(keyStore.get(), 'new-key-1234567');
 });
 
 test('bodies that are not a JSON object, or malformed paths, are bad requests', async (t) => {
