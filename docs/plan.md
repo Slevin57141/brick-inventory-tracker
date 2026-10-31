@@ -745,8 +745,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
 - **Tests:** `api.js` with an injected fetch (paths, methods, bodies, error parsing). The DOM
   is checked by hand with the checklist in section 10, because a browser test runner would
   need a dependency (D3).
-- **Builder: Codex.** It depends only on section 7, M9 and M12, so it runs in parallel with
-  M7 and M8, and Codex owns the page; only the container model (M13) is Claude Code's.
+- **Builder: Claude Code** (moved from Codex at the user's request on 2026-10-31, together
+  with M12). It depends only on section 7, M9 and M12.
 
 ### M11. scene-layout
 
@@ -809,33 +809,62 @@ identical minifigures; a second capture the same day added both, and a two-page 
   ```
   createBrickScene(element, { reducedMotion })
     -> { update(rows), setLidsOpen(open), dispose() } | null
+  createBrickGeometry() -> BufferGeometry   // the D14 brick, exactly BLOCK_SIZE, centred
+  lidOffset(scale, progress) -> { x, y, z }
+      // the lid's underside origin relative to its container's origin, world units, from
+      // 0 (closed) to 1 (open on the floor, D26)
+  containerBoxes(layout, { lidsOpen }) -> [{ min, max }]   // one box per container
+  sceneBounds(layout, { lidsOpen }) -> { min, max } | null // the box around them all
+  boxCorners({ min, max }) -> Vector3[8]
+  fitCamera(points, { fov, aspect }, direction) -> { target, distance }
   ```
-  It returns null when WebGL is not available. `reducedMotion` defaults to the
-  `prefers-reduced-motion` media query.
+  It returns null, leaving the element untouched, when WebGL is not available.
+  `reducedMotion` defaults to the `prefers-reduced-motion` media query and follows it as it
+  changes. The other exports are the geometry behind the view, exported for its tests.
 - **Behaviour:**
   - Imports three.js only from `public/vendor/three/`.
-  - Blocks: the D14 brick shape in instanced meshes (one opaque, one see-through for
-    transparent colours), coloured from `colorRgb`.
-  - Containers: one M13 container per category, copied from one shared model and scaled by
-    the layout. Under each container, a label with the category name and exact piece count,
-    as an HTML element written with `textContent` and positioned over the canvas.
-  - A legend reads "1 block = 100 pieces" (D15).
+  - Blocks: the D14 brick shape (a 1 x 1 body with one stud, filling `BLOCK_SIZE`) in
+    instanced meshes, one solid and one see-through for transparent colours, coloured from
+    `colorRgb`. See-through blocks use hashed alpha (`alphaHash`): it keeps them in the
+    opaque pass, so they show through the frosted walls. Plain blending would draw them after
+    the walls, whose depth would hide them.
+  - Containers: one M13 container per category, sharing one model and scaled by the layout.
+    Above each container, a label with the category name and exact piece count, as an HTML
+    element written with `textContent` and positioned over the canvas. Labels are placed
+    nearest first; one that would cover a label already placed, or a container nearer than
+    its own, is hidden until the view is zoomed or turned. Above rather than under: seen
+    from above, the floor in front of a container lies behind the nearer row.
+  - A legend reads "1 block = 100 pieces" (D15), and an empty view reads "No bricks to show."
   - `update(rows)` computes the new layout (M11) and animates to it (D16): containers resize
-    and move, kept blocks slide, new blocks drop in, removed blocks shrink out, and the camera
-    re-frames all containers. With reduced motion it jumps straight to the new layout.
-  - `setLidsOpen(open)` lifts every lid and sets it down behind its container, or puts it
-    back (D19), with the same timing.
+    and move, kept blocks slide, new blocks drop in, removed blocks shrink out, labels of
+    entering and leaving containers fade, and the camera re-frames all containers, keeping
+    the direction the user turned it to. The first containers are framed at once. With
+    reduced motion it jumps straight to the new layout.
+  - `setLidsOpen(open)` moves every lid, with the same timing: up off the rim, back until it
+    is clear of the container, and down flat on the floor (D19, D26), or the same way back.
+    The camera frames the open lids only while they are open.
+  - Framing fits the corners of every container's box, with room above each for its label,
+    centred in the view under perspective.
   - Scene: neutral background, soft studio lighting (RoomEnvironment plus one soft key
-    light), three-quarter camera slightly above (container-spec.md section 7).
+    light whose shadow covers the layout), three-quarter camera slightly above
+    (container-spec.md section 7), looking from the side opposite the lids' room so open
+    lids lie behind their containers.
   - Drag rotates, scroll zooms (OrbitControls from the vendored release).
   - Renders only while something moves or the user is rotating, so an idle view costs no CPU
     or GPU time.
   - Follows the size of its container. `dispose()` frees GPU resources and event listeners.
-- **Tests:** the maths lives in M11 and is tested there. The drawing is checked by hand with
-  the 3D items in the section 10 checklist, because testing WebGL output would need a browser
+- **Tests:** the layout maths lives in M11 and is tested there. `test/brick-scene.test.js`
+  covers what M12 adds: the brick fills `BLOCK_SIZE` with a stud on top; a lid is on the
+  rim at 0 and where D26 puts it at 1; it never passes through its container on the way;
+  open lids lie clear of every container and every other lid in an M11 layout of several
+  rows; the bounds hold every container and lid; the fitted camera sees every container
+  from several directions and aspect ratios, filling the view and centred; without WebGL
+  the result is null and the element untouched. The drawing is checked by hand with the 3D
+  items in the section 10 checklist, because testing WebGL output would need a browser
   test runner (D3).
-- **Builder: Codex.** It lives inside the page Codex builds: M10 mounts it and feeds it the
-  same filtered rows as the parts list. With M9-M12 all Codex's, one tool owns the page.
+- **Builder: Claude Code** (moved from Codex at the user's request on 2026-10-31).
+  It lives inside the page: M10, also moved, mounts it and feeds it the same filtered rows
+  as the parts list.
 
 ### M13. container-model
 
@@ -920,7 +949,7 @@ identical minifigures; a second capture the same day added both, and a two-page 
 | ----- | -------------------------- | --------------------- | ---- |
 | 0 | M0 (including vendored three.js) and `container-spec.js` from M13; then answer F1-F7 and update this plan | | Capture fixtures |
 | 1 | M2, M3, M4, M6, M13 | M1, M5, M9, M11 | Merge reviewed pull requests |
-| 2 | M7, M8 (after phase 1 is merged) | M12, M10 | Merge reviewed pull requests |
+| 2 | M7, M8 (after phase 1 is merged); M12, M10 (moved from Codex) | | Merge reviewed pull requests |
 | 3 | Review Codex's modules | Review Claude Code's modules, key path first | Manual checklist (section 10) |
 
 Each module gets its own branch and pull request, reviewed by the other tool before merging.
