@@ -9,6 +9,10 @@ import { createKeyStore } from '../src/key-store.js';
 import { createLogger } from '../src/logger.js';
 import { createServer, listen } from '../src/server.js';
 import { send } from './helpers/http-client.js';
+import { createCollection } from '../src/collection.js';
+import { emptyState } from '../src/inventory.js';
+import { createRebrickableClient } from '../src/rebrickable-client.js';
+import { createFakeFetch } from './helpers/fake-fetch.js';
 
 const CSP = "default-src 'self'; img-src 'self' https://cdn.rebrickable.com; object-src 'none'; "
   + "base-uri 'none'; frame-ancestors 'none'";
@@ -248,8 +252,12 @@ test('collection errors become their fixed error responses', async (t) => {
 });
 
 test('a key Rebrickable rejects while adding a set is forgotten (R18)', async (t) => {
-  const { json, keyStore } = await start(t, {
-    collection: { addSet: async () => { throw createError('key_invalid'); } },
+  const keyStore = createKeyStore();
+  const client = createRebrickableClient({ keyStore, minIntervalMs: 0,
+    fetch: createFakeFetch({ 'GET /lego/sets/10270-1/': { status: 401, body: {} } }),
+  });
+  const { json } = await start(t, {
+    keyStore, client, collection: { addSet: () => client.getSet('10270-1') },
   });
   keyStore.set('stored-key-123456');
   const response = await json('POST', '/api/sets', { setNumber: '10270' });
@@ -258,19 +266,67 @@ test('a key Rebrickable rejects while adding a set is forgotten (R18)', async (t
 });
 
 test('a rejection that ends after the key was replaced keeps the new key', async (t) => {
-  let rejectAdd;
-  const { json, keyStore } = await start(t, {
-    collection: { addSet: () => new Promise((resolve, reject) => { rejectAdd = reject; }) },
+  let release;
+  const keyStore = createKeyStore();
+  const fetch = createFakeFetch({
+    'GET /lego/sets/10270-1/': { status: 401, body: {} },
+    'GET /lego/colors/?page_size=1': 'key-check-valid',
+  });
+  const client = createRebrickableClient({ keyStore, minIntervalMs: 0,
+    fetch: async (...args) => {
+      const response = await fetch(...args);
+      if (String(args[0]).includes('/sets/')) {
+        await new Promise((resolve) => { release = resolve; });
+      }
+      return response;
+    },
+  });
+  const { json } = await start(t, {
+    keyStore, client, collection: { addSet: () => client.getSet('10270-1') },
   });
   keyStore.set('old-key-1234567');
   const add = json('POST', '/api/sets', { setNumber: '10270' });
-  await until(() => rejectAdd !== undefined);
+  await until(() => release !== undefined);
   assert.deepEqual((await json('PUT', '/api/key', { key: 'new-key-1234567' })).json,
     { hasKey: true });
-  rejectAdd(createError('key_invalid'));
+  release();
   assert.equal((await add).json.error.code, 'key_invalid');
   assert.equal(keyStore.get(), 'new-key-1234567');
 });
+
+test('an add queued before a key replacement forgets the replacement when it is rejected',
+  async (t) => {
+    const keyStore = createKeyStore();
+    keyStore.set('old-key-1234567');
+    const fetch = createFakeFetch({
+      'GET /lego/colors/?page_size=1': 'key-check-valid',
+      'GET /lego/sets/31146-1/': { status: 401, body: {} },
+    });
+    const client = createRebrickableClient({ keyStore, fetch, minIntervalMs: 0 });
+    const state = emptyState();
+    state.sets[SET.setNum] = { ...SET, themeId: null, parts: [] };
+    let releaseSave;
+    const collection = createCollection({
+      storage: { load: async () => state,
+        save: () => new Promise((resolve) => { releaseSave = resolve; }) },
+      importer: { importSet: (setNum) => client.getSet(setNum) },
+    });
+    await collection.init();
+    let arrived = 0;
+    const { json, get } = await start(t, { keyStore, client,
+      collection: { addSet: (input) => { arrived += 1; return collection.addSet(input); } },
+    });
+    const first = json('POST', '/api/sets', { setNumber: '10270' });
+    await until(() => releaseSave !== undefined);
+    const queued = json('POST', '/api/sets', { setNumber: '31146' });
+    await until(() => arrived === 2);
+    await json('PUT', '/api/key', { key: 'new-key-1234567' });
+    releaseSave();
+    assert.equal((await first).status, 200);
+    assert.equal((await queued).json.error.code, 'key_invalid');
+    assert.equal(fetch.requests.at(-1).headers.authorization, 'key new-key-1234567');
+    assert.deepEqual((await get('/api/status')).json, { hasKey: false });
+  });
 
 test('bodies that are not a JSON object, or malformed paths, are bad requests', async (t) => {
   const { port, origin, json } = await start(t);
