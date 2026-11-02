@@ -9,8 +9,7 @@ builds what. Project rules for both coding tools are in [AGENTS.md](../AGENTS.md
 
 A small local web app that tracks every LEGO brick the user owns. The user enters a set
 number; the app fetches the set's parts list from the Rebrickable API, saves it, and adds the
-parts to one combined inventory. A three.js 3D view shows those bricks in one plastic storage
-container per part category.
+parts to one combined inventory.
 
 ## 2. Requirements
 
@@ -78,22 +77,12 @@ Modules and tests refer to these IDs.
 
 ### 3D view
 
-- **R24.** A 3D view built with three.js shows one storage container per part category. The
-  container follows the user's description in [container-spec.md](container-spec.md): a tall,
-  slim, see-through plastic bin with a removable red lid. Inside it, blocks in the pieces'
-  colours stand for the category's pieces, one block per 100 pieces (D15).
-- **R25.** Filters and search apply to the 3D view as they do to the parts list. Each
-  container resizes to fit the blocks that remain, keeping its proportions (D17), and a
-  container with nothing left disappears.
-- **R26.** Every change is animated: when a filter, the search or the inventory changes,
-  containers resize and move, and blocks slide, drop in or disappear.
-- **R27.** The page has a button that opens and closes all lids. Opening lifts each lid off and
-  sets it down behind its container, showing the blocks from above (D19).
-- **R28.** A preview page, `/container.html`, shows the container model on its own as
-  container-spec.md section 7 describes: an empty container, a button to remove the lid, and a
-  button to show several containers stacked.
-- **R29.** The 3D view works offline and never blocks the rest of the page. Without WebGL, the
-  page works and shows a short message in place of the view.
+- **R24.** Removed (D32).
+- **R25.** Removed (D32).
+- **R26.** Removed (D32).
+- **R27.** Removed (D32).
+- **R28.** Removed (D32).
+- **R29.** Removed (D32).
 
 ## 3. Decisions
 
@@ -101,7 +90,7 @@ Modules and tests refer to these IDs.
 | --- | -------- | ------ |
 | D1  | Spare parts count as normal parts (R6). | User's choice, 2026-10-30. |
 | D2  | Images are linked, not downloaded (R11). | User's choice, 2026-10-30. Keeps the data file small and adding fast. |
-| D3  | No npm dependencies. Plain JavaScript ES modules, `node:test`, no build step, no frontend framework. The one exception is vendored three.js (D13). | User's choice, 2026-10-30. Nothing to install, and both tools run the same commands. |
+| D3  | No npm dependencies. Plain JavaScript ES modules, `node:test`, no build step, no frontend framework. The one exception, vendored three.js (D13), was removed with the 3D view (D32). | User's choice, 2026-10-30. Nothing to install, and both tools run the same commands. |
 | D4  | Packs include their contained sets (R4). | User's choice, 2026-10-30. |
 | D5  | Remove takes away one copy at a time; removing the last copy deletes the set record. | Mirrors "adding again counts a second copy". |
 | D6  | The inventory is computed from the saved sets on every request and never stored. | Add and remove cannot drift apart. A few thousand part lines take milliseconds. |
@@ -111,25 +100,26 @@ Modules and tests refer to these IDs.
 | D10 | Colour and category filters are single-select, each with an "All" option. | Smallest UI that meets R9; easy to widen later. |
 | D11 | Default port 3000 (override with `PORT`). Data file `data/inventory.json` (override with `DATA_FILE`). | Predictable defaults; tests use temporary paths. |
 | D12 | When Rebrickable rejects the stored key, the server forgets it (R18). | Otherwise every add would fail until the user pressed "Forget key". |
-| D13 | three.js is vendored into `public/vendor/three/` in phase 0 (M0): the build files of one pinned release, its OrbitControls and RoomEnvironment add-ons, and the MIT licence. A `README.md` there records the version, download source and SHA-256 of each file, and a test checks the hashes. The only edit allowed is changing each add-on's `from 'three'` import to a relative path. | User asked for three.js, 2026-10-30. A CDN would break offline use (R13, R29) and the Content-Security-Policy. An npm package would need `npm install`, a second static folder and an inline import map, which the policy blocks. M12 and M13 both use it, so it is in place before either starts. |
-| D14 | Every piece is drawn as the same small 1 x 1 brick with one stud. | Rebrickable's API has no 3D part models, and one low-poly shape keeps thousands of blocks fast. |
-| D15 | One block stands for 100 pieces. Each colour in a category gets `ceil(pieces / 100)` blocks, so a colour with even one piece shows. The label under each container gives the exact piece count, and a legend reads "1 block = 100 pieces". | User's choice, 2026-10-30. Block counts stay small, so the see-through containers stay fast. |
-| D16 | Transitions take 600 ms with ease-in-out. With the system setting "reduce motion", the view changes instantly. Drag rotates, scroll zooms. | Motion shows what changed without slowing down filtering, and the system setting is respected. |
-| D17 | Containers keep the proportions in container-spec.md and change size by uniform scaling, so wall thickness and lid details scale with them. | The silhouette is the spec's priority. One model built once and scaled is also cheap to animate. |
-| D18 | In the app, containers stand side by side on the floor in rows. Stacking is shown on the preview page (R28). | Containers of different sizes cannot interlock; the spec's stacking is about identical units. |
-| D19 | Lids are on by default. "Open lids" lifts each lid and sets it down behind its container, animated as in D16. | The lid is the spec's most recognizable feature, and the frosted walls still show the blocks. Opening shows them from above. |
-| D20 | The body uses `MeshPhysicalMaterial` with transmission (frosted, slight refraction), lit by RoomEnvironment for soft studio reflections. If that is too slow with many containers, the same material switches to plain `transparent` and `opacity`, and the change is recorded here. | The spec asks for soft reflections and subtle refraction. Transmission costs an extra render pass, so a fallback is planned. |
+| D13 | Removed (D32). | |
+| D14 | Removed (D32). | |
+| D15 | Removed (D32). | |
+| D16 | Removed (D32). | |
+| D17 | Removed (D32). | |
+| D18 | Removed (D32). | |
+| D19 | Removed (D32). | |
+| D20 | Removed (D32). | |
 | D21 | Set numbers go to Rebrickable with the case the user typed (M1). The saved `setNum` is Rebrickable's `set_num`, and `findSet` matches case-insensitively (M5). F5 stays unverified. | The captured set numbers are all digits, so they cannot show whether the API ignores case. The design works either way: if the API is case-sensitive, a set number with letters typed in the wrong case gets `set_not_found`, and the user can try again. |
 | D22 | No real 429 is captured. M3 waits for `Retry-After` when it is present and for the seconds in `detail` otherwise, and its tests cover both with hand-made fixtures. F6 stays unverified. | Forcing a 429 risks a temporary IP ban (section 4), and the client behaves correctly with either answer. |
 | D23 | The Content-Security-Policy allows images only from `https://cdn.rebrickable.com` (F3). An image on any other host is blocked and shows the placeholder (R11). | Every image URL in the captured responses is on that host. A wider policy would let the page load images from sites it has no reason to contact. |
 | D24 | For a set that contains other sets, M4 drops every line of the set's own parts response whose `set_num` is the number of a set inside it, at any depth, and adds each contained set's own import (minifigure parts included) times its quantity. Lines with any other `set_num` (the pack's own parts and its own minifigures' parts) are kept. | F2: a pack's response repeats its contained sets' ordinary parts but leaves out their minifigure parts. The contained sets' own responses count every part once, include the minifigure parts, and do not depend on how Rebrickable multiplies a contained quantity. No request is added: M4 already imports each contained set. |
 | D25 | M5 inventory rows and M9 filter options compare names with `Intl.Collator('en', { numeric: true })`. | One explicit locale keeps the list and filter ordering independent of the machine's default language, and numeric ordering puts sizes such as 1 x 2 before 1 x 10. |
-| D26 | M11 uses fixed brick bounds (including the stud) of width 0.18, depth 0.18 and height 0.22, centred on each block position. Grid pitches are 0.2, 0.2 and 0.24. It chooses the grid requiring the least uniform container scale, breaking ties by capacity and then width/depth iteration order. Containers have a 0.3 gap including lid overhang. Every row also reserves space for lids to lie flat behind it, whether open or closed. M12 sets an open lid on the floor, its underside origin at the container's x, y `LID_SKIRT * scale` (M13) and z plus the scaled outer lid depth plus 0.3. Entering items start at scale 0; blocks also drop from above the destination lid. | Makes the previously unspecified block bounds, packing and transition endpoints precise for M12. Reserved lid space avoids overlap when opening lids (D19) and keeps container positions stable. The skirt offset keeps the lid above the floor. Invisible entering/leaving items reproduce the visible endpoint layouts. |
-| D27 | Every column of the parts list can be filtered and sorted (M9, M10). A filter row under the headings holds a text filter for part number and for name, the colour and category choices (D10), and smallest and largest quantity; the search box stays and combines with them. Clicking a heading sorts by that column, and clicking it again reverses the order; the list starts sorted by name. Sorting changes only the list; the 3D view shows the filtered rows as before (R25). | User's request, 2026-10-31. |
-| D28 | Containers in the 3D view can be selected and focused (M12, M10). A click on a container (body, lid or floor label) selects it: its lid turns brighter, a ring appears on the floor around it, and its floor label turns red (D29). A click on empty floor clears the selection; a press that moves more than 5 pixels turns the view and selects nothing. A double click moves the camera to frame that container alone; a double click on empty floor, or "Show all", frames every container again. A bar floating over the top of the view names the selected container and offers "Zoom in", "Show all", "List its parts" (sets the category filter) and "Clear selection". Selection and focus end when their container leaves the view. | User's request, 2026-10-31. The bar floats over the view rather than above it: pushing the view down would move the container out from under the second click of a double click. |
-| D29 | Each container's label lies on the floor in front of it (M12): a card with the category name and the exact piece count, drawn from text into a canvas texture on a flat plane. It fills the 0.3 gap M11 leaves in front of every row (D26), clear of the open lids of the row in front, and reaches 0.12 past each side of the container. Long names shrink, then are cut short with "...". The selected container's card is red. Labels shrink and turn with the view like the rest of the scene and hide behind nearer containers, so none is ever hidden on purpose; in an overview of many containers they are small, and zooming in or focusing a container (D28) makes them readable. A click on a card selects its container. | User's request, 2026-10-31, replacing HTML labels above the containers. |
+| D26 | Removed (D32). | |
+| D27 | Every column of the parts list can be filtered and sorted (M9, M10). A filter row under the headings holds a text filter for part number and for name, the colour and category choices (D10), and smallest and largest quantity; the search box stays and combines with them. Clicking a heading sorts by that column, and clicking it again reverses the order; the list starts sorted by name. | User's request, 2026-10-31. |
+| D28 | Removed (D32). | |
+| D29 | Removed (D32). | |
 | D30 | The add form takes one or more set numbers, separated by spaces, commas or semicolons, and adds them one after another (M10); the API still adds one set per request. The key is asked for when first needed and the batch goes on with it. A set Rebrickable has no record of, or that is not a valid number, is reported and the batch goes on; `rate_limited`, `api_unavailable`, `server_unreachable` or a cancelled key dialog stop the batch, since the sets still to come would fail the same way. What was not added stays in the field. "Your sets" folds away, and each set shows its number, year, Rebrickable's part count, the pieces saved for one copy (`pieces`, spares and minifigure parts included, D1), its copies and a link to its Rebrickable page. A double click on a set, or its "Details" button, opens a dialog with the set's facts and the parts of one copy, sortable like the parts list, from the new `GET /api/sets/{setNum}`. | User's request, 2026-10-31. |
-| D31 | Blocks in the 3D view take the exact shapes of the parts, from the LDraw parts library (ldraw.org), and set details show the LDraw model of the built set where one exists. Rebrickable has no 3D data, but lists each part's LDraw file names (`external_ids.LDraw`). The data file therefore saves each part line's `ldrawIds` and each set's `themeId` (for the theme, D30) as data format version 2; a version 1 file is upgraded in memory when loaded (empty `ldrawIds`, null `themeId`, no themes) and written as version 2 on the next save. Only plain file names (`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`) are kept. The library itself is not part of the repository: the user downloads it into `ldraw/` (git-ignored) or points `LDRAW_DIR` at it, and the server reads it (M14). Blocks then stand for up to 100 pieces of one part in one colour, not of one colour (D15 otherwise unchanged), and take that part's shape, shrunk to fit a block and never enlarged; parts the library lacks, and everything when there is no library, stay plain bricks. Blocks rest on the ones below them, so flat parts lie on each other. Set models are LDraw model files (`.mpd`, `.ldr`) from the Official Model Repository, which the user puts in `ldraw/omr/` named from the set number (`6024-1 - Bike Shop.mpd`). | User's choice, 2026-10-31, over shapes made up from part names. |
+| D31 | Partly removed (D32): the LDraw part shapes in the 3D view, the built set in set details, the library reader (M14), the model view (M15) and `LDRAW_DIR` are gone. What stays is data format version 2. Rebrickable lists each part's LDraw file names (`external_ids.LDraw`), and the data file saves each part line's `ldrawIds` and each set's `themeId` (for the theme, D30) as data format version 2; a version 1 file is upgraded in memory when loaded (empty `ldrawIds`, null `themeId`, no themes) and written as version 2 on the next save. Only plain file names (`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`) are kept. Since D32 nothing reads `ldrawIds`. | User's choice, 2026-10-31, over shapes made up from part names. The data format stays so that existing data files load unchanged (D32). |
+| D32 | The 3D view is removed, with everything only it used: the storage view (R24-R29; D13-D20, D26, D28, D29; M11, M12, M13, the preview page `container.html` and docs/container-spec.md), the vendored three.js, and the LDraw support (M14, M15, `GET /api/ldraw`, `GET /api/ldraw/part`, `GET /api/sets/{setNum}/model`, `LDRAW_DIR` and the built set in set details). Data format version 2 is unchanged: `ldrawIds` and `themeId` are still saved, M5 still copies `ldrawIds` into InventoryRow, and existing data files load as before, but nothing reads `ldrawIds` now. The Content-Security-Policy is unchanged, since it allowed nothing that only the 3D view needed. | User's decision, 2026-11-02: after using the app, the 3D storage view added nothing to the functionality or the experience over the filtered parts list. |
 
 ## 4. Rebrickable API
 
@@ -240,16 +230,8 @@ Inside the page:
 ```
  M10 web UI
    +-- M9 inventory-view          filters, search, totals
-   +-- M12 brick-scene            three.js drawing and animation
-         +-- M11 scene-layout     container sizes, block positions, transitions
-         +-- M13 container-model  the storage container (container-spec.md)
-         +-- vendor/three/        vendored three.js (D13)
-
- container.html                   preview page (R28)
-   +-- M13 container-model
 ```
 
-M11 reads the container's proportions from `container-spec.js`, the plain-number part of M13.
 M8 calls M3 directly only to check a new key. M0 provides `src/errors.js`, which every module
 uses.
 
@@ -261,7 +243,6 @@ AGENTS.md                      project rules for both tools
 CLAUDE.md                      the single line @AGENTS.md
 package.json, .gitignore       M0
 docs/plan.md                   this file
-docs/container-spec.md         the user's description of the storage container
 src/
   errors.js                    M0  shared error class and codes (section 7)
   set-number.js                M1
@@ -272,19 +253,11 @@ src/
   storage.js                   M6
   collection.js                M7
   server.js, logger.js         M8
-  ldraw-library.js             M14 reads the downloaded LDraw library (D31)
   main.js                      M8  entry point
 public/
   index.html, styles.css, placeholder.svg      M10
   js/api.js, js/app.js                         M10
   js/inventory-view.js                         M9
-  js/scene-layout.js                           M11
-  js/model-view.js                             M15 the built set in 3D (D31)
-  js/brick-scene.js                            M12
-  js/container-spec.js, js/container-model.js  M13
-  container.html, container.css                M13  preview page (R28)
-  js/container-preview.js                      M13
-  vendor/three/                                M0   vendored three.js release (D13)
 scripts/capture-fixtures.js    M0  run by the user only
 test/
   setup/no-network.js          M0
@@ -292,7 +265,6 @@ test/
   fixtures/rebrickable/        captured by the user, plus handmade-*.json
   <module>.test.js             one file per module, plus key-leak.test.js
 data/inventory.json            git-ignored, created at runtime
-ldraw/                         git-ignored: the LDraw library and set models (D31)
 ```
 
 ## 6. Data model
@@ -339,7 +311,8 @@ Types used in the interfaces below:
 - **PartLine**: `partNum` (string), `name`, `categoryId` (number), `colorId` (number),
   `colorName`, `colorRgb` (6 hex digits), `colorIsTrans` (boolean), `imgUrl` (string or
   null), `quantity` (positive integer, already multiplied for contained sets), `isSpare`
-  (boolean), `ldrawIds` (the part's LDraw file names, best first, possibly none; D31).
+  (boolean), `ldrawIds` (the part's LDraw file names, best first, possibly none; D31; still
+  saved, but read by nothing since D32).
 - **SetRecord**: `setNum` (as returned by Rebrickable), `name`, `year`, `imgUrl` (string or
   null), `numParts` (as reported by Rebrickable; display only, never used for totals),
   `themeId` (Rebrickable's theme ID, or null), `containedSets` (`[{ setNum, name, quantity }]`), `parts` (PartLine[]; no two lines share
@@ -351,7 +324,8 @@ Types used in the interfaces below:
 - **SetSummary** (sent to the browser): SetEntry without `parts`, plus `pieces`: the sum of
   the quantities in one copy's parts list, spares and minifigure parts included (D1, D30).
 - **InventoryRow**: `partNum`, `name`, `categoryId`, `categoryName`, `colorId`, `colorName`,
-  `colorRgb`, `colorIsTrans`, `imgUrl`, `quantity`, `ldrawIds`.
+  `colorRgb`, `colorIsTrans`, `imgUrl`, `quantity`, `ldrawIds` (copied from the part lines;
+  the page does not read it since D32).
 
 Any change to the data file format bumps `version` and is recorded here.
 
@@ -376,10 +350,10 @@ The page acts on `code`, not on the status.
 | `GET /api/sets/{setNum}` | | `200 { set: SetSummary, rows: InventoryRow[] }`: the parts of one copy (D30) | `not_owned` |
 | `DELETE /api/sets/{setNum}` | | `200 { set: SetSummary or null }` (null when the last copy went) | `not_owned` |
 | `GET /api/inventory` | | `200 { rows: InventoryRow[] }` | |
-| `GET /api/ldraw` | | `200 { available }`: whether the LDraw library is there (D31) | |
-| `GET /api/ldraw/part?names=a,b` | | `200 { name, positions }`: the first of up to 8 LDraw names the library has, its triangles as base64 little-endian Float32 (LDraw units and axes) | `not_found` |
-| `GET /api/sets/{setNum}/model` | | `200 { colors, instances, loose }` (M14) with `loose[].positions` as base64 | `not_found` |
 | `GET /` and files under `public/` | | the file | `not_found` |
+
+`GET /api/ldraw`, `GET /api/ldraw/part` and `GET /api/sets/{setNum}/model` were removed with the
+3D view (D32) and now answer `not_found` like any unknown route.
 
 Every route can also return `forbidden`, `bad_request`, `payload_too_large` and
 `internal_error`.
@@ -422,8 +396,8 @@ Request rules for every route:
   `X-Content-Type-Options: nosniff` and
   `Content-Security-Policy: default-src 'self'; img-src 'self' https://cdn.rebrickable.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'`
   (image host from F3, D23).
-- Scripts come only from this server, three.js included (`/vendor/three/`, D13). The page has
-  no inline scripts, so the policy needs no exceptions.
+- Scripts come only from this server. The page has no inline scripts, so the policy needs no
+  exceptions.
 
 ## 8. Modules
 
@@ -434,8 +408,7 @@ reason. Section 9 gives the build order.
 
 - **Responsibility:** `package.json` (`"type": "module"`, `engines.node` `>=22`,
   `"author": "Stoil_Dimitrov"`, scripts `start` and `test`, no dependencies); `.gitignore` (`data/`, `node_modules/`, `*.log`);
-  `src/errors.js`; the no-network guard; the fake fetch; the fixture capture script;
-  vendoring three.js (D13).
+  `src/errors.js`; the no-network guard; the fake fetch; the fixture capture script.
 - **Interface:**
   - `npm start` runs `node src/main.js`. `npm test` runs
     `node --test --import ./test/setup/no-network.js "test/**/*.test.js"`.
@@ -454,11 +427,10 @@ reason. Section 9 gives the build order.
     check against them, stay as they are.
 - **Tests:** the guard rejects a non-local fetch and allows 127.0.0.1; fake fetch serves,
   records and rejects unknown routes; `createError` covers every code in section 7; the
-  capture script's "contains the key" check (a pure function) and its command line; every
-  vendored file matches the SHA-256 in its README.
+  capture script's "contains the key" check (a pure function) and its command line.
 - **Builder: Claude Code.** It must exist before either tool starts, and it fixes the
-  conventions both tools then follow (error codes, test harness, fixture format, vendored
-  three.js). Building it here, right after the plan, means no waiting on the other machine.
+  conventions both tools then follow (error codes, test harness, fixture format). Building it
+  here, right after the plan, means no waiting on the other machine.
 
 After M0, the user captures fixtures for: one small set with minifigures and spare parts; one
 set with two identical minifigures (F1); one pack (F2); one unknown set number (F4); and the
@@ -740,9 +712,6 @@ identical minifigures; a second capture the same day added both, and a two-page 
   method, path, status, duration. Request bodies and headers are never logged. Static files
   get a `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser
   refuses module scripts under `nosniff`.
-  - The LDraw routes (D31) use M14 when `createServer` is given `ldraw`; without it they answer
-    `available: false` and `not_found`. `main.js` makes the library from `LDRAW_DIR`, or
-    `ldraw/` in the repository.
   - Key changes take effect in the order they arrived. A `PUT /api/key` whose check ends
     after a later PUT or DELETE has taken effect stores nothing, so "Forget key" during a
     check is not undone; a later PUT that fails changes nothing. The PUT answers `200` with
@@ -827,9 +796,6 @@ identical minifigures; a second capture the same day added both, and a two-page 
     getSet(setNum) -> { set, rows }        GET /api/sets/{setNum, percent-encoded}
     removeSet(setNum) -> SetSummary|null   DELETE /api/sets/{setNum, percent-encoded}
     getInventory() -> InventoryRow[]       GET /api/inventory
-    getLdraw() -> { available }            GET /api/ldraw
-    getLdrawPart(names) -> Float32Array|null    GET /api/ldraw/part
-    getSetModel(setNum) -> model|null      GET /api/sets/{setNum}/model
   }
   ApiError: an Error with `code` and `message`
   ```
@@ -849,24 +815,14 @@ identical minifigures; a second capture the same day added both, and a two-page 
     set shows its facts (D30) and "Details" and "Remove one" buttons; a pack lists its
     contained sets. The part count is left out when Rebrickable reports 0, as it does for
     packs. A double click on a set, outside its buttons and link, opens its details.
-  - The set details dialog: the set's image, facts and contained sets, the built model
-    (M15) when the server has the LDraw library and a model of the set, and the parts of one
-    copy with totals, sortable on every column independently of the parts list. Without the
-    library, or without a model, a note says where to get them. The model view is freed
-    when the dialog closes or shows another set.
+  - The set details dialog: the set's image, facts and contained sets, and the parts of one
+    copy with totals, sortable on every column independently of the parts list.
   - Parts list (R8-R10) with search, a filter and a sort on every column (D27), totals,
     and a "Clear filters" button. Headings are buttons and carry `aria-sort`; the headings
     and filter row stay in view while the list scrolls. Colour and category options come
     from the whole inventory; a chosen option that no longer exists falls back to "All".
     Text and quantity filters follow typing after 150 ms of quiet; a quantity bound that is
     negative or not a number is ignored.
-  - A 3D view section (M12) between the sets list and the parts list. Whenever the
-    inventory, a filter or the search changes, M10 passes the same filtered rows to
-    `scene.update`, so the containers and the list always agree (R25). An "Open lids" /
-    "Close lids" button calls `scene.setLidsOpen` (R27). If `createBrickScene` returns null,
-    the section shows "The 3D view needs WebGL." (R29).
-  - A hint says how to select and zoom, and the selection bar (D28) floats over the top of
-    the view while a container is selected or the camera is on one.
   - After every change the page reloads the key status, sets and inventory together; when
     two reloads overlap, only the later one is shown.
   - Images use `loading="lazy"` and `referrerpolicy="no-referrer"`, are tried only for
@@ -880,296 +836,27 @@ identical minifigures; a second capture the same day added both, and a two-page 
   server. The DOM is checked by hand with the checklist in section 10, because a browser
   test runner would need a dependency (D3).
 - **Builder: Claude Code** (moved from Codex at the user's request on 2026-10-31, together
-  with M12). It depends only on section 7, M9 and M12.
+  with M12). It depends only on section 7 and M9.
 
 ### M11. scene-layout
 
-- **Responsibility:** the pure geometry behind the 3D view: which containers exist, their
-  scale and place, where every block sits, and how to move from one layout to the next. A
-  plain ES module with no three.js import, so it runs under `node:test`.
-- **Interface:**
-  ```
-  computeLayout(rows, { piecesPerBlock = 100 }) -> Layout
-  BLOCK_SIZE -> { width: 0.18, depth: 0.18, height: 0.22 }  // frozen, includes stud
-  planTransition(fromLayout, toLayout) -> Transition
-  frameAt(transition, t) -> Frame        // t from 0 to 1; easing applied inside
-  easeInOutCubic(t) -> number
-  ```
-  - `Layout`: `{ piecesPerBlock, containers: [{ categoryId, categoryName, pieces, position,
-    scale }], blocks: [{ key, categoryId, colorRgb, colorIsTrans, partNum, ldrawIds,
-    position }] }`.
-    Positions are world-space `{ x, y, z }`; container origins sit on the floor (`y: 0`),
-    while block origins are the centres of their `BLOCK_SIZE` bounds (D26). Blocks stay
-    fixed size as containers resize. `piecesPerBlock` is a positive finite number.
-  - Each part in each colour in a category gets `ceil(pieces / piecesPerBlock)` blocks (D15,
-    D31). A block's `key` is `categoryId|colorId|partNum|i` (the i-th block of that part in
-    that colour), so a block keeps its key from one layout to the next.
-  - Inside a container, blocks are ordered by colour and packed bottom-up on a grid of
-    `cols x rows x layers` (width, depth, height) whose ratios follow the container's
-    interior from `container-spec.js` (M13): the smallest such grid that holds the blocks.
-    The container's `scale` is the smallest at which `interiorBox(scale)` holds that grid
-    (D17, D26). Colours are ordered by numeric colour ID, then parts by number (D25).
-    Categories use English numeric
-    name ordering, with category ID breaking name ties. Zero-quantity categories are omitted.
-  - Containers are sorted by category name and stand on the floor in rows of
-    `ceil(sqrt(count))`, with a gap, never overlapping (D18). A category with no blocks gets
-    no container. Row spacing reserves room for flat open lids behind every container,
-    including lid overhang and a 0.3 gap on either side of the lid (D26). Opening and
-    closing lids therefore needs no layout change.
-  - `planTransition` matches blocks by key and containers by category: kept ones move, new
-    ones drop in from above their container, removed ones shrink to nothing where they are.
-    `frameAt` returns every block's position and scale and every container's position and
-    scale at time `t`.
-    `Transition` is `{ piecesPerBlock, containers: [{ from, to }], blocks: [{ from, to }] }`,
-    with copied endpoint items and positions; block scale defaults to 1. Entering items
-    start at scale 0 and leaving items end at scale 0 (D26). `Frame` has the Layout shape
-    with a `scale` on every block, and includes both entering and leaving items. Thus the
-    visible items at the endpoints equal the respective layouts. Frames can be used as
-    the start of an interrupted transition. Easing clamps `t` to 0-1.
-- **Tests:** 1, 100, 101 and 250 pieces of one colour give 1, 1, 2 and 3 blocks; two parts
-  of one colour get blocks of their own; blocks keep their part and LDraw ids, ordered by
-  colour and part number; container
-  scale grows with the number of blocks; every block lies inside `interiorBox(scale)` of its
-  container; containers never overlap; the same rows always give the same layout; removing a
-  colour shrinks the container and keeps the other blocks' keys; `frameAt(transition, 0)`
-  equals the old layout and `frameAt(transition, 1)` the new one; new blocks start above
-  their container; removed blocks end at scale 0; easing is 0 at 0, 1 at 1 and never
-  decreases.
-- **Builder: Codex**, and from 2026-10-31 Claude Code at the user's request (blocks per
-  part, D31), while Codex reviews and tests. Pure, and needs only InventoryRow (section 6)
-  and the `container-spec.js` interface (M13, built in phase 0), so it is built in phase 1 next to M9.
-  Its only user, M12, is also Codex's, so the layout and the scene that draws it have one
-  owner.
+Removed (D32).
 
 ### M12. brick-scene
 
-- **Responsibility:** draw and animate the 3D view with three.js (R24-R27, R29).
-- **Interface:**
-  ```
-  createBrickScene(element, { reducedMotion, onSelectionChange, loadShape })
-      // loadShape(names) -> Promise<Float32Array | null>: a part's LDraw triangles (D31)
-    -> { update(rows), setLidsOpen(open), select(categoryId), focus(categoryId),
-         dispose() } | null
-      // onSelectionChange({ selected: { categoryId, categoryName, pieces } | null,
-      //                     focused: categoryId | null }), called on every change (D28)
-  createBrickGeometry() -> BufferGeometry   // the D14 brick, exactly BLOCK_SIZE, centred
-  createPartGeometry(positions) -> BufferGeometry
-      // LDraw triangles turned upright, centred, shrunk to fit BLOCK_SIZE, never enlarged
-  stackBlocks(layout, heightOf) -> Layout
-      // every block resting on the one below it in its column; plain bricks do not move
-  lidOffset(scale, progress) -> { x, y, z }
-      // the lid's underside origin relative to its container's origin, world units, from
-      // 0 (closed) to 1 (open on the floor, D26)
-  containerBoxes(layout, { lidsOpen }) -> [{ min, max }]
-      // one box per container, its floor label and, when lidsOpen, its lid on the way
-  labelBox(container) -> { minX, maxX, minZ, maxZ }   // where the floor label lies (D29)
-  drawLabel(context2d, { name, count, selected })    // draws a label card
-  sceneBounds(layout, { lidsOpen }) -> { min, max } | null // the box around them all
-  boxCorners({ min, max }) -> Vector3[8]
-  framingBoxes(layout, { lidsOpen, focus }) -> [{ min, max }]
-      // the focused container's box alone while it is in the layout, otherwise all
-  createSelectionRingGeometry() -> BufferGeometry   // the floor ring, unit scale
-  fitCamera(points, { fov, aspect }, direction) -> { target, distance }
-  ```
-  It returns null, leaving the element untouched, when WebGL is not available.
-  `reducedMotion` defaults to the `prefers-reduced-motion` media query and follows it as it
-  changes. The other exports are the geometry behind the view, exported for its tests.
-- **Behaviour:**
-  - Imports three.js only from `public/vendor/three/`.
-  - Blocks: the D14 brick shape (a 1 x 1 body with one stud, filling `BLOCK_SIZE`) until
-    their part's LDraw shape arrives from `loadShape` (D31), asked for six at a time, once
-    per part. Instanced meshes per shape, solid and see-through for transparent colours,
-    coloured from `colorRgb`, drawn on both sides. Blocks rest on each other
-    (`stackBlocks`); once shapes stop arriving for 250 ms they settle on them, animated
-    like any change. The legend reads "1 block = up to 100 pieces of one part". See-through blocks use hashed alpha (`alphaHash`): it keeps them in the
-    opaque pass, so they show through the frosted walls. Plain blending would draw them after
-    the walls, whose depth would hide them.
-  - Containers: one M13 container per category, sharing one model and scaled by the layout.
-    In front of each container, its label lies on the floor (D29): the category name and
-    exact piece count drawn into a texture from text, never markup. A texture is drawn
-    again only when its text, its selection or its size in steps of 64 pixels changes, and
-    uses anisotropic filtering, since it is seen at a slant.
-  - A legend reads "1 block = 100 pieces" (D15), and an empty view reads "No bricks to show."
-  - `update(rows)` computes the new layout (M11) and animates to it (D16): containers resize
-    and move, kept blocks slide, new blocks drop in, removed blocks shrink out, labels of
-    entering and leaving containers grow and shrink with them, and the camera re-frames all
-    containers, keeping
-    the direction the user turned it to. The first containers are framed at once. With
-    reduced motion it jumps straight to the new layout.
-  - `setLidsOpen(open)` moves every lid, with the same timing: up off the rim, back until it
-    is clear of the container, and down flat on the floor (D19, D26), or the same way back.
-    The camera frames the open lids only while they are open.
-  - Framing fits the corners of every container's box, floor label included, centred in
-    the view under perspective.
-  - Scene: neutral background, soft studio lighting (RoomEnvironment plus one soft key
-    light whose shadow covers the layout), three-quarter camera slightly above
-    (container-spec.md section 7), looking from the side opposite the lids' room so open
-    lids lie behind their containers.
-  - Drag rotates, scroll zooms (OrbitControls from the vendored release).
-  - Selection and focus (D28): clicks and double clicks are picked by casting a ray against
-    the containers' bodies, lids and floor labels. `select(null)` clears the selection and
-    `focus(null)`
-    frames every container. The pointer turns into a hand over a container.
-  - Renders only while something moves or the user is rotating, so an idle view costs no CPU
-    or GPU time.
-  - Follows the size of its container. `dispose()` frees GPU resources and event listeners.
-- **Tests:** the layout maths lives in M11 and is tested there. `test/brick-scene.test.js`
-  covers what M12 adds: the brick fills `BLOCK_SIZE` with a stud on top; a lid is on the
-  rim at 0 and where D26 puts it at 1; it never passes through its container on the way;
-  open lids lie clear of every container and every other lid in an M11 layout of several
-  rows; each floor label lies in front of its container, clear of every container, open lid
-  and other label, and inside the framed box; a label shows the name and count, shrinks or
-  shortens a long name to fit, and turns red when selected; the bounds hold every container
-  and lid; the fitted camera sees every container
-  from several directions and aspect ratios, filling the view and centred; a focused
-  container is framed alone, and all are when it is gone; the selection ring lies flat on
-  the floor, all around the lid and clear of it; without WebGL the result is null and the
-  element untouched. The drawing is checked by hand with the 3D
-  items in the section 10 checklist, because testing WebGL output would need a browser
-  test runner (D3).
-- **Builder: Claude Code** (moved from Codex at the user's request on 2026-10-31).
-  It lives inside the page: M10, also moved, mounts it and feeds it the same filtered rows
-  as the parts list.
+Removed (D32).
 
 ### M13. container-model
 
-- **Responsibility:** the storage container from [container-spec.md](container-spec.md) as a
-  reusable three.js model, its dimensions as plain numbers, and the preview page (R28).
-- **Interface:**
-  ```
-  js/container-spec.js   plain numbers, no three.js; built in phase 0 so M11 can use it
-    CONTAINER -> { width, depth, height, taper, chamfer, wall, lidHeight, lidOverhang,
-                   footHeight }
-        // unit-scale proportions; starting values width 1, depth 1.7, height 1.35,
-        // tuned by eye on the preview page
-    interiorBox(scale) -> { width, depth, height, floorY }
-        // usable space: the narrow bottom footprint, from the floor to below the lid
-  js/container-model.js
-    createContainer() -> { group, body, lid }
-        // group: THREE.Group at unit scale, origin at the centre of the base;
-        // body: one Mesh (shell and feet); lid: its own THREE.Group, origin at the
-        // centre of its underside, placed on the rim; geometry and materials shared
-    stackHeight() -> number
-        // base-to-base distance when one container sits on another's lid
-    LID_SKIRT -> number
-        // how far the lid's skirt hangs below the lid's origin (0.012 at unit scale);
-        // an open lid laid on the floor stands at y = LID_SKIRT * scale (D26)
-    LID_POCKETS -> [{ minX, maxX, minZ, maxZ, floorY }]
-        // the four foot pockets on the lid, in the lid's own coordinates
-    disposeSharedResources()
-        // frees the shared geometry and materials (M12's dispose); the next
-        // createContainer builds them again
-  container.html, container.css, js/container-preview.js   the preview page;
-        // ?stack=1 and ?lid=off in the address open it stacked or without the lid
-  ```
-- **Behaviour** (each point from container-spec.md):
-  - Body: hollow, built from a chamfered rectangle profile (eight sides), tapering slightly
-    toward the bottom, with walls of visible thickness, a reinforced top rim, small bevels, a
-    flat closed bottom and small feet near the corners. One compartment; no dividers, hinges,
-    clasps, handles, studs or decorative patterns.
-  - Body material: `MeshPhysicalMaterial`, very pale grey, transmission with some roughness
-    for the frosted look, slight refraction, `thickness` matching the wall (D20). Both sides
-    are drawn, because three.js shows the far walls through a transmissive surface only
-    when their back faces are rendered too.
-  - Stacking: an upper container's feet stand on the lid's recessed panel inside the corner
-    pockets, which the diagonal ridges frame; its bottom sits inside the lid's raised
-    perimeter, just above the ridges, so the perimeter positions it (spec section 4).
-  - Lid: a separate `THREE.Group` in muted red `MeshStandardMaterial` (satin, no metalness),
-    slightly overhanging the rim, with chamfered corners, a raised continuous perimeter, a
-    recessed flat centre panel, shallow grooves along the perimeter, and diagonal ridges and
-    angular recesses near the corners, all as real geometry. The recesses receive the feet of
-    a container stacked on top.
-  - Preview page: neutral background, soft studio lighting (RoomEnvironment plus one key
-    light), three-quarter camera slightly above, orbit controls, a "Remove lid" button that
-    shows the empty interior, and a "Stack" button that shows three identical containers
-    stacked.
-- **Tests** (`node:test`; three.js builds geometry without a renderer, so this runs in Node):
-  - Proportions: depth greater than width, height greater than width (spec section 1).
-  - Taper: the top opening is wider and longer than the bottom (section 1).
-  - Chamfer: the footprint outline has eight corners and no right-angled box corners
-    (section 1).
-  - Hollow: no body vertex lies inside `interiorBox(1)` (sections 1 and 6).
-  - Lid: a separate group; it overhangs the rim; it is thin compared with the body
-    (section 3).
-  - Stacking: a second container placed `stackHeight()` above the first has every foot
-    inside a lid recess, its body clear of the lid below, and a gap under a small tolerance
-    (section 4).
-  - Materials: body `MeshPhysicalMaterial` with transmission above 0; lid
-    `MeshStandardMaterial` with metalness 0 (sections 5 and 6).
-  - Two containers share geometries and materials, until `disposeSharedResources`;
-    `interiorBox` grows in proportion to `scale`, and the body stays clear of it at scales
-    0.25, 1 and 2.
-  - Body and lid are closed surfaces facing outward (every edge shared by exactly two
-    faces in opposite directions, positive volume).
-  - The look is checked by hand on the preview page against spec section 8 (section 10,
-    item 19).
-- **Builder: Claude Code.** A self-contained modelling job behind a fixed interface. It
-  touches none of the page's files, so it runs in parallel with Codex's work, and it evens
-  out the load now that Codex builds the whole page. Its plain-number part comes first, in
-  phase 0, so Codex can build M11 against it.
+Removed (D32).
 
 ### M14. ldraw-library
 
-- **Responsibility:** read the LDraw parts library (ldraw.org) and set models the user
-  downloads (D31), and turn parts and models into triangles for the 3D view.
-- **Interface:**
-  ```
-  createLdrawLibrary({ root, readFile, readdir }) -> {
-    available() -> Promise<boolean>        // the parts folder has parts
-    part(names) -> Promise<{ name, positions: Float32Array } | null>
-    model(setNum) -> Promise<{ colors: [{ rgb, alpha }],
-                               instances: [{ part, color, matrix }],
-                               loose: [{ color, positions }] } | null>
-  }
-  parseLdraw(text) -> Map<section, commands>   parseColors(text) -> Map<code, { rgb, alpha }>
-  normalizeName(name) -> string
-  ```
-- **Behaviour:**
-  - Files are looked up as LDraw files refer to each other: in `parts`, `parts/s`, `p`,
-    `p/48`, `p/8` and `models`, in that order, without regard to case, with `\` or `/`. The
-    folders are listed once; each file is read and parsed once, and each part's triangles
-    are built once.
-  - `part(names)` returns the first name the library has (`.dat` may be left out), with
-    its subfiles' faces moved into place. Only plain library names are looked up, through
-    the index of listed files, so no name can reach a file outside the library. Edge lines
-    (types 2 and 5) and face winding are left out: the view draws both faces. A missing
-    subfile is skipped; a file that refers back to itself is not followed.
-  - `model(setNum)` finds the `.mpd` or `.ldr` file in `omr/` whose name is the set number
-    followed by a space or a dot, unwraps its submodels into placed library files with
-    LDraw matrices, resolves colours from `LDConfig.ldr` (main colour 16 inherited, direct
-    colours `0x2RRGGBB`, unknown ones grey), and returns faces in the model itself as
-    `loose` triangles per colour.
-  - A missing or incomplete library is simply not available; nothing throws.
-- **Tests** (`test/ldraw-library.test.js`, against a small hand-made library in
-  `test/fixtures/ldraw/`): a part's faces moved into place through a subpart and a
-  mirrored primitive; names found without regard to case, slashes or `.dat`; the first
-  name found is used; names outside the library are never looked up; a missing subfile is
-  skipped and a self-reference stops; availability; a model unwrapped with inherited,
-  direct and table colours and loose faces; a model found only by the whole set number;
-  parsing of sections, quads and colours.
-- **Builder: Claude Code**, at the user's request (D31).
+Removed (D32).
 
 ### M15. model-view
 
-- **Responsibility:** draw the built set from its LDraw model (D31) in the set details.
-- **Interface:**
-  ```
-  createModelView(element, { loadShape, onProgress }) -> { show(model), dispose() } | null
-  ldrawMatrix([x y z a b c d e f g h i]) -> Matrix4   ldrawGeometry(positions) -> geometry
-  ```
-  `model` is what `api.getSetModel` returns (M14); `loadShape` is the same part loader as
-  M12's. It returns null without WebGL, leaving the element untouched.
-- **Behaviour:** the model stands up (half a turn about x, as LDraw's y points down) at
-  0.01 world units per LDraw unit. Placed parts are drawn with one instanced mesh per part
-  and colour, parts loaded six at a time and shown as they arrive, with `onProgress({
-  loaded, total })`; a part that does not load is left out. See-through colours blend
-  normally, since there are no frosted walls here. The camera frames what has arrived,
-  from the front and a little above; drag turns and scroll zooms. It draws only when
-  something changes. `show` replaces the model shown, and a newer `show` stops the older
-  one's loading.
-- **Tests:** LDraw matrices place points as LDraw does; triangles become a geometry with
-  face normals; without WebGL the result is null. The drawing is checked by hand.
-- **Builder: Claude Code**, at the user's request (D31).
+Removed (D32).
 
 ## 9. Ownership and build order
 
@@ -1180,6 +867,11 @@ identical minifigures; a second capture the same day added both, and a two-page 
 | 2 | M7, M8 (after phase 1 is merged); M12, M10 (moved from Codex) | | Merge reviewed pull requests |
 | 3 | Review Codex's modules | Review Claude Code's modules, key path first | Manual checklist (section 10) |
 | 4 | The user's requests of 2026-10-31 (D27-D31), M14, M15, and changes to M5, M9 and M11 | Review and test them | Capture the themes fixture; download the LDraw library |
+| 5 | Remove the 3D view and the LDraw support (D32) | Review the removal | Merge the reviewed pull request |
+
+Phases 0-4 are the record of what was built. Phase 5 removed M11-M15, the vendored three.js
+from M0 and the LDraw library step (D32), so those entries no longer describe the app. The
+remaining modules, M0-M10, keep the builders given in section 8.
 
 Each module gets its own branch and pull request, reviewed by the other tool before merging.
 AGENTS.md has the details.
@@ -1194,8 +886,6 @@ AGENTS.md has the details.
   Hand-made fixtures are named `handmade-*.json`. The capture script refuses to write a file
   that contains the key, and the key-leak test scans every fixture.
 - **Key-leak test:** see M8.
-- **3D view:** layout and transition maths are unit-tested in M11, and the container
-  geometry in M13. The drawing and the motion are checked by hand (items 11-19 below).
 - **Manual checklist** (phase 3, by the user, with a real key):
   1. `npm start`, open `http://127.0.0.1:3000`. The page shows "No API key".
   2. Add `10270`. The key dialog opens. A wrong key is refused with a message; the right key
@@ -1206,31 +896,12 @@ AGENTS.md has the details.
   5. Colour filter, category filter and search narrow the list, alone and together; totals
      follow.
   6. Restart the server. Sets and parts are unchanged; the page shows "No API key".
-  7. Go offline. The page, filters, search, the 3D view, removing a set and adding another
-     copy of a saved set all work; images show the placeholder; adding a new set shows a clear error.
+  7. Go offline. The page, filters, search, removing a set and adding another copy of a saved
+     set all work; images show the placeholder; adding a new set shows a clear error.
   8. "Forget key" updates the status; adding a new set asks for the key again.
   9. Search the data file and the server output for the key: no match.
   10. From another device on the same network, `http://<this machine's IP>:3000` does not
       connect.
-  11. The 3D view shows one container per category, shaped as in container-spec.md (tall,
-      slim, frosted, red lid), with blocks in the right colours; transparent colours look
-      see-through; the legend reads "1 block = 100 pieces".
-  12. Choosing a colour shrinks every container to fit the remaining blocks and removes empty
-      containers; choosing "All" grows them back. Both are animated.
-  13. Choosing a category leaves one container. Search narrows the containers the same way.
-  14. Adding and removing a copy of a set animates blocks in and out.
-  15. With "reduce motion" turned on in the system settings, the view changes without
-      animation.
-  16. Drag rotates and scroll zooms, and the view stays smooth with your largest inventory.
-  17. With WebGL turned off in the browser, the rest of the page works and the 3D section
-      shows its message.
-  18. "Open lids" lifts every lid off and sets it down behind its container, showing the
-      blocks from above; "Close lids" puts them back. Both are animated.
-  19. On `http://127.0.0.1:3000/container.html` the model matches container-spec.md section
-      8: tall, slim, elongated silhouette; slightly tapered frosted walls; chamfered vertical
-      corners; one hollow compartment; red lid with raised and recessed angular details.
-      "Remove lid" shows the empty interior; "Stack" shows identical containers seated in
-      each other's lids.
 
 ## 11. Security summary
 
@@ -1242,6 +913,6 @@ AGENTS.md has the details.
   content type for changes, against other websites; Content-Security-Policy and `textContent`
   only, because part and set names come from an external API; body size limit; static files
   confined to `public/`.
-- **Third-party code:** three.js is the only outside code. It is a pinned release served
-  from this server, with the SHA-256 of each file recorded, never loaded from a CDN (D13).
-  Container labels use `textContent`.
+- **Third-party code:** none. The app has no dependencies (D3), and the page loads nothing
+  from other sites except part and set images from `https://cdn.rebrickable.com` (D23). The
+  vendored three.js was removed with the 3D view (D32).

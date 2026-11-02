@@ -1,16 +1,13 @@
 // The page (docs/plan.md M10): the key status, the add form and its key dialog, the sets list
-// and each set's details, the 3D view (M12) and the parts list with a filter and a sort on
-// every column, search and totals (M9). Text from the API goes in only through textContent
-// and DOM properties, and the key is never kept anywhere: it leaves the dialog's field as
-// soon as it is sent.
+// and each set's details, and the parts list with a filter and a sort on every column, search
+// and totals (M9). Text from the API goes in only through textContent and DOM properties, and
+// the key is never kept anywhere: it leaves the dialog's field as soon as it is sent.
 
 import { createApi } from './api.js';
-import { createBrickScene } from './brick-scene.js';
-import { createModelView } from './model-view.js';
 import { computeTotals, filterOptions, filterRows, sortRows } from './inventory-view.js';
 
 const PLACEHOLDER = 'placeholder.svg';
-const SEARCH_DELAY = 150; // milliseconds of quiet typing before the list and view follow
+const SEARCH_DELAY = 150; // milliseconds of quiet typing before the list follows
 // Errors that would stop every set still to come in the same way, so a batch stops there.
 const BATCH_STOPPERS = new Set(['rate_limited', 'api_unavailable', 'server_unreachable']);
 
@@ -26,16 +23,6 @@ const page = {
   setsCount: byId('sets-count'),
   sets: byId('sets'),
   setsEmpty: byId('sets-empty'),
-  scene: byId('scene'),
-  noWebgl: byId('no-webgl'),
-  toggleLids: byId('toggle-lids'),
-  sceneHint: byId('scene-hint'),
-  selection: byId('selection'),
-  selectionText: byId('selection-text'),
-  focusSelected: byId('focus-selected'),
-  showAll: byId('show-all'),
-  listSelected: byId('list-selected'),
-  clearSelection: byId('clear-selection'),
   colorFilter: byId('color-filter'),
   categoryFilter: byId('category-filter'),
   search: byId('search'),
@@ -56,8 +43,6 @@ const page = {
   setDialogFacts: byId('set-dialog-facts'),
   setDialogTotals: byId('set-dialog-totals'),
   setDialogParts: byId('set-dialog-parts'),
-  setModelMessage: byId('set-model-message'),
-  setModelView: byId('set-model-view'),
   keyDialog: byId('key-dialog'),
   keyForm: byId('key-form'),
   keyInput: byId('key-input'),
@@ -67,27 +52,11 @@ const page = {
 };
 
 let rows = [];
-let lidsOpen = false;
 let refreshes = 0;
 let searchTimer = 0;
 let setRows = []; // the parts of the set shown in the details dialog
 let setOpening = 0;
-let modelView = null; // the built model in the details dialog, while it is open
 
-let selection = { selected: null, focused: null };
-// The blocks take their parts' LDraw shapes when the server has the library (D31); without
-// it, they stay plain bricks and no part is asked for.
-const ldrawReady = api.getLdraw().then((answer) => answer.available, () => false);
-const scene = createBrickScene(page.scene, {
-  onSelectionChange: showSelection,
-  loadShape: async (names) => ((await ldrawReady) ? api.getLdrawPart(names) : null),
-});
-if (scene === null) {
-  page.scene.hidden = true;
-  page.noWebgl.hidden = false;
-  page.toggleLids.hidden = true;
-  page.sceneHint.hidden = true;
-}
 const partsSort = sortable(page.parts.closest('table'), renderParts);
 const setSort = sortable(page.setDialogParts.closest('table'), renderSetParts);
 
@@ -281,7 +250,6 @@ async function openSet(set) {
       page.setDialogFacts.append(element('p', 'contained-title', 'Contains'),
         containedList(details.set));
     }
-    showModel(details.set, mine);
     setRows = details.rows;
     renderSetParts();
     page.setDialogMessage.textContent = '';
@@ -291,64 +259,6 @@ async function openSet(set) {
       page.setDialogMessage.textContent = error.message;
     }
   }
-}
-
-// The built set, from its LDraw model when the user has one (D31). Without the library or a
-// model, a short note says where to get them.
-async function showModel(set, mine) {
-  closeModel();
-  const note = (...nodes) => page.setModelMessage.replaceChildren(...nodes);
-  if (!(await ldrawReady)) {
-    note('With the LDraw parts library installed, the built set can be shown here. The '
-      + 'README says how.');
-    return;
-  }
-  note('Looking for a model of this set.');
-  let model;
-  try {
-    model = await api.getSetModel(set.setNum);
-  } catch (error) {
-    if (mine === setOpening) {
-      note(error.message);
-    }
-    return;
-  }
-  if (mine !== setOpening) {
-    return;
-  }
-  if (model === null) {
-    const link = element('a', null, 'LDraw Official Model Repository');
-    link.href = 'https://library.ldraw.org/omr';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    note(`There is no model of ${set.setNum} in ldraw/omr/. Models of many sets are in the `,
-      link, '; put the file there, named from the set number.');
-    return;
-  }
-  page.setModelView.hidden = false;
-  modelView = createModelView(page.setModelView, {
-    loadShape: (names) => api.getLdrawPart(names),
-    onProgress: ({ loaded, total }) => {
-      if (mine === setOpening) {
-        note(loaded < total ? `Loading parts: ${loaded} of ${total}.`
-          : `${count(total, 'kind of part', 'kinds of part')}. Drag to turn, scroll to zoom.`);
-      }
-    },
-  });
-  if (modelView === null) {
-    page.setModelView.hidden = true;
-    note('The 3D view needs WebGL.');
-    return;
-  }
-  await modelView.show(model);
-}
-
-// Frees the model's GPU memory when the dialog closes or shows another set.
-function closeModel() {
-  modelView?.dispose();
-  modelView = null;
-  page.setModelView.hidden = true;
-  page.setModelMessage.replaceChildren();
 }
 
 function renderSetParts() {
@@ -407,8 +317,6 @@ function renderParts() {
   page.parts.replaceChildren(body);
   page.partsEmpty.hidden = shown.length > 0;
   page.partsEmpty.textContent = rows.length === 0 ? 'No parts yet.' : 'No parts match.';
-  // The view always shows the same rows as the list (R25).
-  scene?.update(shown);
 }
 
 function partRow(row) {
@@ -589,51 +497,13 @@ function clearFilters() {
   renderParts();
 }
 
-// The bar over the 3D view names the selected container and offers what to do with it
-// (D28). It shows while a container is selected or the camera is on one.
-function showSelection(state) {
-  selection = state;
-  const { selected, focused } = state;
-  page.selection.hidden = selected === null && focused === null;
-  page.selectionText.textContent = selected === null
-    ? 'No container selected.'
-    : `${selected.categoryName}: ${count(selected.pieces, 'piece', 'pieces')}`;
-  page.focusSelected.hidden = selected === null || focused === selected.categoryId;
-  page.showAll.hidden = focused === null;
-  page.listSelected.hidden = selected === null;
-  page.clearSelection.hidden = selected === null;
-}
-
-// Lists the selected container's parts: the category filter, which the 3D view follows too.
-function listSelected() {
-  if (selection.selected === null) {
-    return;
-  }
-  page.categoryFilter.value = String(selection.selected.categoryId);
-  renderParts();
-  page.parts.closest('.table-wrap').scrollIntoView({ block: 'start' });
-}
-
-function toggleLids() {
-  lidsOpen = !lidsOpen;
-  scene?.setLidsOpen(lidsOpen);
-  page.toggleLids.textContent = lidsOpen ? 'Close lids' : 'Open lids';
-  page.toggleLids.setAttribute('aria-pressed', String(lidsOpen));
-}
-
 page.addForm.addEventListener('submit', addSets);
 page.forgetKey.addEventListener('click', forgetKey);
 page.keyCancel.addEventListener('click', () => page.keyDialog.close());
 page.setDialogClose.addEventListener('click', () => page.setDialog.close());
 page.setDialog.addEventListener('close', () => {
   setOpening += 1; // a set still loading is no longer wanted
-  closeModel();
 });
-page.toggleLids.addEventListener('click', toggleLids);
-page.focusSelected.addEventListener('click', () => scene?.focus(selection.selected?.categoryId));
-page.showAll.addEventListener('click', () => scene?.focus(null));
-page.listSelected.addEventListener('click', listSelected);
-page.clearSelection.addEventListener('click', () => scene?.select(null));
 page.colorFilter.addEventListener('change', renderParts);
 page.categoryFilter.addEventListener('change', renderParts);
 for (const input of [page.search, page.filterPart, page.filterName, page.filterMin,
