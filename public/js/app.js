@@ -357,6 +357,9 @@ async function addSets(event) {
       const outcome = await addOne(setNumber, step);
       if (outcome.set) {
         added.push(outcome.set);
+        // The add is committed even if reloading the page's data fails next.
+        page.setNumber.value = [...failed.map((item) => item.setNumber),
+          ...wanted.slice(index + 1)].join(' ');
         await refresh();
       } else {
         failed.push({ setNumber, message: outcome.message });
@@ -425,8 +428,10 @@ function addReport(added, failed, untried) {
 function askForKey(notice) {
   return new Promise((resolve) => {
     let saved = false;
+    let active = true;
     page.keyMessage.textContent = notice;
     page.keyInput.value = '';
+    page.keySave.disabled = false;
     page.keyDialog.showModal();
     page.keyInput.focus();
 
@@ -438,6 +443,7 @@ function askForKey(notice) {
       page.keyMessage.textContent = 'Checking the key with Rebrickable.';
       try {
         const { hasKey } = await api.setKey(key);
+        if (!active) return;
         showKeyStatus(hasKey);
         if (hasKey) {
           saved = true;
@@ -447,16 +453,20 @@ function askForKey(notice) {
             + 'Enter it again.';
         }
       } catch (error) {
-        page.keyMessage.textContent = error.message;
+        if (active) page.keyMessage.textContent = error.message;
       } finally {
-        page.keySave.disabled = false;
-        page.keyInput.focus();
+        if (active) {
+          page.keySave.disabled = false;
+          page.keyInput.focus();
+        }
       }
     }
     page.keyForm.addEventListener('submit', submit);
     page.keyDialog.addEventListener('close', () => {
+      active = false;
       page.keyForm.removeEventListener('submit', submit);
       page.keyInput.value = '';
+      page.keySave.disabled = false;
       resolve(saved);
     }, { once: true });
   });

@@ -826,11 +826,17 @@ identical minifigures; a second capture the same day added both, and a two-page 
     negative or not a number is ignored.
   - After every change the page reloads the key status, sets and inventory together; when
     two reloads overlap, only the later one is shown.
+    A successful add removes its number from the retry field before reloading, so a failed
+    reload cannot add an extra copy on retry. A closed key dialog ignores its pending
+    check's response, including when a later attempt has opened the same dialog again.
   - Images use `loading="lazy"` and `referrerpolicy="no-referrer"`, are tried only for
     https addresses, and fall back to the placeholder (R11).
   - Text from the API is inserted with `textContent` or DOM properties, never `innerHTML`.
   - The key is never kept in `localStorage`, `sessionStorage`, cookies or the URL.
-- **Tests:** `test/api.test.js`, with an injected fetch: every route's method, path, body
+- **Tests:** `test/app.test.js` executes the page with a small DOM stand-in: a failed refresh
+  after an add leaves only outstanding numbers to retry; cancelled key checks that later
+  succeed or fail cannot close, overwrite or enable a newer dialog's controls.
+  `test/api.test.js`, with an injected fetch: every route's method, path, body
   and content type, and what each function returns; a set number percent-encoded into the
   path; the key only in the PUT body, never in the path or a header; an error response
   thrown as its code and message; answers that are not the expected JSON; an unreachable
