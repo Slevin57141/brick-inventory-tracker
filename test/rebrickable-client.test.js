@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import util from 'node:util';
 import { AppError, ERRORS } from '../src/errors.js';
 import { createRebrickableClient } from '../src/rebrickable-client.js';
+import { createKeyStore } from '../src/key-store.js';
 import { createFakeFetch, loadFixture } from './helpers/fake-fetch.js';
 
 const API = 'https://rebrickable.com/api/v3';
@@ -27,7 +28,8 @@ function fakeClock(start = 1_000_000) {
 function makeClient(routes, { key = SENTINEL, ...options } = {}) {
   const clock = fakeClock();
   const fetch = createFakeFetch(routes);
-  const keyStore = { get: () => key };
+  let currentKey = key;
+  const keyStore = { get: () => currentKey, clear: () => { currentKey = null; } };
   const client = createRebrickableClient({
     keyStore, fetch, sleep: clock.sleep, now: clock.now, ...options,
   });
@@ -208,6 +210,58 @@ test('each failure maps to its error code', async () => {
     const argument = method === 'checkKey' ? SENTINEL : route.split('/')[3];
     await assert.rejects(client[method](argument), isAppError(code), `${method} ${code}`);
   }
+});
+
+for (const status of [401, 403]) {
+  test(`a ${status} clears the stored credential actually used by the request`, async () => {
+    const keyStore = createKeyStore();
+    keyStore.set(SENTINEL);
+    const fetch = createFakeFetch({ [SET_ROUTE]: { status, body: {} } });
+    const client = createRebrickableClient({ keyStore, fetch, minIntervalMs: 0 });
+    await assert.rejects(client.getSet('31146-1'), isAppError('key_invalid'));
+    assert.equal(keyStore.has(), false);
+    await assert.rejects(client.getSet('31146-1'), isAppError('key_required'));
+    assert.equal(fetch.requests.length, 1);
+  });
+}
+
+test('a late rejection keeps a different replacement key and a forgotten key stays forgotten',
+  async () => {
+    for (const replace of [true, false]) {
+      const keyStore = createKeyStore();
+      keyStore.set(SENTINEL);
+      let release, entered;
+      const started = new Promise((resolve) => { entered = resolve; });
+      const held = new Promise((resolve) => { release = resolve; });
+      const fakeFetch = createFakeFetch({ [SET_ROUTE]: { status: 401, body: {} } });
+      const client = createRebrickableClient({ keyStore, minIntervalMs: 0,
+        fetch: async (...args) => {
+          const response = await fakeFetch(...args);
+          entered();
+          await held;
+          return response;
+        } });
+      const rejected = assert.rejects(client.getSet('31146-1'), isAppError('key_invalid'));
+      await started;
+      if (replace) keyStore.set(`${SENTINEL}-replacement`);
+      else keyStore.clear();
+      release();
+      await rejected;
+      assert.equal(keyStore.has(), replace);
+      if (replace) assert.equal(keyStore.get(), `${SENTINEL}-replacement`);
+    }
+  });
+
+test('a rejected candidate check never clears an existing stored key', async () => {
+  const keyStore = createKeyStore();
+  keyStore.set(SENTINEL);
+  const fetch = createFakeFetch({
+    'GET /lego/colors/?page_size=1': { status: 401, body: {} },
+  });
+  const client = createRebrickableClient({ keyStore, fetch, minIntervalMs: 0 });
+  // Even checking the same text is a candidate check, not use of the stored key.
+  await assert.rejects(client.checkKey(SENTINEL), isAppError('key_invalid'));
+  assert.equal(keyStore.get(), SENTINEL);
 });
 
 test('a request that does not answer in time fails with api_unavailable', async () => {
