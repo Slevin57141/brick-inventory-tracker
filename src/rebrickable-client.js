@@ -47,7 +47,8 @@ export function createRebrickableClient({
       await waitForTurn();
       // Read again after the wait, outside the catch below, so a key forgotten meanwhile
       // gives key_required rather than api_unavailable.
-      const authorization = `key ${key()}`;
+      const requestKey = key();
+      const authorization = `key ${requestKey}`;
 
       let response;
       try {
@@ -70,6 +71,11 @@ export function createRebrickableClient({
       if (!response.ok) {
         discard(response);
         if (response.status === 401 || response.status === 403) {
+          // Only this request knows which credential was rejected. An import may have
+          // waited in the collection queue, or the key may have changed during fetch.
+          if (key === storedKey && keyStore.get() === requestKey) {
+            keyStore.clear();
+          }
           throw createError('key_invalid');
         }
         throw createError(response.status === 404 ? notFound : 'api_unavailable');

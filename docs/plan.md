@@ -509,6 +509,10 @@ identical minifigures; a second capture the same day added both, and a two-page 
   - 401 or 403: `key_invalid`. 404 on a set request: `set_not_found`. Any other non-2xx,
     network error, timeout (`AbortSignal.timeout(timeoutMs)`), invalid JSON or a body of
     the wrong shape (no `results` array in a list, no object for a set): `api_unavailable`.
+    For requests using the stored key, a 401 or 403 also clears it if it still equals the
+    credential sent on that request. A different replacement is preserved; a rejected
+    candidate in `checkKey` leaves the stored key alone. This comparison happens in M3,
+    so it also works when an add waited in M7's queue before using a replacement key.
   - Follows `next` only when its origin equals the base URL's origin, and for at most 50
     pages; otherwise `api_unavailable` before anything is requested from that link.
   - Errors come from `createError` only and never carry a URL, header, response body or
