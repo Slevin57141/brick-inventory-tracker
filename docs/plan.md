@@ -118,7 +118,7 @@ Modules and tests refer to these IDs.
 | D28 | Removed (D32). | |
 | D29 | Removed (D32). | |
 | D30 | The add form takes one or more set numbers, separated by spaces, commas or semicolons, and adds them one after another (M10); the API still adds one set per request. The key is asked for when first needed and the batch goes on with it. A set Rebrickable has no record of, or that is not a valid number, is reported and the batch goes on; `rate_limited`, `api_unavailable`, `server_unreachable` or a cancelled key dialog stop the batch, since the sets still to come would fail the same way. What was not added stays in the field. "Your sets" folds away, and each set shows its number, year, Rebrickable's part count, the pieces saved for one copy (`pieces`, spares and minifigure parts included, D1), its copies and a link to its Rebrickable page. A double click on a set, or its "Details" button, opens a dialog with the set's facts and the parts of one copy, sortable like the parts list, from the new `GET /api/sets/{setNum}`. | User's request, 2026-10-31. |
-| D31 | Partly removed (D32): the LDraw part shapes in the 3D view, the built set in set details, the library reader (M14), the model view (M15) and `LDRAW_DIR` are gone. What stays is data format version 2. Rebrickable lists each part's LDraw file names (`external_ids.LDraw`), and the data file saves each part line's `ldrawIds` and each set's `themeId` (for the theme, D30) as data format version 2; a version 1 file is upgraded in memory when loaded (empty `ldrawIds`, null `themeId`, no themes) and written as version 2 on the next save. Only plain file names (`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`) are kept. Since D32 nothing reads `ldrawIds`. | User's choice, 2026-10-31, over shapes made up from part names. The data format stays so that existing data files load unchanged (D32). |
+| D31 | Partly removed (D32): the LDraw part shapes in the 3D view, the built set in set details, the library reader (M14), the model view (M15) and `LDRAW_DIR` are gone. What stays is data format version 2. Rebrickable lists each part's LDraw file names (`external_ids.LDraw`), and the data file saves each part line's `ldrawIds` and each set's `themeId` (Rebrickable's theme, not shown yet; section 9) as data format version 2; a version 1 file is upgraded in memory when loaded (empty `ldrawIds`, null `themeId`, no themes) and written as version 2 on the next save. Only plain file names (`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`) are kept. Since D32 nothing reads `ldrawIds`. | User's choice, 2026-10-31, over shapes made up from part names. The data format stays so that existing data files load unchanged (D32). |
 | D32 | The 3D view is removed, with everything only it used: the storage view (R24-R29; D13-D20, D26, D28, D29; M11, M12, M13, the preview page `container.html` and docs/container-spec.md), the vendored three.js, and the LDraw support (M14, M15, `GET /api/ldraw`, `GET /api/ldraw/part`, `GET /api/sets/{setNum}/model`, `LDRAW_DIR` and the built set in set details). Data format version 2 is unchanged: `ldrawIds` and `themeId` are still saved, M5 still copies `ldrawIds` into InventoryRow, and existing data files load as before, but nothing reads `ldrawIds` now. The Content-Security-Policy is unchanged, since it allowed nothing that only the 3D view needed. | User's decision, 2026-11-02: after using the app, the 3D storage view added nothing to the functionality or the experience over the filtered parts list. |
 
 ## 4. Rebrickable API
@@ -241,7 +241,7 @@ Directory layout:
 README.md                      what the app does and how to run it
 AGENTS.md                      project rules for both tools
 CLAUDE.md                      the single line @AGENTS.md
-package.json, .gitignore       M0
+package.json, .gitignore, .gitattributes   M0
 docs/plan.md                   this file
 src/
   errors.js                    M0  shared error class and codes (section 7)
@@ -262,6 +262,7 @@ scripts/capture-fixtures.js    M0  run by the user only
 test/
   setup/no-network.js          M0
   helpers/fake-fetch.js        M0
+  helpers/http-client.js       M8  requests that send any Host header (M8 tests)
   fixtures/rebrickable/        captured by the user, plus handmade-*.json
   <module>.test.js             one file per module, plus key-leak.test.js
 data/inventory.json            git-ignored, created at runtime
@@ -320,7 +321,7 @@ Types used in the interfaces below:
 - **SetEntry**: a SetRecord plus `copies` (integer, 1 or more). This is what the data file
   stores under `sets`.
 - **State**: `{ version: 2, categories: { [id]: name }, themes: { [id]: { name, parentId } },
-  sets: { [setNum]: SetEntry } }`.
+  sets: { [setNum]: SetEntry } }`. Nothing fills `themes` yet (section 9), so it stays `{}`.
 - **SetSummary** (sent to the browser): SetEntry without `parts`, plus `pieces`: the sum of
   the quantities in one copy's parts list, spares and minifigure parts included (D1, D30).
 - **InventoryRow**: `partNum`, `name`, `categoryId`, `categoryName`, `colorId`, `colorName`,
@@ -868,10 +869,17 @@ Removed (D32).
 | 3 | Review Codex's modules | Review Claude Code's modules, key path first | Manual checklist (section 10) |
 | 4 | The user's requests of 2026-10-31 (D27-D31), M14, M15, and changes to M5, M9 and M11 | Review and test them | Capture the themes fixture; download the LDraw library |
 | 5 | Remove the 3D view and the LDraw support (D32) | Review the removal | Merge the reviewed pull request |
+| 6 | Prepare the final review: tests, open pull requests, documentation | Final review of the whole repository | Manual checklist (section 10); merge the reviewed pull request |
 
 Phases 0-4 are the record of what was built. Phase 5 removed M11-M15, the vendored three.js
 from M0 and the LDraw library step (D32), so those entries no longer describe the app. The
 remaining modules, M0-M10, keep the builders given in section 8.
+
+Not built yet: showing each set's theme, planned as the step after D30. Data format version 2
+(D31) holds its data side: each set's `themeId` is saved, `themes` is part of the format, M5
+has `addThemes`, and `scripts/capture-fixtures.js --themes` captures the list of themes. But
+nothing calls `addThemes` outside its tests, so `themes` stays empty; the page shows no
+theme; and no themes fixture is committed.
 
 Each module gets its own branch and pull request, reviewed by the other tool before merging.
 AGENTS.md has the details.
@@ -886,7 +894,7 @@ AGENTS.md has the details.
   Hand-made fixtures are named `handmade-*.json`. The capture script refuses to write a file
   that contains the key, and the key-leak test scans every fixture.
 - **Key-leak test:** see M8.
-- **Manual checklist** (phase 3, by the user, with a real key):
+- **Manual checklist** (phases 3 and 6, by the user, with a real key):
   1. `npm start`, open `http://127.0.0.1:3000`. The page shows "No API key".
   2. Add `10270`. The key dialog opens. A wrong key is refused with a message; the right key
      is accepted. The set appears with its image and the parts list fills.
@@ -896,12 +904,22 @@ AGENTS.md has the details.
   5. Colour filter, category filter and search narrow the list, alone and together; totals
      follow.
   6. Restart the server. Sets and parts are unchanged; the page shows "No API key".
-  7. Go offline. The page, filters, search, removing a set and adding another copy of a saved
-     set all work; images show the placeholder; adding a new set shows a clear error.
+  7. Go offline. The page, filters, search, set details, removing a set and adding another
+     copy of a saved set all work; images show the placeholder; adding a new set shows a
+     clear error.
   8. "Forget key" updates the status; adding a new set asks for the key again.
   9. Search the data file and the server output for the key: no match.
   10. From another device on the same network, `http://<this machine's IP>:3000` does not
       connect.
+  11. The part number and name filters, smallest and largest quantity, and the colour and
+      category choices narrow the list, together and with the search; totals follow, and
+      "Clear filters" brings every row back. Clicking a heading sorts by that column, and
+      clicking it again reverses the order (D27).
+  12. Add `31146 99999999; 42161`. The first and last are added one after the other, the
+      middle one is reported as not added, and only `99999999` stays in the field (D30).
+  13. "Your sets" folds and unfolds. "Details", and a double click on a set, open its facts
+      and the parts of one copy, sortable like the parts list; for a pack the dialog lists
+      the sets it contains. "Close" shuts it (D30).
 
 ## 11. Security summary
 

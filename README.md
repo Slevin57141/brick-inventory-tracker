@@ -21,9 +21,14 @@ npm start
 
 Then open <http://127.0.0.1:3000> in your browser.
 
-- **Add a set:** enter its number, like `10270` or `10270-1` (a number without a suffix gets
-  `-1`). Adding a set you already have adds another copy, without contacting Rebrickable. A
-  pack that contains other sets counts as one set, with all of their parts.
+- **Add sets:** enter one or more set numbers, like `10270` or `10270-1`, separated by spaces,
+  commas or semicolons (a number without a suffix gets `-1`). They are added one after
+  another; a set that cannot be added is reported, and what was not added stays in the field.
+  Adding a set you already have adds another copy, without contacting Rebrickable. A pack
+  that contains other sets counts as one set, with all of their parts.
+- **Your sets:** each set shows its year, Rebrickable's part count, the pieces in one copy,
+  its copies and a link to its Rebrickable page, and the list folds away. "Details", or a
+  double click on the set, shows the parts of one copy.
 - **Remove a set:** "Remove one" takes away one copy and its parts.
 - **Parts:** filter and sort on every column, search by part number or name, and read the
   totals for what is listed.
