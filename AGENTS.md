@@ -2,8 +2,7 @@
 
 A small local web app on Node.js 22. The user enters a LEGO set number, the app fetches the
 set's parts list from the Rebrickable API, saves it, and shows the combined inventory of
-every brick the user owns, including a three.js 3D view with one plastic storage container
-per part category.
+every brick the user owns.
 
 Two coding tools build it: Claude Code (which reads this file through CLAUDE.md) and Codex
 (which reads this file directly), on different machines. The rules below apply to both.
@@ -13,8 +12,6 @@ Two coding tools build it: Claude Code (which reads this file through CLAUDE.md)
 - Read [docs/plan.md](docs/plan.md). It is the source of truth for the requirements
   (section 2), decisions (section 3), the HTTP API (section 7), module interfaces (section 8)
   and who builds what (section 9).
-- For the 3D containers, also read [docs/container-spec.md](docs/container-spec.md), the
-  user's description of the container. Only the user changes it.
 - Build only the modules assigned to you in section 9. If you are Claude Code, that is the
   "Claude Code" column; if you are Codex, the "Codex" column.
 - Pull the latest `main` before starting a module.
@@ -25,22 +22,9 @@ Two coding tools build it: Claude Code (which reads this file through CLAUDE.md)
 - No npm dependencies, runtime or dev. Use Node built-ins: `node:http`, `node:fs/promises`,
   `node:path`, `node:test`, `node:assert/strict` and the global `fetch`. Adding a dependency
   needs the user's approval and a decision recorded in docs/plan.md section 3.
-- The one approved exception is three.js, vendored as files under `public/vendor/three/`
-  (docs/plan.md D13), not installed from npm.
 - Browser code in `public/` is plain ES modules loaded by the page. No bundler, no framework.
 - Never load scripts, styles or fonts from a CDN or any other site. Everything the page loads
   comes from this server.
-
-## Vendored code
-
-- Vendored libraries live in `public/vendor/<library>/` with their licence file and a
-  `README.md` recording the version, download source and SHA-256 of each file.
-- Do not edit vendored files. The only allowed change is the one recorded in that README
-  (for three.js: the `from 'three'` import in each add-on rewritten to a relative path).
-- Upgrading a vendored library is its own branch, updating the files, the README and the
-  hashes together.
-- Downloading a release to vendor it is allowed only for libraries approved in docs/plan.md
-  section 3.
 
 ## Commands
 
@@ -87,7 +71,7 @@ Two coding tools build it: Claude Code (which reads this file through CLAUDE.md)
   `public/`.
 - In the page, insert text from the API with `textContent` or DOM properties, never
   `innerHTML`.
-- Animations respect `prefers-reduced-motion`, and the page works without WebGL.
+- Animations respect `prefers-reduced-motion`.
 
 ## Data
 

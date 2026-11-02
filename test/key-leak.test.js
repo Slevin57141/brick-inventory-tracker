@@ -114,7 +114,7 @@ test('the API key never leaves the Authorization header', async (t) => {
     'invalid_key_format');
   await call('DELETE', '/api/key');
   await call('GET', '/api/status');
-  await call('GET', '/container.html');
+  await call('GET', '/');
 
   // Responses: status, every header, body. An error carries exactly its fixed message, so
   // nothing from a caught exception reaches the browser, redacted or not.

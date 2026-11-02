@@ -52,7 +52,7 @@ test('npm start serves on 127.0.0.1 and logs the address', async (t) => {
   const port = Number(portText);
   const status = await send(port, 'GET', '/api/status');
   assert.deepEqual(status.json, { hasKey: false });
-  assert.equal((await send(port, 'GET', '/container.html')).status, 200);
+  assert.equal((await send(port, 'GET', '/')).status, 200);
   child.kill();
   await exited;
 });
