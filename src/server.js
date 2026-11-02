@@ -103,18 +103,9 @@ export function createServer({ collection, keyStore, client, logger, publicDir, 
       return sendJson(response, 200, { sets: collection.listSets() });
     }
     if (path === '/api/sets' && method === 'POST') {
-      const keySeen = keyApplied;
-      try {
-        const set = await collection.addSet(jsonObject(body).setNumber);
-        return sendJson(response, 200, { set });
-      } catch (error) {
-        // R18, D12: Rebrickable rejected the stored key. A key set or forgotten while the add
-        // ran is left alone, since the rejection may have been for the key it replaced.
-        if (error instanceof AppError && error.code === 'key_invalid' && keySeen === keyApplied) {
-          keyStore.clear();
-        }
-        throw error;
-      }
+      // M3 forgets the credential actually rejected, including after a queued import.
+      const set = await collection.addSet(jsonObject(body).setNumber);
+      return sendJson(response, 200, { set });
     }
     const one = /^\/api\/sets\/([^/]+)$/.exec(path);
     if (one && (method === 'GET' || method === 'DELETE')) {

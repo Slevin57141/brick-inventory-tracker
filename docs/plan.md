@@ -711,8 +711,8 @@ identical minifigures; a second capture the same day added both, and a two-page 
   address. The Host and Origin checks use the port actually in use, so tests can listen on
   port 0. A log line is `<ISO time> INFO|ERROR <message> <fields as JSON>`.
 - **Behaviour:** `PUT /api/key` checks the format (M2 `normalizeKey`), checks the key with
-  Rebrickable (`client.checkKey`), then stores it. When an add fails with `key_invalid`, the
-  server clears the key (R18). Errors that are not AppErrors become `internal_error`, and the
+  Rebrickable (`client.checkKey`), then stores it. M3 clears a rejected stored credential
+  when it still matches the one sent (R18). Errors that are not AppErrors become `internal_error`, and the
   real error is logged (name and stack, passed through `redact`). One log line per request:
   method, path, status, duration. Request bodies and headers are never logged. Static files
   get a `Content-Type` from their extension; `.js` must be `text/javascript`, or the browser
@@ -720,8 +720,9 @@ identical minifigures; a second capture the same day added both, and a two-page 
   - Key changes take effect in the order they arrived. A `PUT /api/key` whose check ends
     after a later PUT or DELETE has taken effect stores nothing, so "Forget key" during a
     check is not undone; a later PUT that fails changes nothing. The PUT answers `200` with
-    the actual `hasKey`. An add that fails with `key_invalid` clears the key only if no key
-    change took effect while it ran.
+    the actual `hasKey`. Rejection handling belongs to M3, which knows the credential used
+    on each upstream request. M8 does not infer it from when an add reached the HTTP route:
+    that add may wait in M7's queue and then use a replacement key.
   - Checks run in order: security headers on every response, then `Host`, then (for any
     method but GET and HEAD) `Origin`, then the body: present only with a JSON content type,
     at most 10 KB (`payload_too_large`, by declared length or as it streams). A body that
